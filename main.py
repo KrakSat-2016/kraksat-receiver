@@ -32,7 +32,7 @@ class Main:
 
         server, username, password = self._get_form_data()
 
-        def request():
+        def make_request():
             try:
                 token = obtain_token(server, username, password)
                 if token:
@@ -46,7 +46,7 @@ class Main:
             finally:
                 GLib.idle_add(self._set_ui_locked, False)
 
-        thread = Thread(target=request)
+        thread = Thread(target=make_request)
         thread.start()
 
     def check_server_contents(self, *args):
@@ -55,10 +55,13 @@ class Main:
         text = server.get_text()
         if (text and not (text.startswith('http://') or
                           text.startswith('https://'))):
-            text = 'http://' + text
-        server.set_text(text)
+            server.set_text('http://' + text)
 
     def _set_ui_locked(self, locked):
+        """Set sensitivity for login button and form fields
+
+        :param locked: True if the UI should be disabled; False otherwise
+        """
         self.builder.get_object('login_button').set_sensitive(not locked)
         for field in self.LOGIN_FORM_FIELDS:
             self.builder.get_object(field).set_sensitive(not locked)
@@ -72,7 +75,6 @@ class Main:
         self.builder.get_object('error_infobar').show()
 
     def hide_infobar(self, *args):
-        """Hide error infobar"""
         self.builder.get_object('error_infobar').hide()
 
     def update_login_sensitive(self, *args):
