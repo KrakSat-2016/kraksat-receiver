@@ -249,8 +249,7 @@
                     <property name="label" translatable="yes">Login</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
-                    <property name="has_default">True</property>
-                    <property name="receives_default">True</property>
+                    <property name="receives_default">False</property>
                     <signal name="clicked" handler="login" swapped="no"/>
                   </object>
                   <packing>
