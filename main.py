@@ -59,8 +59,6 @@ class Main:
         server.set_text(text)
 
     def _set_ui_locked(self, locked):
-        if locked:
-            self.hide_infobar()
         self.builder.get_object('login_button').set_sensitive(not locked)
         for field in self.LOGIN_FORM_FIELDS:
             self.builder.get_object(field).set_sensitive(not locked)
