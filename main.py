@@ -6,7 +6,7 @@ from gi.repository import Gtk, GLib
 
 
 class Main:
-    LOGIN_FORM_FIELDS = ['server_entry', 'login_entry', 'password_entry']
+    LOGIN_FORM_FIELDS = ['server_entry', 'username_entry', 'password_entry']
 
     def __init__(self):
         self.builder = Gtk.Builder()
@@ -22,11 +22,11 @@ class Main:
             return
         self._set_ui_locked(True)
 
-        server, login, password = self._get_form_data()
+        server, username, password = self._get_form_data()
 
         def request():
             try:
-                token = obtain_token(server, login, password)
+                token = obtain_token(server, username, password)
                 if token:
                     GLib.idle_add(self._set_infobar_error, 'Token: ' + token)
                 else:
@@ -77,7 +77,7 @@ class Main:
     def _get_form_data(self):
         """Return data from login form
 
-        :return: values entered in Server, Login and Passwords fields,
+        :return: values entered in Server, Username and Passwords fields,
             respectively
         :rtype str
         """
