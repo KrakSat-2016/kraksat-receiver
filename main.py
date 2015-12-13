@@ -13,8 +13,16 @@ class Main:
         self.builder.add_from_file('ui/login.glade')
         self.builder.connect_signals(self)
         login_window = self.builder.get_object('login_window')
+        self.prepare_ui()
         login_window.show_all()
         Gtk.main()
+
+    def prepare_ui(self):
+        # Override tab order in button box
+        action_buttonbox = self.builder.get_object('action_buttonbox')
+        login_button = self.builder.get_object('login_button')
+        exit_button = self.builder.get_object('exit_button')
+        action_buttonbox.set_focus_chain((login_button, exit_button))
 
     def login(self, *args):
         if not self._is_form_filled():
