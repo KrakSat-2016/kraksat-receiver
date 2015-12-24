@@ -1,6 +1,6 @@
-UI_DIR = ui
-RESOURCE_DIR = ui/res
-BUILD_DIR = ui
+UI_DIR = app/ui
+RESOURCE_DIR = app/ui/res
+BUILD_DIR = app/ui
 
 UI_FILES = main.ui login.ui
 RESOURCES = res.qrc

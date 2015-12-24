@@ -1,123 +1,21 @@
 import sys
-import traceback
-import urllib
 
-import requests
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal, QThread
-from PyQt5.QtWidgets import QDialogButtonBox, QDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication
 
-from ui.ui_login import Ui_LoginDialog
+from app.login import LoginDialog
 
 
-class LoginDialog(QDialog, Ui_LoginDialog):
+class Main:
     def __init__(self):
-        super(LoginDialog, self).__init__()
-        self.setupUi(self)
-        self.loginButton = self.buttonBox.addButton(
-                "Login", QDialogButtonBox.AcceptRole)
-        self.exitButton = self.buttonBox.addButton(
-                "Exit", QDialogButtonBox.RejectRole)
-        self.show()
-        self.thread = None
+        app = QApplication(sys.argv)
+        self.dialog = LoginDialog()
+        self.dialog.token_obtained.connect(self.on_token_obtained)
+        sys.exit(app.exec_())
 
-    def accept(self):
-        if not self._is_form_filled():
-            QMessageBox(QMessageBox.Information, "Info",
-                        "Please fill out all the fields",
-                        QMessageBox.Ok).exec()
-            return
-        self._set_ui_locked(True)
-
-        server, username, password = self._get_form_data()
-
-        class TokenWorker(QThread):
-            token_obtained = pyqtSignal(str)
-            error_occurred = pyqtSignal(str, str)
-
-            def run(self):
-                try:
-                    token = obtain_token(server, username, password)
-                    if token:
-                        self.token_obtained.emit(token)
-                    else:
-                        self.error_occurred.emit("Could not sign in", "")
-                except Exception as e:
-                    self.error_occurred.emit("Could not connect to the server",
-                                             traceback.format_exc())
-
-        def on_token_obtained(token):
-            QMessageBox(QMessageBox.Information, "Token obtained", token,
-                        QMessageBox.Ok).exec()
-
-        def on_error(message, extra_info):
-            msg_box = QMessageBox(QMessageBox.Critical, "Error", message,
-                                  QMessageBox.Ok)
-            if extra_info:
-                msg_box.setDetailedText(extra_info)
-            msg_box.exec()
-
-        self.thread = TokenWorker()
-        self.thread.token_obtained.connect(on_token_obtained)
-        self.thread.error_occurred.connect(on_error)
-        self.thread.finished.connect(lambda: self._set_ui_locked(False))
-        self.thread.start()
-
-    def check_server_contents(self):
-        # Append http:// to the server URL if it is not there
-        text = self.serverEdit.text()
-        if (text and not (text.startswith('http://') or
-                          text.startswith('https://'))):
-            self.serverEdit.setText('http://' + text)
-
-    def _set_ui_locked(self, locked):
-        """Enable or disable login button and form fields
-
-        :param locked: True if the UI should be disabled; False otherwise
-        """
-        widgets = (self.loginButton, self.serverEdit, self.usernameEdit,
-                   self.passwordEdit)
-        for widget in widgets:
-            widget.setEnabled(not locked)
-
-    def _get_form_data(self):
-        """Return data from login form
-
-        :return: values entered in Server, Username and Passwords fields,
-            respectively
-        :rtype str
-        """
-        fields = (self.serverEdit, self.usernameEdit, self.passwordEdit)
-        for field in fields:
-            yield field.text()
-
-    def _is_form_filled(self):
-        """Check whether all form fields are filled out"""
-        return all(self._get_form_data())
-
-
-def obtain_token(server, username, password):
-    """Obtains authentication token for provided user
-
-    :param str server: address of API server to use
-    :param str username: username to get token for
-    :param str password: user's password
-    :return: token returned by server or None in case of invalid credentials
-        or other errors
-    """
-    url = urllib.parse.urljoin(server, '/token-auth/')
-    data = {'username': username, 'password': password}
-    response = requests.post(url, data=data)
-    json = response.json()
-    if response.status_code == 200 and 'token' in json:
-        return json['token']
-    else:
-        # todo use logger/throw an exception
-        print(response.text)
-        return None
+    def on_token_obtained(self, token):
+        print(token)
+        self.dialog.close()
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    dialog = LoginDialog()
-    sys.exit(app.exec_())
+    Main()
