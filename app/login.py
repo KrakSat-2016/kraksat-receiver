@@ -5,6 +5,7 @@ import requests
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
+from app.settings import get_settings
 from app.ui.ui_login import Ui_LoginDialog
 
 
@@ -18,8 +19,28 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                 "Login", QDialogButtonBox.AcceptRole)
         self.exitButton = self.buttonBox.addButton(
                 "Exit", QDialogButtonBox.RejectRole)
+
+        self.form_fields = (self.serverEdit, self.usernameEdit,
+                            self.passwordEdit)
+        self.restore_field_values()
+
         self.show()
         self.thread = None
+
+    def restore_field_values(self):
+        settings = get_settings()
+        for field in self.form_fields:
+            field.setText(settings.value('login/' + field.objectName()))
+        if settings.value('login/serverEdit'):
+            self.rememberCheckBox.setChecked(True)
+
+    def save_field_values(self):
+        settings = get_settings()
+        for field in self.form_fields:
+            if self.rememberCheckBox.isChecked():
+                settings.setValue('login/' + field.objectName(), field.text())
+            else:
+                settings.remove('login/' + field.objectName())
 
     def accept(self):
         if not self._is_form_filled():
@@ -46,6 +67,10 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                     self.error_occurred.emit("Could not connect to the server",
                                              traceback.format_exc())
 
+        def on_token_obtained(token):
+            self.save_field_values()
+            self.token_obtained.emit(token)
+
         def on_error(message, extra_info):
             msg_box = QMessageBox(QMessageBox.Critical, "Error", message,
                                   QMessageBox.Ok)
@@ -54,8 +79,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
             msg_box.exec()
 
         self.thread = TokenWorker()
-        self.thread.token_obtained.connect(
-                lambda token: self.token_obtained.emit(token))
+        self.thread.token_obtained.connect(on_token_obtained)
         self.thread.error_occurred.connect(on_error)
         self.thread.finished.connect(lambda: self._set_ui_locked(False))
         self.thread.start()
@@ -84,8 +108,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
             respectively
         :rtype str
         """
-        fields = (self.serverEdit, self.usernameEdit, self.passwordEdit)
-        for field in fields:
+        for field in self.form_fields:
             yield field.text()
 
     def _is_form_filled(self):

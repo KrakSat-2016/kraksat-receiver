@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>318</width>
-    <height>476</height>
+    <height>502</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,6 +109,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="rememberCheckBox">
+     <property name="text">
+      <string>Remember me</string>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

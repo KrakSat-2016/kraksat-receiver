@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 
+from app.settings import get_settings
 from app.ui.ui_main import Ui_MainWindow
 
 ABOUT_HTML = ('<html><head/><body>'
@@ -36,7 +36,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings = get_settings()
         settings.setValue(self.CONFIG_GEOMETRY_KEY, self.saveGeometry())
         settings.setValue(self.CONFIG_STATE_KEY, self.saveState())
-
-
-def get_settings():
-    return QSettings('kraksat', 'receiver')
