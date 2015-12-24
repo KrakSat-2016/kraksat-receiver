@@ -245,50 +245,6 @@
     <enum>QAction::QuitRole</enum>
    </property>
   </action>
-  <action name="actionDisplayLogs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Display &amp;Logs</string>
-   </property>
-  </action>
-  <action name="actionDisplayQueue">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Display &amp;Queue</string>
-   </property>
-  </action>
-  <action name="actionDisplayStatistics">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Display &amp;Statistics</string>
-   </property>
-  </action>
-  <action name="actionDisplayCamera">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Display &amp;Camera View</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
