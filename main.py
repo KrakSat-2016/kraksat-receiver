@@ -1,86 +1,84 @@
+import sys
+import traceback
 import urllib
-from threading import Thread
 
 import requests
-from gi.repository import Gtk, GLib
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSignal, QThread
+from PyQt5.QtWidgets import QDialogButtonBox, QDialog, QMessageBox
+
+from ui.ui_login import Ui_LoginDialog
 
 
-class Main:
-    LOGIN_FORM_FIELDS = ['server_entry', 'username_entry', 'password_entry']
-
+class LoginDialog(QDialog, Ui_LoginDialog):
     def __init__(self):
-        self.builder = Gtk.Builder()
-        self.builder.add_from_file('ui/login.glade')
-        self.builder.connect_signals(self)
-        login_window = self.builder.get_object('login_window')
-        self.prepare_ui()
-        login_window.show_all()
-        Gtk.main()
+        super(LoginDialog, self).__init__()
+        self.setupUi(self)
+        self.loginButton = self.buttonBox.addButton(
+                "Login", QDialogButtonBox.AcceptRole)
+        self.exitButton = self.buttonBox.addButton(
+                "Exit", QDialogButtonBox.RejectRole)
+        self.show()
+        self.thread = None
 
-    def prepare_ui(self):
-        # Override tab order in button box
-        action_buttonbox = self.builder.get_object('action_buttonbox')
-        login_button = self.builder.get_object('login_button')
-        exit_button = self.builder.get_object('exit_button')
-        action_buttonbox.set_focus_chain((login_button, exit_button))
-
-    def login(self, *args):
+    def accept(self):
         if not self._is_form_filled():
-            self._set_infobar_error('Please fill out all the fields')
+            QMessageBox(QMessageBox.Information, "Info",
+                        "Please fill out all the fields",
+                        QMessageBox.Ok).exec()
             return
         self._set_ui_locked(True)
 
         server, username, password = self._get_form_data()
 
-        def make_request():
-            try:
-                token = obtain_token(server, username, password)
-                if token:
-                    GLib.idle_add(self._set_infobar_error, 'Token: ' + token)
-                else:
-                    GLib.idle_add(self._set_infobar_error, 'Could not sign in')
-            except Exception as e:
-                print(e)  # todo use logger
-                GLib.idle_add(self._set_infobar_error,
-                              'Could not connect to the server')
-            finally:
-                GLib.idle_add(self._set_ui_locked, False)
+        class TokenWorker(QThread):
+            token_obtained = pyqtSignal(str)
+            error_occurred = pyqtSignal(str, str)
 
-        thread = Thread(target=make_request)
-        thread.start()
+            def run(self):
+                try:
+                    token = obtain_token(server, username, password)
+                    if token:
+                        self.token_obtained.emit(token)
+                    else:
+                        self.error_occurred.emit("Could not sign in", "")
+                except Exception as e:
+                    self.error_occurred.emit("Could not connect to the server",
+                                             traceback.format_exc())
 
-    def check_server_contents(self, *args):
+        def on_token_obtained(token):
+            QMessageBox(QMessageBox.Information, "Token obtained", token,
+                        QMessageBox.Ok).exec()
+
+        def on_error(message, extra_info):
+            msg_box = QMessageBox(QMessageBox.Critical, "Error", message,
+                                  QMessageBox.Ok)
+            if extra_info:
+                msg_box.setDetailedText(extra_info)
+            msg_box.exec()
+
+        self.thread = TokenWorker()
+        self.thread.token_obtained.connect(on_token_obtained)
+        self.thread.error_occurred.connect(on_error)
+        self.thread.finished.connect(lambda: self._set_ui_locked(False))
+        self.thread.start()
+
+    def check_server_contents(self):
         # Append http:// to the server URL if it is not there
-        server = self.builder.get_object('server_entry')
-        text = server.get_text()
+        text = self.serverEdit.text()
         if (text and not (text.startswith('http://') or
                           text.startswith('https://'))):
-            server.set_text('http://' + text)
+            self.serverEdit.setText('http://' + text)
 
     def _set_ui_locked(self, locked):
-        """Set sensitivity for login button and form fields
+        """Enable or disable login button and form fields
 
         :param locked: True if the UI should be disabled; False otherwise
         """
-        self.builder.get_object('login_button').set_sensitive(not locked)
-        for field in self.LOGIN_FORM_FIELDS:
-            self.builder.get_object(field).set_sensitive(not locked)
-
-    def _set_infobar_error(self, message):
-        """Set message on error infobar and display it
-
-        :param message: message to set
-        """
-        self.builder.get_object('error_infobar_label').set_text(message)
-        self.builder.get_object('error_infobar').show()
-
-    def hide_infobar(self, *args):
-        self.builder.get_object('error_infobar').hide()
-
-    def update_login_sensitive(self, *args):
-        # Enable login button only if all fields are filled out
-        self.builder.get_object('login_button').set_sensitive(
-            self._is_form_filled())
+        widgets = (self.loginButton, self.serverEdit, self.usernameEdit,
+                   self.passwordEdit)
+        for widget in widgets:
+            widget.setEnabled(not locked)
 
     def _get_form_data(self):
         """Return data from login form
@@ -89,15 +87,13 @@ class Main:
             respectively
         :rtype str
         """
-        for field in self.LOGIN_FORM_FIELDS:
-            yield self.builder.get_object(field).get_text()
+        fields = (self.serverEdit, self.usernameEdit, self.passwordEdit)
+        for field in fields:
+            yield field.text()
 
     def _is_form_filled(self):
         """Check whether all form fields are filled out"""
         return all(self._get_form_data())
-
-    def quit(self, *args):
-        Gtk.main_quit()
 
 
 def obtain_token(server, username, password):
@@ -122,4 +118,6 @@ def obtain_token(server, username, password):
 
 
 if __name__ == '__main__':
-    Main()
+    app = QtWidgets.QApplication(sys.argv)
+    dialog = LoginDialog()
+    sys.exit(app.exec_())
