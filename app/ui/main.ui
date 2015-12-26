@@ -156,7 +156,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QComboBox" name="queueFilterComboBox"/>
+      <widget class="FilterComboBox" name="queueFilterComboBox"/>
      </item>
      <item>
       <widget class="QTableView" name="queueView">
@@ -190,7 +190,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QComboBox" name="logsFilterComboBox"/>
+      <widget class="FilterComboBox" name="logsFilterComboBox"/>
      </item>
      <item>
       <widget class="QTableView" name="logsView">
@@ -251,6 +251,11 @@
    <class>QWebView</class>
    <extends></extends>
    <header>QtWebKitWidgets/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>FilterComboBox</class>
+   <extends>QComboBox</extends>
+   <header>app.filtercombobox</header>
   </customwidget>
  </customwidgets>
  <resources>
