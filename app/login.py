@@ -96,8 +96,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
         :param locked: True if the UI should be disabled; False otherwise
         """
-        widgets = (self.loginButton, self.serverEdit, self.usernameEdit,
-                   self.passwordEdit)
+        widgets = (self.loginButton, self.rememberCheckBox) + self.form_fields
         for widget in widgets:
             widget.setEnabled(not locked)
 
