@@ -6,7 +6,7 @@ import requests
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
-from app.settings import get_settings
+from app.settings import Settings
 from app.ui.ui_login import Ui_LoginDialog
 
 
@@ -30,14 +30,14 @@ class LoginDialog(QDialog, Ui_LoginDialog):
         logging.getLogger('logindialog').info("Login dialog initialized")
 
     def restore_field_values(self):
-        settings = get_settings()
+        settings = Settings()
         for field in self.form_fields:
             field.setText(settings.value('login/' + field.objectName()))
         if settings.value('login/serverEdit'):
             self.rememberCheckBox.setChecked(True)
 
     def save_field_values(self):
-        settings = get_settings()
+        settings = Settings()
         for field in self.form_fields:
             if self.rememberCheckBox.isChecked():
                 settings.setValue('login/' + field.objectName(), field.text())

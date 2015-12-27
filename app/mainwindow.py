@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 
 from app import logger
 from app.logstablemodel import LogsTableModel
-from app.settings import get_settings, settings_get_bool_list
+from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
 
 ABOUT_HTML = ('<html><head/><body>'
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
-        settings = get_settings()
+        settings = Settings()
         self.restoreGeometry(settings.value(self.CONFIG_GEOMETRY_KEY))
         self.restoreState(settings.value(self.CONFIG_STATE_KEY))
 
@@ -77,8 +77,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.logsFilterComboBox.setModel(model)
         self.logsFilterComboBox.popup_hidden.connect(self.reset_logs_filter)
-        self.logsFilterComboBox.restore_state(settings_get_bool_list(
-                settings, self.CONFIG_LOGS_FILTER_STATE_KEY))
+        self.logsFilterComboBox.restore_state(settings.get_bool_list(
+                self.CONFIG_LOGS_FILTER_STATE_KEY))
 
     def reset_logs_filter(self):
         """Get selected modules from logs filter combobox and set them on
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             ABOUT_HTML)
 
     def closeEvent(self, QCloseEvent):
-        settings = get_settings()
+        settings = Settings()
         settings.setValue(self.CONFIG_GEOMETRY_KEY, self.saveGeometry())
         settings.setValue(self.CONFIG_STATE_KEY, self.saveState())
         settings.setValue(self.CONFIG_LOGS_FILTER_STATE_KEY,
