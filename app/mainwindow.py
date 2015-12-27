@@ -91,8 +91,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             checked_modules = [QRegExp().escape(modules[i])
                                for i in range(len(modules)) if checked[i]]
-            self.logsView.model().setFilterRegExp(
-                    QRegExp('|'.join(checked_modules)))
+            regexp = '|'.join(checked_modules)
+            if regexp == '':
+                # Nothing selected
+                self.logsView.model().setFilterRegExp(QRegExp('$^'))
+            else:
+                self.logsView.model().setFilterRegExp(QRegExp(regexp))
+        for i in range(3):
+            # Resize all columns except Message (which expands automatically)
+            self.logsView.resizeColumnToContents(i)
 
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
