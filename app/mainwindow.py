@@ -3,7 +3,7 @@ import logging
 from PyQt5.QtCore import Qt, QSortFilterProxyModel, QRegExp, QUrl
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
-    QMainWindow, QMessageBox, QHeaderView, QAbstractItemView
+    QMainWindow, QMessageBox, QHeaderView, QAbstractItemView, QLabel
 )
 
 from app import logger
@@ -39,8 +39,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for dock in docks:
             self.menuView.addAction(dock.toggleViewAction())
 
+        self._init_statusbar()
         self._init_logs(settings)
         logging.getLogger('mainwindow').info("Main Window initialized")
+
+    def _init_statusbar(self):
+        self.queue_status_label = QLabel()
+        self.statusBar().addPermanentWidget(self.queue_status_label)
+        self.update_queue_status_label()
+
+    def update_queue_status_label(self):
+        # todo change it to something smarter when there's a queue implemented
+        count = 0
+        self.queue_status_label.setText("Processing {} requests".format(count))
 
     def _init_logs(self, settings):
         self._init_logs_view()
