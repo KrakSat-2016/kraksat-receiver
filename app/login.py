@@ -1,3 +1,4 @@
+import logging
 import traceback
 import urllib
 
@@ -26,6 +27,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
         self.show()
         self.thread = None
+        logging.getLogger('logindialog').info("Login dialog initialized")
 
     def restore_field_values(self):
         settings = get_settings()
@@ -63,7 +65,9 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                         self.token_obtained.emit(token)
                     else:
                         self.error_occurred.emit("Could not sign in", "")
-                except Exception as e:
+                except Exception:
+                    logging.getLogger('logindialog').exception(
+                            "Could not connect to the server")
                     self.error_occurred.emit("Could not connect to the server",
                                              traceback.format_exc())
 
@@ -131,6 +135,6 @@ def obtain_token(server, username, password):
     if response.status_code == 200 and 'token' in json:
         return json['token']
     else:
-        # todo use logger/throw an exception
-        print(response.text)
+        logging.getLogger('logindialog').warning(
+                "Got an unknown response from the server: %s", response.text)
         return None

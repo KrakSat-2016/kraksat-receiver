@@ -1,7 +1,13 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+import logging
 
+from PyQt5.QtCore import Qt, QSortFilterProxyModel, QRegExp
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import (
+    QMainWindow, QMessageBox, QHeaderView, QAbstractItemView
+)
+
+from app import logger
+from app.logstablemodel import LogsTableModel
 from app.settings import get_settings, settings_get_bool_list
 from app.ui.ui_main import Ui_MainWindow
 
@@ -32,22 +38,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for dock in docks:
             self.menuView.addAction(dock.toggleViewAction())
 
+        self._init_logs(settings)
+        logging.getLogger('mainwindow').info("Main Window initialized")
+
+    def _init_logs(self, settings):
+        self._init_logs_view()
         self._init_logs_filter_combo_box(settings)
+        self.reset_logs_filter()
+
+    def _init_logs_view(self):
+        def on_rows_inserted(index, first, last):
+            for i in range(first, last + 1):
+                self.logsView.resizeRowToContents(i)
+
+        source_model = LogsTableModel(self, logger.get_memory_handler())
+        model = QSortFilterProxyModel(self)
+        model.setSourceModel(source_model)
+        model.setFilterKeyColumn(2)  # module column
+        self.logsView.setModel(model)
+        model.rowsInserted.connect(on_rows_inserted)
+
+        self.logsView.verticalHeader().hide()
+        self.logsView.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeToContents)
+        self.logsView.horizontalHeader().setStretchLastSection(True)
+
+        self.logsView.setWordWrap(False)
+        self.logsView.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        self.logsView.resizeRowsToContents()
 
     def _init_logs_filter_combo_box(self, settings):
         model = QStandardItemModel()
-
-        item1 = QStandardItem()
-        item1.setText("system")
-        item1.setData(False, Qt.UserRole)
-        item2 = QStandardItem("ui")
-        item2.setData(False, Qt.UserRole)
-        item3 = QStandardItem("parser")
-        item3.setData(False, Qt.UserRole)
-
-        model.insertRow(0, item1)
-        model.insertRow(1, item2)
-        model.insertRow(2, item3)
+        for module in logger.get_modules():
+            item = QStandardItem(module)
+            item.setData(True, Qt.UserRole)
+            model.appendRow(item)
 
         self.logsFilterComboBox.setModel(model)
         self.logsFilterComboBox.popup_hidden.connect(self.reset_logs_filter)
@@ -55,7 +81,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 settings, self.CONFIG_LOGS_FILTER_STATE_KEY))
 
     def reset_logs_filter(self):
-        pass
+        """Get selected modules from logs filter combobox and set them on
+        the view filter."""
+        auto_checked, *checked = self.logsFilterComboBox.get_check_state()
+        modules = logger.get_modules()
+        if auto_checked:
+            self.logsView.model().setFilterRegExp('')
+        else:
+            checked_modules = [QRegExp().escape(modules[i])
+                               for i in range(len(modules)) if checked[i]]
+            self.logsView.model().setFilterRegExp(
+                    QRegExp('|'.join(checked_modules)))
 
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
