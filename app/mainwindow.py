@@ -102,7 +102,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # todo set to our equivalent of live.techswarm.org as soon as it runs
         self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
 
-
     def closeEvent(self, QCloseEvent):
         settings = Settings()
         settings.setValue(self.CONFIG_GEOMETRY_KEY, self.saveGeometry())
