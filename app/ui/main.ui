@@ -61,6 +61,9 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="actionReload"/>
+    <addaction name="actionHome"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -245,6 +248,19 @@
     <enum>QAction::QuitRole</enum>
    </property>
   </action>
+  <action name="actionReload">
+   <property name="text">
+    <string>&amp;Reload</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionHome">
+   <property name="text">
+    <string>&amp;Home</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -294,8 +310,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionReload</sender>
+   <signal>triggered()</signal>
+   <receiver>webView</receiver>
+   <slot>reload()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>552</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHome</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>webview_go_home()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
+  <slot>webview_go_home()</slot>
  </slots>
 </ui>

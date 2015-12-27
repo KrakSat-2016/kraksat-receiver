@@ -1,6 +1,6 @@
 import logging
 
-from PyQt5.QtCore import Qt, QSortFilterProxyModel, QRegExp
+from PyQt5.QtCore import Qt, QSortFilterProxyModel, QRegExp, QUrl
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
     QMainWindow, QMessageBox, QHeaderView, QAbstractItemView
@@ -29,6 +29,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        self.webview_go_home()
         settings = Settings()
         self.restoreGeometry(settings.value(self.CONFIG_GEOMETRY_KEY))
         self.restoreState(settings.value(self.CONFIG_STATE_KEY))
@@ -96,6 +97,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
                             ABOUT_HTML)
+
+    def webview_go_home(self):  # you are drunk
+        # todo set to our equivalent of live.techswarm.org as soon as it runs
+        self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
+
 
     def closeEvent(self, QCloseEvent):
         settings = Settings()
