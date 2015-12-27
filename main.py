@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from app.logger import set_up_logging
-from app.login import LoginDialog
+from app.logindialog import LoginDialog
 from app.mainwindow import MainWindow
 
 
