@@ -25,6 +25,7 @@ class Main:
     def on_token_obtained(self, token):
         self.main_window = MainWindow()
         self.dialog.close()
+        self.dialog = None
         self.main_window.show()
 
 
