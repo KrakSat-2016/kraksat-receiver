@@ -7,6 +7,9 @@ from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 # Lightweight version of log record class containing only the data we need
 LogRecord = namedtuple('LogRecord', 'time, level, module, message')
 
+DISPLAY_DATETIME_FORMAT = '%H:%M:%S'
+TOOLTIP_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
 
 class LogsTableModel(QAbstractTableModel):
     """
@@ -54,13 +57,17 @@ class LogsTableModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             if col == 0:
                 return (datetime.fromtimestamp(record.time)
-                        .strftime('%H:%M:%S'))
+                        .strftime(DISPLAY_DATETIME_FORMAT))
             elif col == 1:
                 return logging.getLevelName(record.level)
             elif col == 2:
                 return record.module
             elif col == 3:
                 return record.message
+        elif role == Qt.ToolTipRole:
+            if col == 0:
+                return (datetime.fromtimestamp(record.time)
+                        .strftime(TOOLTIP_DATETIME_FORMAT))
 
     def headerData(self, section, orientation, role=None):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
