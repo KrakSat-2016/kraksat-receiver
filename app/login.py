@@ -17,9 +17,9 @@ class LoginDialog(QDialog, Ui_LoginDialog):
         super(LoginDialog, self).__init__()
         self.setupUi(self)
         self.loginButton = self.buttonBox.addButton(
-                "Login", QDialogButtonBox.AcceptRole)
+                "&Login", QDialogButtonBox.AcceptRole)
         self.exitButton = self.buttonBox.addButton(
-                "Exit", QDialogButtonBox.RejectRole)
+                "&Exit", QDialogButtonBox.RejectRole)
 
         self.form_fields = (self.serverEdit, self.usernameEdit,
                             self.passwordEdit)
