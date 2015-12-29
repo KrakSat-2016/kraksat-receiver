@@ -201,7 +201,7 @@
      </property>
      <item>
       <widget class="FilterComboBox" name="logsFilterComboBox">
-       <property name="statusTip">
+       <property name="toolTip">
         <string>Filter logs by module</string>
        </property>
       </widget>
