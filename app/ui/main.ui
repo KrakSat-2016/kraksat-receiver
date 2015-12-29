@@ -71,8 +71,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuActions">
+    <property name="title">
+     <string>&amp;Actions</string>
+    </property>
+    <addaction name="actionSetGSInfo"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuActions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -437,6 +444,14 @@
     <string>Go to KrakSat website home</string>
    </property>
   </action>
+  <action name="actionSetGSInfo">
+   <property name="text">
+    <string>Set &amp;Ground Station info</string>
+   </property>
+   <property name="statusTip">
+    <string>Set Ground Station latitude, longitude and timezone</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -534,9 +549,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSetGSInfo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_set_gs_info()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
   <slot>webview_go_home()</slot>
+  <slot>show_set_gs_info()</slot>
  </slots>
 </ui>

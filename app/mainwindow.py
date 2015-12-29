@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
 )
 
 from app import logger
+from app.gsinfodialog import GSInfoDialog
 from app.logstablemodel import LogsTableModel
 from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
@@ -111,6 +112,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for i in range(3):
             # Resize all columns except Message (which expands automatically)
             self.logsView.resizeColumnToContents(i)
+
+    def show_set_gs_info(self):
+        GSInfoDialog(self).show()
 
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
