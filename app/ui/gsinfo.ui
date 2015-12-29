@@ -22,12 +22,12 @@
         <string>L&amp;atitude:</string>
        </property>
        <property name="buddy">
-        <cstring>latitudeComboBox</cstring>
+        <cstring>latitudeSpinBox</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QDoubleSpinBox" name="latitudeComboBox">
+      <widget class="QDoubleSpinBox" name="latitudeSpinBox">
        <property name="accelerated">
         <bool>true</bool>
        </property>
@@ -54,12 +54,12 @@
         <string>L&amp;ongitude:</string>
        </property>
        <property name="buddy">
-        <cstring>longitudeComboBox</cstring>
+        <cstring>longitudeSpinBox</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QDoubleSpinBox" name="longitudeComboBox">
+      <widget class="QDoubleSpinBox" name="longitudeSpinBox">
        <property name="accelerated">
         <bool>true</bool>
        </property>
