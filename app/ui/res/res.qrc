@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="res">
+    <file>refresh.svg</file>
     <file>logo_150.png</file>
   </qresource>
 </RCC>

@@ -35,7 +35,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.restoreState(settings.value(self.CONFIG_STATE_KEY))
 
         docks = (self.logsDock, self.queueDock, self.statisticsDock,
-                 self.cameraDock)
+                 self.missionStatusDock, self.cameraDock)
         for dock in docks:
             self.menuView.addAction(dock.toggleViewAction())
 
