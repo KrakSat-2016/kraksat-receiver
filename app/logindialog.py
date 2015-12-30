@@ -6,6 +6,7 @@ import requests
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
+from app import api
 from app.settings import Settings
 from app.ui.ui_login import Ui_LoginDialog
 
@@ -60,7 +61,8 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
             def run(self):
                 try:
-                    token = obtain_token(server, username, password)
+                    api.server_url = server
+                    token = api.obtain_token(username, password)
                     if token:
                         self.token_obtained.emit(token)
                     else:
@@ -117,24 +119,3 @@ class LoginDialog(QDialog, Ui_LoginDialog):
     def _is_form_filled(self):
         """Check whether all form fields are filled out"""
         return all(self._get_form_data())
-
-
-def obtain_token(server, username, password):
-    """Obtains authentication token for provided user
-
-    :param str server: address of API server to use
-    :param str username: username to get token for
-    :param str password: user's password
-    :return: token returned by server or None in case of invalid credentials
-        or other errors
-    """
-    url = urllib.parse.urljoin(server, '/token-auth/')
-    data = {'username': username, 'password': password}
-    response = requests.post(url, data=data)
-    json = response.json()
-    if response.status_code == 200 and 'token' in json:
-        return json['token']
-    else:
-        logging.getLogger('logindialog').warning(
-                "Got an unknown response from the server: %s", response.text)
-        return None

@@ -38,6 +38,7 @@ config = {
 def set_up_logging():
     """Configure the logging module."""
     logging.config.dictConfig(config)
+    logging.getLogger('api').disabled = False
     logging.captureWarnings(True)
     logging.getLogger('logger').info("Set up logging")
 
