@@ -100,7 +100,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
     def _set_ui_locked(self, locked):
         """Enable or disable login button and form fields
 
-        :param locked: True if the UI should be disabled; False otherwise
+        :param bool locked: True if the UI should be disabled; False otherwise
         """
         widgets = (self.loginButton, self.rememberCheckBox) + self.form_fields
         for widget in widgets:
