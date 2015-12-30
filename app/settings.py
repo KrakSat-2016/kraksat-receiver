@@ -9,6 +9,18 @@ class Settings(QSettings):
     def __init__(self):
         super().__init__('kraksat', 'receiver')
 
+    def __getitem__(self, item):
+        """Retrieve item from settings"""
+        return self.value(item)
+
+    def __setitem__(self, key, value):
+        """Set value at key to value in settings"""
+        self.setValue(key, value)
+
+    def __delitem__(self, key):
+        """Delete given setting"""
+        self.remove(key)
+
     def get_bool_list(self, key, default=[]):
         """Get list of booleans from settings.
 

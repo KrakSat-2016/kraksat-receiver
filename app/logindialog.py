@@ -31,17 +31,17 @@ class LoginDialog(QDialog, Ui_LoginDialog):
     def restore_field_values(self):
         settings = Settings()
         for field in self.form_fields:
-            field.setText(settings.value('login/' + field.objectName()))
-        if settings.value('login/serverEdit'):
+            field.setText(settings['login/' + field.objectName()])
+        if settings['login/serverEdit']:
             self.rememberCheckBox.setChecked(True)
 
     def save_field_values(self):
         settings = Settings()
         for field in self.form_fields:
             if self.rememberCheckBox.isChecked():
-                settings.setValue('login/' + field.objectName(), field.text())
+                settings['login/' + field.objectName()] = field.text()
             else:
-                settings.remove('login/' + field.objectName())
+                del settings['login/' + field.objectName()]
 
     def accept(self):
         if not self._is_form_filled():

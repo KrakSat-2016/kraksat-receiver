@@ -32,8 +32,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.webview_go_home()
         settings = Settings()
-        self.restoreGeometry(settings.value(self.CONFIG_GEOMETRY_KEY))
-        self.restoreState(settings.value(self.CONFIG_STATE_KEY))
+        self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
+        self.restoreState(settings[self.CONFIG_STATE_KEY])
 
         docks = (self.logsDock, self.queueDock, self.statisticsDock,
                  self.missionStatusDock, self.cameraDock)
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.menuView.addAction(dock.toggleViewAction())
 
         self._init_statusbar()
-        self._init_logs(settings)
+        self._init_logs()
         logging.getLogger('mainwindow').info("Main Window initialized")
 
     def _init_statusbar(self):
@@ -54,9 +54,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         count = 0
         self.queue_status_label.setText("Processing {} requests".format(count))
 
-    def _init_logs(self, settings):
+    def _init_logs(self):
         self._init_logs_view()
-        self._init_logs_filter_combo_box(settings)
+        self._init_logs_filter_combo_box()
         self.reset_logs_filter()
 
     def _init_logs_view(self):
@@ -90,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.logsFilterComboBox.setModel(model)
         self.logsFilterComboBox.popup_hidden.connect(self.reset_logs_filter)
-        self.logsFilterComboBox.restore_state(settings.get_bool_list(
+        self.logsFilterComboBox.restore_state(Settings().get_bool_list(
                 self.CONFIG_LOGS_FILTER_STATE_KEY))
 
     def reset_logs_filter(self):
@@ -124,9 +124,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # todo set to our equivalent of live.techswarm.org as soon as it runs
         self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
 
-    def closeEvent(self, QCloseEvent):
+    def closeEvent(self, event):
         settings = Settings()
-        settings.setValue(self.CONFIG_GEOMETRY_KEY, self.saveGeometry())
-        settings.setValue(self.CONFIG_STATE_KEY, self.saveState())
-        settings.setValue(self.CONFIG_LOGS_FILTER_STATE_KEY,
-                          list(self.logsFilterComboBox.save_state()))
+        settings[self.CONFIG_GEOMETRY_KEY] = self.saveGeometry()
+        settings[self.CONFIG_STATE_KEY] = self.saveState()
+        settings[self.CONFIG_LOGS_FILTER_STATE_KEY] = \
+            list(self.logsFilterComboBox.save_state())
