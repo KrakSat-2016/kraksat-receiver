@@ -1,7 +1,10 @@
 import logging
 import urllib.parse
+import dateutil.parser
 
 import requests
+
+from app.timeutils import TimeOffset
 
 
 server_url = None
@@ -23,6 +26,37 @@ def obtain_token(username, password):
     if json and 'token' in json:
         return json['token']
     __unknown_response(response)
+
+
+def get_gsinfo():
+    """Obtain the latest Ground Station info
+
+    :return: Ground Station info, respectively: timestamp, latitude, longitude,
+        ground station timezone
+    :rtype: tuple[datetime.datetime, float, float, TimeOffset|None]|None
+    """
+    response, json = __request('/gsinfo/latest/', method='get')
+    if json:
+        try:
+            timezone = TimeOffset.from_minutes(json['timezone'])
+        except ValueError:
+            logger.warning('Could not create TimeOffset object, received '
+                           'offset: %s', json['timezone'])
+            timezone = None
+        return (__parse_datetime(json['timestamp']), json['latitude'],
+                json['longitude'], timezone)
+    elif response.status_code != requests.codes.no_content:
+        __unknown_response(response)
+
+
+def __parse_datetime(s):
+    """Parse provided string as datetime object
+
+    :param str s: string to parse
+    :return: datetime object with timezone info set to current system timezone
+    :rtype datetime.datetime
+    """
+    return dateutil.parser.parse(s).astimezone(tz=None)
 
 
 def __request(url, data={}, method='post'):
