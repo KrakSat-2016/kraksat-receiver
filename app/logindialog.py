@@ -1,8 +1,6 @@
 import logging
 import traceback
-import urllib
 
-import requests
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
