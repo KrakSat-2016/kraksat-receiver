@@ -1,11 +1,11 @@
 import logging
 import urllib.parse
-import dateutil.parser
+from json import JSONDecodeError
 
+import dateutil.parser
 import requests
 
 from app.timeutils import TimeOffset
-
 
 server_url = None
 """Address of the API server"""
@@ -60,18 +60,24 @@ def __parse_datetime(s):
 
 
 def __request(url, data={}, method='post'):
-    """Make a POST request to given URL with provided data
+    """Make a request to given URL with provided data
 
     :param str url: relative URL
     :param dict data: data to send
+    :param str method: HTTP method to use
     :return: :class:`requests.Response` object and json contents (or None in
         case of errors)
     :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
     """
     url = urllib.parse.urljoin(server_url, url)
     response = requests.request(method, url, data=data)
-    if response.ok:
-        return response, response.json()
+    if response.status_code in (requests.codes.ok, requests.codes.created):
+        try:
+            return response, response.json()
+        except JSONDecodeError:
+            logger.warning("Could not decode JSON despite %d status code\n"
+                           "Contents: %s", response.status_code, response.text,
+                           exc_info=True)
     return response, None
 
 
