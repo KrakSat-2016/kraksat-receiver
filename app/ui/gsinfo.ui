@@ -96,7 +96,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Last changed:</string>
+        <string>Last change:</string>
        </property>
       </widget>
      </item>
@@ -106,7 +106,7 @@
         <string>Timestamp of the last change (in your local timezone)</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>None</string>
        </property>
       </widget>
      </item>
