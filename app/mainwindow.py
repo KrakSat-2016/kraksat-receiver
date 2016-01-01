@@ -81,7 +81,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.logsView.resizeRowsToContents()
 
-    def _init_logs_filter_combo_box(self, settings):
+    def _init_logs_filter_combo_box(self):
         model = QStandardItemModel()
         for module in logger.get_modules():
             item = QStandardItem(module)
