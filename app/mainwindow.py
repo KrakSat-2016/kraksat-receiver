@@ -103,7 +103,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             checked_modules = [QRegExp().escape(modules[i])
                                for i in range(len(modules)) if checked[i]]
-            regexp = '|'.join(checked_modules)
+            regexp = '^{}$'.format('|'.join(checked_modules))
             if regexp == '':
                 # Nothing selected
                 self.logsView.model().setFilterRegExp(QRegExp('$^'))
