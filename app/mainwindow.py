@@ -18,6 +18,11 @@ ABOUT_HTML = ('<html><head/><body>'
               '<p><a href="http://cansat.kraksat.pl">cansat.kraksat.pl</a></p>'
               '<p>Copyright (c) 2015<br />'
               'KrakSat Team in CanSat 2016</p>'
+              '<p style="font-size: 8pt;">Uses '
+              '<a href="https://design.google.com/icons/">'
+              'Google Material Icons</a><br />licensed under the terms of '
+              '<a href="https://creativecommons.org/licenses/by/4.0/">'
+              'CC-BY 4.0</a></p>'
               '</body></html>')
 
 
