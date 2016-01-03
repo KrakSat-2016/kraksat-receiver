@@ -17,6 +17,20 @@ auth = None
 logger = logging.getLogger('api')
 
 
+class APIError(Exception):
+    def __init__(self, message, response=None):
+        """Constructor
+
+        :param str message: exception message
+        :param requests.Response response: response received from the server
+        """
+        if response is not None:
+            message = message + '\nResponse body: ' + response.text
+        super().__init__(message)
+        self.response = response
+
+
+
 class TokenAuth(AuthBase):
     """Attaches Token Authentication header to the given Request object."""
 
@@ -67,6 +81,13 @@ def get_gsinfo():
                 json['longitude'], timezone)
     elif response.status_code != requests.codes.no_content:
         __unknown_response(response)
+
+
+def create(url, data, files=None):
+    response, json = __request(url, data, files=files)
+    if response.status_code != requests.codes.created:
+        raise APIError('201 status code was expected when creating resource; '
+                       'got {}'.format(response.status_code), response)
 
 
 def __parse_datetime(s):
