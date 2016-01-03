@@ -1,4 +1,5 @@
 import logging
+import os
 
 from PyQt5.QtCore import Qt, QSortFilterProxyModel, QRegExp, QUrl
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
@@ -14,18 +15,8 @@ from app.queuetablemodel import QueueTableModel
 from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
 
-ABOUT_HTML = ('<html><head/><body>'
-              '<p><span style=" font-size:18pt;">KrakSat 2016</span><br/>'
-              'Ground Station Software</p>'
-              '<p><a href="http://cansat.kraksat.pl">cansat.kraksat.pl</a></p>'
-              '<p>Copyright (c) 2016<br />'
-              'KrakSat Team in CanSat 2016</p>'
-              '<p style="font-size: 8pt;">Uses '
-              '<a href="https://design.google.com/icons/">'
-              'Google Material Icons</a><br />licensed under the terms of '
-              '<a href="https://creativecommons.org/licenses/by/4.0/">'
-              'CC-BY 4.0</a></p>'
-              '</body></html>')
+with open(os.path.join(os.path.dirname(__file__), 'about.html')) as f:
+    ABOUT_HTML = f.read().strip()
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
