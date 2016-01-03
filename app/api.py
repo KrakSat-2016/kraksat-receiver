@@ -4,13 +4,28 @@ from json import JSONDecodeError
 
 import dateutil.parser
 import requests
+from requests.auth import AuthBase
 
 from app.timeutils import TimeOffset
 
 server_url = None
 """Address of the API server"""
 
+auth = None
+"""Authentication class to use"""
+
 logger = logging.getLogger('api')
+
+
+class TokenAuth(AuthBase):
+    """Attaches Token Authentication header to the given Request object."""
+
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, request):
+        request.headers['Authorization'] = 'Token {}'.format(self.token)
+        return request
 
 
 def obtain_token(username, password):
@@ -26,6 +41,11 @@ def obtain_token(username, password):
     if json and 'token' in json:
         return json['token']
     __unknown_response(response)
+
+
+def set_token(token):
+    global auth  # todo move entire api module into a class
+    auth = TokenAuth(token)
 
 
 def get_gsinfo():
@@ -70,7 +90,7 @@ def __request(url, data={}, method='post'):
     :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
     """
     url = urllib.parse.urljoin(server_url, url)
-    response = requests.request(method, url, data=data)
+    response = requests.request(method, url, data=data, auth=auth)
     if response.status_code in (requests.codes.ok, requests.codes.created):
         try:
             return response, response.json()
