@@ -50,19 +50,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._init_statusbar()
         logging.getLogger('mainwindow').info("Main Window initialized")
 
-    def _init_statusbar(self):
-        self.queue_status_label = QLabel()
-        self.statusBar().addPermanentWidget(self.queue_status_label)
-        self.update_queue_status_label()
-        queue_model = self.queueView.model().sourceModel()
-        queue_model.rowsInserted.connect(self.update_queue_status_label)
-        queue_model.rowsRemoved.connect(self.update_queue_status_label)
-
-    def update_queue_status_label(self):
-        """Update "Processing ... requests" label text on status bar"""
-        count = self.queueView.model().sourceModel().rowCount()
-        self.queue_status_label.setText("Processing {} requests".format(count))
-
     def _init_logs(self):
         self._init_logs_view()
         self._init_logs_filter_combo_box()
@@ -102,6 +89,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.logsFilterComboBox.restore_state(Settings().get_bool_list(
                 self.CONFIG_LOGS_FILTER_STATE_KEY))
 
+    def reset_logs_filter(self):
+        """Get selected modules from logs filter combobox and set them on
+        the view filter."""
+        auto_checked, *checked = self.logsFilterComboBox.get_check_state()
+        modules = logger.get_modules()
+        if auto_checked:
+            self.logsView.model().setFilterRegExp('')
+        else:
+            checked_modules = [QRegExp().escape(modules[i])
+                               for i in range(len(modules)) if checked[i]]
+            regexp = '^{}$'.format('|'.join(checked_modules))
+            if regexp == '':
+                # Nothing selected
+                self.logsView.model().setFilterRegExp(QRegExp('$^'))
+            else:
+                self.logsView.model().setFilterRegExp(QRegExp(regexp))
+        for i in range(3):
+            # Resize all columns except Message (which expands automatically)
+            self.logsView.resizeColumnToContents(i)
+
     def _init_queue(self):
         self._init_queue_view()
         # todo init queue filter combo box
@@ -136,25 +143,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.queueView.resizeRowsToContents()
 
-    def reset_logs_filter(self):
-        """Get selected modules from logs filter combobox and set them on
-        the view filter."""
-        auto_checked, *checked = self.logsFilterComboBox.get_check_state()
-        modules = logger.get_modules()
-        if auto_checked:
-            self.logsView.model().setFilterRegExp('')
-        else:
-            checked_modules = [QRegExp().escape(modules[i])
-                               for i in range(len(modules)) if checked[i]]
-            regexp = '^{}$'.format('|'.join(checked_modules))
-            if regexp == '':
-                # Nothing selected
-                self.logsView.model().setFilterRegExp(QRegExp('$^'))
-            else:
-                self.logsView.model().setFilterRegExp(QRegExp(regexp))
-        for i in range(3):
-            # Resize all columns except Message (which expands automatically)
-            self.logsView.resizeColumnToContents(i)
+    def _init_statusbar(self):
+        self.queue_status_label = QLabel()
+        self.statusBar().addPermanentWidget(self.queue_status_label)
+        self.update_queue_status_label()
+        queue_model = self.queueView.model().sourceModel()
+        queue_model.rowsInserted.connect(self.update_queue_status_label)
+        queue_model.rowsRemoved.connect(self.update_queue_status_label)
+
+    def update_queue_status_label(self):
+        """Update "Processing ... requests" label text on status bar"""
+        count = self.queueView.model().sourceModel().rowCount()
+        self.queue_status_label.setText("Processing {} requests".format(count))
 
     def show_set_gs_info(self):
         GSInfoDialog(self._sender, self).show()
