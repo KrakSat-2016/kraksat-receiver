@@ -86,18 +86,19 @@ def datetime_encode(obj):
     return representation
 
 
-def __request(url, data={}, method='post'):
+def __request(url, data={}, files=None, method='post'):
     """Make a request to given URL with provided data
 
     :param str url: relative URL
     :param dict data: data to send
+    :param dict|None files: files to send
     :param str method: HTTP method to use
     :return: :class:`requests.Response` object and json contents (or None in
         case of errors)
     :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
     """
     url = urllib.parse.urljoin(server_url, url)
-    response = requests.request(method, url, data=data, auth=auth)
+    response = requests.request(method, url, data=data, files=files, auth=auth)
     if response.status_code in (requests.codes.ok, requests.codes.created):
         try:
             return response, response.json()
