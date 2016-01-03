@@ -79,6 +79,13 @@ def __parse_datetime(s):
     return dateutil.parser.parse(s).astimezone(tz=None)
 
 
+def datetime_encode(obj):
+    representation = obj.isoformat()
+    if representation.endswith('+00:00'):
+        representation = representation[:-6] + 'Z'
+    return representation
+
+
 def __request(url, data={}, method='post'):
     """Make a request to given URL with provided data
 
