@@ -93,7 +93,7 @@ def __request(url, data={}, files=None, method='post'):
     :param dict data: data to send
     :param dict|None files: files to send
     :param str method: HTTP method to use
-    :return: :class:`requests.Response` object and json contents (or None in
+    :return: :py:class:`requests.Response` object and json contents (or None in
         case of errors)
     :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
     """
