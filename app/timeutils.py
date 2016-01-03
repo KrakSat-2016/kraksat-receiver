@@ -66,6 +66,14 @@ class TimeOffset:
         """
         return cls.from_seconds(minutes * 60)
 
+    def to_minutes(self):
+        """Return the timezone offset as the number of minutes
+
+        :return: offset as the number of minutes
+        :rtype: int
+        """
+        return (self.hours * 60 + self.minutes) * (-1 if self.negative else 1)
+
     @classmethod
     def get_current_timezone(cls):
         """Get timezone currently set in system
