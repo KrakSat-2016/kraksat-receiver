@@ -100,11 +100,17 @@ def __parse_datetime(s):
     return dateutil.parser.parse(s).astimezone(tz=None)
 
 
-def datetime_encode(obj):
-    representation = obj.isoformat()
-    if representation.endswith('+00:00'):
-        representation = representation[:-6] + 'Z'
-    return representation
+def encode_datetime(dt):
+    """Converts provided datetime object into ISO 8601/RFC3339-compliant string
+
+    :param datetime.datetime dt: datetime object
+    :return: string representation of dt
+    :rtype: str
+    """
+    s = dt.isoformat()
+    if s.endswith('+00:00'):
+        s = s[:-6] + 'Z'
+    return s
 
 
 def __request(url, data={}, files=None, method='post'):

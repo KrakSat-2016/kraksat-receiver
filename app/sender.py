@@ -37,7 +37,7 @@ class Sender:
             included in POST data
         """
         if append_timestamp:
-            data['timestamp'] = api.datetime_encode(datetime.utcnow())
+            data['timestamp'] = api.encode_datetime(datetime.utcnow())
 
         with self.lock:
             request_data = RequestData(self.id, module, url, data, files)
