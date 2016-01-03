@@ -1,17 +1,36 @@
 import logging
 
-from PyQt5.QtCore import pyqtSignal, QThread
+from PyQt5.QtCore import pyqtSignal, QThread, QAbstractListModel, Qt
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
 from app import api, timeutils
 from app.ui.ui_gsinfo import Ui_GSInfoDialog
 
 
+class TimezoneComboBoxModel(QAbstractListModel):
+    """
+    Model for Combo Box that displays items from timeutils.OFFSETS.
+    """
+
+    def rowCount(self, parent=None, *args, **kwargs):
+        return len(timeutils.OFFSETS)
+
+    def data(self, index, role=None):
+        row = index.row()
+        if role == Qt.DisplayRole:
+            return str(timeutils.OFFSETS[row])
+        elif role == Qt.UserRole:
+            return timeutils.OFFSETS[row]
+
+
 class GSInfoDialog(QDialog, Ui_GSInfoDialog):
     """Set Ground Station info dialog"""
 
-    def __init__(self, parent=None):
+    def __init__(self, sender, parent=None):
+        # todo docs
         super().__init__(parent)
+        self._sender = sender
+
         self.setupUi(self)
         self.loginButton = self.buttonBox.addButton(
                 "&Submit", QDialogButtonBox.AcceptRole)
@@ -22,8 +41,8 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
         self.retrieve_current_info()
 
     def _init_timezone_combo_box(self):
-        for offset in timeutils.OFFSETS:
-            self.timezoneComboBox.addItem(str(offset))
+        self.timezoneComboBox.setModel(TimezoneComboBoxModel(
+                self.timezoneComboBox))
         try:
             current = timeutils.TimeOffset.get_current_timezone()
             self.timezoneComboBox.setCurrentIndex(
@@ -75,3 +94,16 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
         if timezone is not None:
             self.timezoneComboBox.setCurrentIndex(
                     timeutils.OFFSETS.index(timezone))
+
+    def accept(self):
+        self._send_data()
+        self.done(QDialog.Accepted)
+
+    def _send_data(self):
+        """Send form data to the API server"""
+        latitude = self.latitudeSpinBox.value()
+        longitude = self.longitudeSpinBox.value()
+        timezone = self.timezoneComboBox.currentData().to_minutes()
+        self._sender.add_request('GSInfoDialog', '/gsinfo/', {
+            'latitude': latitude, 'longitude': longitude, 'timezone': timezone
+        })

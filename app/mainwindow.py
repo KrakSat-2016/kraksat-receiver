@@ -32,6 +32,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QueueTableModel
         """
         super(MainWindow, self).__init__()
+        self._sender = sender
+
         self.setupUi(self)
         self.webview_go_home()
         settings = Settings()
@@ -44,7 +46,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.menuView.addAction(dock.toggleViewAction())
 
         self._init_logs()
-        self._init_queue(sender)
+        self._init_queue()
         self._init_statusbar()
         logging.getLogger('mainwindow').info("Main Window initialized")
 
@@ -100,16 +102,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.logsFilterComboBox.restore_state(Settings().get_bool_list(
                 self.CONFIG_LOGS_FILTER_STATE_KEY))
 
-    def _init_queue(self, sender):
-        self._init_queue_view(sender)
+    def _init_queue(self):
+        self._init_queue_view()
         # todo init queue filter combo box
 
-    def _init_queue_view(self, sender):
+    def _init_queue_view(self):
         def on_rows_inserted(index, first, last):
             for i in range(first, last + 1):
                 self.queueView.resizeRowToContents(i)
 
-        source_model = QueueTableModel(sender, self)
+        source_model = QueueTableModel(self._sender, self)
         model = QSortFilterProxyModel(self)
         model.setSourceModel(source_model)
         model.setFilterKeyColumn(1)  # module column
@@ -155,7 +157,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.logsView.resizeColumnToContents(i)
 
     def show_set_gs_info(self):
-        GSInfoDialog(self).show()
+        GSInfoDialog(self._sender, self).show()
 
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
