@@ -43,10 +43,13 @@ class TimeOffset:
         :raise ValueError: if created TimeOffset is not present within
             OFFSETS list
         """
+        negative = seconds < 0
+        seconds = abs(seconds)
         seconds //= 36
+
         hours = seconds // 100
         minutes = seconds % 100 // 25 * 15
-        result = cls(hours, minutes)
+        result = cls(hours * (-1 if negative else 1), minutes)
         if result not in OFFSETS_SET:
             raise ValueError('Created TimeOffset is not in OFFSETS')
         return result
