@@ -98,4 +98,4 @@ class QueueTableModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role=None):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return ["ID", "Parser", "Status"][section]
+            return ["ID", "Module", "Status"][section]
