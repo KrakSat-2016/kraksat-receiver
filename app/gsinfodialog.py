@@ -65,18 +65,7 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
 
     def retrieve_current_info(self):
         """Retrieve GS info from API server in a separate thread."""
-        class APIWorker(QThread):
-            state_got = pyqtSignal(object, object, object, object)
-
-            def run(self):
-                result = api.get_gsinfo()
-                if result:
-                    self.state_got.emit(*result)
-
-        self.api_thread = APIWorker()
-        self.api_thread.state_got.connect(self.set_info)
-        self.api_thread.finished.connect(self._set_ui_locked)
-        self.api_thread.start()
+        api.APIWorker(api.get_gsinfo, self, self.set_info, self._set_ui_locked)
 
     def set_info(self, timestamp, latitude, longitude, timezone):
         """Set provided info on form fields

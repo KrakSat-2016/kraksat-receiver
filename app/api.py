@@ -4,6 +4,8 @@ from json import JSONDecodeError
 
 import dateutil.parser
 import requests
+from PyQt5.QtCore import QThread
+from PyQt5.QtCore import pyqtSignal
 from requests.auth import AuthBase
 
 from app.timeutils import TimeOffset
@@ -17,6 +19,46 @@ auth = None
 logger = logging.getLogger('api')
 
 
+class APIWorker(QThread):
+    """
+    Subclass of QThread that makes making async API calls easier, providing
+    easy way to call API function (or, actually, any function) and be notified
+    as soon as the function ends.
+    """
+    result_got = pyqtSignal(object)
+
+    def __init__(self, func, parent=None, result_got=None, on_finished=None):
+        """Constructs and starts the thread
+
+        :param function func: function to call in another thread
+        :param QObject parent: QThread parent
+        :param function result_got: function to call when result from ``func``
+            is returned. Note that tuples are extracted and if result is
+            ``None`` then ``result_got`` is not called.
+        :param function on_finished: function to call after the thread is
+            terminated. This is always called after ``result_got``
+        """
+        super().__init__(parent)
+        self._func = func
+
+        if result_got is not None:
+            self._result_got = result_got
+            self.result_got.connect(self._on_result_got)
+        if on_finished is not None:
+            self.finished.connect(on_finished)
+        self.start()
+
+    def _on_result_got(self, result):
+        if isinstance(result, tuple):
+            self._result_got(*result)
+        elif result is not None:
+            self._result_got(result)
+
+    def run(self):
+        result = self._func()
+        self.result_got.emit(result)
+
+
 class APIError(Exception):
     def __init__(self, message, response=None):
         """Constructor
@@ -28,7 +70,6 @@ class APIError(Exception):
             message = message + '\nResponse body: ' + response.text
         super().__init__(message)
         self.response = response
-
 
 
 class TokenAuth(AuthBase):
