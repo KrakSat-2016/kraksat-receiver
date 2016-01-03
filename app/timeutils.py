@@ -87,14 +87,6 @@ class TimeOffset:
         delta = datetime.fromtimestamp(t) - datetime.utcfromtimestamp(t)
         return cls.from_seconds(delta.seconds)
 
-    def as_iso(self):
-        """Get this TimeOffset as ISO-8601 (RFC3339-compliant) string
-
-        :rtype: str
-        """
-        sign = '-' if self.negative else '+'
-        return ISO_8601_FORMAT.format(sign, self.hours, self.minutes)
-
     def __eq__(self, other):
         return (self.negative == other.negative and
                 self.hours == other.hours and
