@@ -63,7 +63,7 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         else:
             checked_modules = [QRegExp().escape(modules[i])
                                for i in range(len(modules)) if checked[i]]
-            regexp = '^{}$'.format('|'.join(checked_modules))
+            regexp = '^({})$'.format('|'.join(checked_modules))
             if regexp == '':
                 # Nothing selected
                 self.table.model().setFilterRegExp(QRegExp('$^'))
