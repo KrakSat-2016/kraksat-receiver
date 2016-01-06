@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StatisticsDock</class>
+ <widget class="QDockWidget" name="StatisticsDock">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>177</width>
+    <height>63</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Statistics</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QFormLayout" name="formLayout">
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Time since start:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="timeSinceStartLabel">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Time since last receive:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="timeSinceLastReceiveLabel">
+      <property name="text">
+       <string>0s</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

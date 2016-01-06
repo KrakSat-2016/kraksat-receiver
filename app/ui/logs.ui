@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LogsDock</class>
+ <widget class="QDockWidget" name="LogsDock">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>540</width>
+    <height>217</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Logs</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="FilterComboBox" name="filterComboBox">
+      <property name="toolTip">
+       <string>Filter logs by module</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableView" name="table">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FilterComboBox</class>
+   <extends>QComboBox</extends>
+   <header>app.filtercombobox</header>
+   <slots>
+    <signal>popup_hidden()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>filterComboBox</sender>
+   <signal>popup_hidden()</signal>
+   <receiver>LogsDock</receiver>
+   <slot>reset_filter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>269</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>269</x>
+     <y>108</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>reset_filter()</slot>
+ </slots>
+</ui>
