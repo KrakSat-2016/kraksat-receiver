@@ -6,9 +6,11 @@ from PyQt5.QtCore import QThread, QObject, pyqtSignal
 
 from app import api
 
-RequestData = namedtuple('RequestData', 'id, module, url, data, files')
+RequestData = namedtuple('RequestData', 'id, module, url, data, files, '
+                                        'callback')
 
 
+# todo use requests.Session for keep-alive connection
 class Sender:
     """
     Class that maintains API request queue, as well as allows adding and
@@ -25,7 +27,7 @@ class Sender:
         self.queue = deque()
 
     def add_request(self, module, url, data, files=None,
-                    append_timestamp=True):
+                    append_timestamp=True, callback=None):
         """Add request to the queue
 
         :param str module: name of the module that adds the queue. The value
@@ -35,12 +37,15 @@ class Sender:
         :param dict files: files to send
         :param bool append_timestamp: whether or not "timestamp" should be
             included in POST data
+        :param function callback: function to be called when the request is
+            processed
         """
         if append_timestamp:
             data['timestamp'] = api.encode_datetime(datetime.utcnow())
 
         with self.lock:
-            request_data = RequestData(self.id, module, url, data, files)
+            request_data = RequestData(self.id, module, url, data, files,
+                                       callback)
             self.id += 1
             self.queue.append(request_data)
             self.not_empty.notify()
@@ -56,6 +61,8 @@ class Sender:
         api.create(request_data.url, request_data.data, request_data.files)
         # todo better error handling (catching APIErrors and possibly other)
         self.on_request_processed(request_data)
+        if request_data.callback:
+            request_data.callback()
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
