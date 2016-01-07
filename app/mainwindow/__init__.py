@@ -29,15 +29,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """
         super(MainWindow, self).__init__()
         self._sender = sender
-
         self.setupUi(self)
+
         self.webview_go_home()
+        self._init_docks()
         settings = Settings()
         self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
         self.restoreState(settings[self.CONFIG_STATE_KEY])
-
-        self._init_docks()
         self._init_statusbar()
+
         logging.getLogger('mainwindow').info("Main Window initialized")
 
     def _init_docks(self):
