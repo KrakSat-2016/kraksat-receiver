@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="res">
+    <file>pause.svg</file>
     <file>remove_disabled.svg</file>
     <file>remove.svg</file>
     <file>refresh.svg</file>

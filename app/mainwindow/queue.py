@@ -72,3 +72,7 @@ class QueueDock(QDockWidget, Ui_QueueDock):
         queue_model.rowsInserted.connect(update_text)
         queue_model.rowsRemoved.connect(update_text)
         return queue_status_label
+
+    def set_paused(self, paused):
+        """Set whether or not the request queue will be paused"""
+        self._sender.set_paused(paused)

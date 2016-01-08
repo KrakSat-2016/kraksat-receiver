@@ -24,6 +24,10 @@ class Sender:
         self.id = 1
         self.lock = RLock()
         self.not_empty = Condition(self.lock)
+        self.paused = False
+        self.pause_lock = RLock()
+        self.unpaused = Condition(self.pause_lock)
+
         self.queue = deque()
 
     def add_request(self, module, url, data, files=None,
@@ -57,12 +61,24 @@ class Sender:
             while not len(self.queue):
                 self.not_empty.wait()
             request_data = self.queue.popleft()
+        with self.pause_lock:
+            if self.paused:
+                self.unpaused.wait()
         self.on_request_processing(request_data)
         api.create(request_data.url, request_data.data, request_data.files)
         # todo better error handling (catching APIErrors and possibly other)
         self.on_request_processed(request_data)
         if request_data.callback:
             request_data.callback()
+
+    def set_paused(self, paused):
+        """(Un)pause the queue
+
+        :param bool paused: whether or not request processing should be paused
+        """
+        with self.pause_lock:
+            self.paused = paused
+            self.unpaused.notify()
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
