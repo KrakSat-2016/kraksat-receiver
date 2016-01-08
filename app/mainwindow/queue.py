@@ -12,6 +12,11 @@ class QueueDock(QDockWidget, Ui_QueueDock):
     CONFIG_QUEUE_FILTER_STATE_KEY = 'mainWindow/queue/filterCheckState'
 
     def __init__(self, parent, sender):
+        """Constructor
+
+        :param QWidget parent: parent of the QueueDock
+        :param app.sender.QtSender sender: QtSender instance
+        """
         super().__init__(parent)
         self._sender = sender
         self.setupUi(self)
