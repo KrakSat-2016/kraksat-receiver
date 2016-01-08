@@ -49,6 +49,11 @@ class QueueDock(QDockWidget, Ui_QueueDock):
         self.table.resizeRowsToContents()
 
     def create_statusbar_widget(self):
+        """Create label for status bar showing number of requests processed
+
+        :return: label widget
+        :rtype: QLabel
+        """
         queue_status_label = QLabel()
         queue_model = self.table.model().sourceModel()
 
