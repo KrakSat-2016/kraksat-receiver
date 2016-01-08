@@ -103,6 +103,7 @@ def set_token(token):
     auth = TokenAuth(token)
 
 
+# todo data validation in get_* functions
 def get_gsinfo():
     """Obtain the latest Ground Station info
 
@@ -120,6 +121,21 @@ def get_gsinfo():
             timezone = None
         return (__parse_datetime(json['timestamp']), json['latitude'],
                 json['longitude'], timezone)
+    elif response.status_code != requests.codes.no_content:
+        __unknown_response(response)
+
+
+def get_status():
+    """Obtain the latest mission status
+
+    :return: Mission status info, respectively: timestamp, phase, mission time,
+        is cansat online
+    :rtype: tuple[datetime.datetime, str, float|None, bool]
+    """
+    response, json = __request('/status/latest/', method='get')
+    if json:
+        return (__parse_datetime(json['timestamp']), json['phase'],
+                json['mission_time'], json['cansat_online'])
     elif response.status_code != requests.codes.no_content:
         __unknown_response(response)
 

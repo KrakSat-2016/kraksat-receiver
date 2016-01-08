@@ -45,7 +45,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.queueDock = QueueDock(self, self._sender)
         self.statisticsDock = StatisticsDock(self)
         self.cameraDock = CameraDock(self)
-        self.missionStatusDock = MissionStatusDock(self)
+        self.missionStatusDock = MissionStatusDock(self, self._sender)
         docks = {
             Qt.LeftDockWidgetArea: (
                 self.statisticsDock,

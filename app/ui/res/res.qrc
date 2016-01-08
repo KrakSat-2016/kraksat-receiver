@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="res">
+    <file>remove_disabled.svg</file>
+    <file>remove.svg</file>
     <file>refresh.svg</file>
     <file>logo_150.png</file>
   </qresource>

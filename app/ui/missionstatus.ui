@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>215</width>
-    <height>180</height>
+    <width>239</width>
+    <height>181</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>State:</string>
+         <string>Phase:</string>
         </property>
        </widget>
       </item>
@@ -62,6 +62,9 @@
       </item>
       <item row="2" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>3</number>
+        </property>
         <item>
          <widget class="QCheckBox" name="missionTimeCheckBox">
           <property name="toolTip">
@@ -70,25 +73,119 @@
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="missionTimeSpinBox">
+         <widget class="QFrame" name="missionTimeFrame">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+          <property name="styleSheet">
+           <string notr="true">QFrame {
+	background-color: #fff;
+	border: 1px solid #aaa;
+	border-radius: 3px;
+}
+
+QFrame:disabled {
+	background-color: #efebe7;
+}</string>
           </property>
-          <property name="suffix">
-           <string>sec</string>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
           </property>
-          <property name="minimum">
-           <double>-999.990000000000009</double>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
           </property>
-          <property name="maximum">
-           <double>9999.989999999999782</double>
-          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>3</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="missionTimeSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Negative value means countdown to start</string>
+             </property>
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+             <property name="specialValueText">
+              <string>None</string>
+             </property>
+             <property name="suffix">
+              <string>sec</string>
+             </property>
+             <property name="minimum">
+              <double>-1000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>9999.989999999999782</double>
+             </property>
+             <property name="value">
+              <double>-1000.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="missionTimeNoneButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Set to None</string>
+             </property>
+             <property name="icon">
+              <iconset resource="res/res.qrc">
+               <normaloff>:/res/remove.svg</normaloff>
+               <disabledoff>:/res/remove_disabled.svg</disabledoff>
+               <disabledon>:/res/remove_disabled.svg</disabledon>:/res/remove.svg</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>14</width>
+               <height>14</height>
+              </size>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -181,5 +278,75 @@
  <resources>
   <include location="res/res.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>refreshButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MissionStatusDock</receiver>
+   <slot>refresh()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>89</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>submitButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MissionStatusDock</receiver>
+   <slot>submit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>168</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>89</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missionTimeCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>missionTimeFrame</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>110</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>176</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>missionTimeNoneButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MissionStatusDock</receiver>
+   <slot>set_none_mission_time()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>219</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>refresh()</slot>
+  <slot>submit()</slot>
+  <slot>set_none_mission_time()</slot>
+ </slots>
 </ui>
