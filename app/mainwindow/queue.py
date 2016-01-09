@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QLabel
 )
 
-from app.queuetablemodel import QueueTableModel
+from app.mainwindow.queuetablemodel import QueueTableModel
 from app.ui.ui_queue import Ui_QueueDock
 
 

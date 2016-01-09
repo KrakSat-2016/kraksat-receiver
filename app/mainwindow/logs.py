@@ -4,7 +4,7 @@ from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QDockWidget, QHeaderView, QAbstractItemView
 
 from app import logger
-from app.logstablemodel import LogsTableModel
+from app.mainwindow.logstablemodel import LogsTableModel
 from app.settings import Settings
 from app.ui.ui_logs import Ui_LogsDock
 
