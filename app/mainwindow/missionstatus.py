@@ -105,10 +105,14 @@ class MissionStatusDock(QDockWidget, Ui_MissionStatusDock):
         """
         widgets = (
             self.stateComboBox, self.missionTimeCheckBox,
-            self.canSatOnlineCheckBox, self.refreshButton, self.submitButton
+            self.missionTimeFrame, self.canSatOnlineCheckBox,
+            self.refreshButton, self.submitButton
         )
         for widget in widgets:
             widget.setEnabled(not locked)
+        if not locked:
+            self.missionTimeFrame.setEnabled(
+                    self.missionTimeCheckBox.isChecked())
 
     def set_none_mission_time(self):
         """Set mission time spin box value to 'None'"""
