@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Camera</string>
+   <string>&amp;Camera</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents"/>
  </widget>
