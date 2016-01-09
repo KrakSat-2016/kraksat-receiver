@@ -65,7 +65,8 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
 
     def retrieve_current_info(self):
         """Retrieve GS info from API server in a separate thread."""
-        api.APIWorker(api.get_gsinfo, self, self.set_info, self._set_ui_locked)
+        api.APIWorker(self._sender.api.get_gsinfo, self,
+                      self.set_info, self._set_ui_locked)
 
     def set_info(self, timestamp, latitude, longitude, timezone):
         """Set provided info on form fields

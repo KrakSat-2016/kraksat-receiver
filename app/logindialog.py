@@ -4,7 +4,6 @@ import traceback
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
-from app import api
 from app.settings import Settings
 from app.ui.ui_login import Ui_LoginDialog
 
@@ -12,8 +11,13 @@ from app.ui.ui_login import Ui_LoginDialog
 class LoginDialog(QDialog, Ui_LoginDialog):
     token_obtained = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, api):
+        """Constructor
+
+        :param app.api.API api: API instance to use
+        """
         super(LoginDialog, self).__init__()
+        self.api = api
         self.setupUi(self)
         self.loginButton = self.buttonBox.addButton(
                 "&Login", QDialogButtonBox.AcceptRole)
@@ -52,6 +56,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
         self._set_ui_locked(True)
 
         server, username, password = self._get_form_data()
+        api = self.api
 
         class TokenWorker(QThread):
             token_obtained = pyqtSignal(str)
@@ -59,7 +64,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
             def run(self):
                 try:
-                    api.server_url = server
+                    api.set_server_url(server)
                     token = api.obtain_token(username, password)
                     if token:
                         self.token_obtained.emit(token)

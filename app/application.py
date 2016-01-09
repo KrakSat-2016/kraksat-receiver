@@ -3,7 +3,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-from app import api
+from app.api import API
 from app.logger import set_up_logging
 from app.logindialog import LoginDialog
 from app.mainwindow import MainWindow
@@ -15,11 +15,12 @@ class Application:
         set_up_logging()
         logging.getLogger('main').info('Starting up the app')
 
+        self.api = API()
         self.main_window = None
         self.sender_worker = None
 
         self.q_app = QApplication(sys.argv)
-        self.dialog = LoginDialog()
+        self.dialog = LoginDialog(self.api)
         self.dialog.token_obtained.connect(self._init_app)
         exit_code = self.q_app.exec_()
         logging.getLogger('main').info('Shutting down with exit code %d',
@@ -27,8 +28,8 @@ class Application:
         sys.exit(exit_code)
 
     def _init_app(self, token):
-        api.set_token(token)
-        self.sender_worker = QtSenderWorker(self.q_app)
+        self.api.set_token(token)
+        self.sender_worker = QtSenderWorker(self.api, self.q_app)
         sender = self.sender_worker.sender
         self._init_main_window(sender)
         # todo gracefully terminate the thread on quit

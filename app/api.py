@@ -10,14 +10,6 @@ from requests.auth import AuthBase
 
 from app.timeutils import TimeOffset
 
-server_url = None
-"""Address of the API server"""
-
-auth = None
-"""Authentication class to use"""
-
-logger = logging.getLogger('api')
-
 
 class APIWorker(QThread):
     """
@@ -83,71 +75,119 @@ class TokenAuth(AuthBase):
         return request
 
 
-def obtain_token(username, password):
-    """Obtain authentication token for provided user
+class API:
+    logger = logging.getLogger('api')
 
-    :param str username: username to get token for
-    :param str password: user's password
-    :return: token returned by server or None in case of invalid credentials
-        or other errors
-    """
-    data = {'username': username, 'password': password}
-    response, json = __request('/token-auth/', data)
-    if json and 'token' in json:
-        return json['token']
-    __unknown_response(response)
+    def __init__(self):
+        self.server_url = None  # Address of the API server
+        self.auth = None  # Authentication class to use
+
+    def obtain_token(self, username, password):
+        """Obtain authentication token for provided user
+
+        :param str username: username to get token for
+        :param str password: user's password
+        :return: token returned by server or None in case of invalid
+            credentials or other errors
+        """
+        data = {'username': username, 'password': password}
+        response, json = self._request('/token-auth/', data)
+        if json and 'token' in json:
+            return json['token']
+        self.__unknown_response(response)
+
+    def set_server_url(self, url):
+        """Set new server URL
+
+        :param str url: URL of the server
+        """
+        self.server_url = url
+
+    def set_token(self, token):
+        """Set new authentication token
+
+        :param str token: token to use
+        """
+        self.auth = TokenAuth(token)
+
+    # todo data validation in get_* functions
+    def get_gsinfo(self):
+        """Obtain the latest Ground Station info
+
+        :return: Ground Station info, respectively: timestamp, latitude,
+            longitude, ground station timezone
+        :rtype: tuple[datetime.datetime, float, float, TimeOffset|None]|None
+        """
+        response, json = self._request('/gsinfo/latest/', method='get')
+        if json:
+            try:
+                timezone = TimeOffset.from_minutes(json['timezone'])
+            except ValueError:
+                self.logger.warning('Could not create TimeOffset object, '
+                                    'received offset: %s', json['timezone'])
+                timezone = None
+            return (_parse_datetime(json['timestamp']), json['latitude'],
+                    json['longitude'], timezone)
+        elif response.status_code != requests.codes.no_content:
+            self.__unknown_response(response)
+
+    def get_status(self):
+        """Obtain the latest mission status
+
+        :return: Mission status info, respectively: timestamp, phase,
+            mission time, is cansat online
+        :rtype: tuple[datetime.datetime, str, float|None, bool]
+        """
+        response, json = self._request('/status/latest/', method='get')
+        if json:
+            return (_parse_datetime(json['timestamp']), json['phase'],
+                    json['mission_time'], json['cansat_online'])
+        elif response.status_code != requests.codes.no_content:
+            self.__unknown_response(response)
+
+    def create(self, url, data, files=None):
+        response, json = self._request(url, data, files=files)
+        if response.status_code != requests.codes.created:
+            raise APIError('201 status code was expected when creating '
+                           'resource; got {}'.format(response.status_code),
+                           response)
+
+    def _request(self, url, data={}, files=None, method='post'):
+        """Make a request to given URL with provided data
+
+        :param str url: relative URL
+        :param dict data: data to send
+        :param dict|None files: files to send
+        :param str method: HTTP method to use
+        :return: :py:class:`requests.Response` object and json contents (or
+            ``None`` in case of errors)
+        :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
+        """
+        url = urllib.parse.urljoin(self.server_url, url)
+        response = requests.request(method, url, data=data, files=files,
+                                    auth=self.auth)
+        if response.status_code in (requests.codes.ok, requests.codes.created):
+            try:
+                return response, response.json()
+            except JSONDecodeError:
+                self.logger.warning(
+                    "Could not decode JSON despite %d status code\n"
+                    "Contents: %s", response.status_code, response.text,
+                    exc_info=True
+                )
+        return response, None
+
+    def __unknown_response(self, response):
+        """Log the event of retrieving invalid response from the server
+
+        :param requests.Response response: Response object
+        """
+        # todo more sophisticated error logging
+        self.logger.warning("Got an unknown response from the server: %s",
+                            response.text)
 
 
-def set_token(token):
-    global auth  # todo move entire api module into a class
-    auth = TokenAuth(token)
-
-
-# todo data validation in get_* functions
-def get_gsinfo():
-    """Obtain the latest Ground Station info
-
-    :return: Ground Station info, respectively: timestamp, latitude, longitude,
-        ground station timezone
-    :rtype: tuple[datetime.datetime, float, float, TimeOffset|None]|None
-    """
-    response, json = __request('/gsinfo/latest/', method='get')
-    if json:
-        try:
-            timezone = TimeOffset.from_minutes(json['timezone'])
-        except ValueError:
-            logger.warning('Could not create TimeOffset object, received '
-                           'offset: %s', json['timezone'])
-            timezone = None
-        return (__parse_datetime(json['timestamp']), json['latitude'],
-                json['longitude'], timezone)
-    elif response.status_code != requests.codes.no_content:
-        __unknown_response(response)
-
-
-def get_status():
-    """Obtain the latest mission status
-
-    :return: Mission status info, respectively: timestamp, phase, mission time,
-        is cansat online
-    :rtype: tuple[datetime.datetime, str, float|None, bool]
-    """
-    response, json = __request('/status/latest/', method='get')
-    if json:
-        return (__parse_datetime(json['timestamp']), json['phase'],
-                json['mission_time'], json['cansat_online'])
-    elif response.status_code != requests.codes.no_content:
-        __unknown_response(response)
-
-
-def create(url, data, files=None):
-    response, json = __request(url, data, files=files)
-    if response.status_code != requests.codes.created:
-        raise APIError('201 status code was expected when creating resource; '
-                       'got {}'.format(response.status_code), response)
-
-
-def __parse_datetime(s):
+def _parse_datetime(s):
     """Parse provided string as datetime object
 
     :param str s: string to parse
@@ -168,36 +208,3 @@ def encode_datetime(dt):
     if s.endswith('+00:00'):
         s = s[:-6] + 'Z'
     return s
-
-
-def __request(url, data={}, files=None, method='post'):
-    """Make a request to given URL with provided data
-
-    :param str url: relative URL
-    :param dict data: data to send
-    :param dict|None files: files to send
-    :param str method: HTTP method to use
-    :return: :py:class:`requests.Response` object and json contents (or None in
-        case of errors)
-    :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
-    """
-    url = urllib.parse.urljoin(server_url, url)
-    response = requests.request(method, url, data=data, files=files, auth=auth)
-    if response.status_code in (requests.codes.ok, requests.codes.created):
-        try:
-            return response, response.json()
-        except JSONDecodeError:
-            logger.warning("Could not decode JSON despite %d status code\n"
-                           "Contents: %s", response.status_code, response.text,
-                           exc_info=True)
-    return response, None
-
-
-def __unknown_response(response):
-    """Log the event of retrieving invalid response from the server
-
-    :param requests.Response response: Response object
-    """
-    # todo more sophisticated error logging
-    logger.warning("Got an unknown response from the server: %s",
-                   response.text)

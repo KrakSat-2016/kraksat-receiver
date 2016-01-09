@@ -47,7 +47,7 @@ class MissionStatusDock(QDockWidget, Ui_MissionStatusDock):
     def refresh(self):
         """Request /status/ and refresh the form fields when response is got"""
         self.set_ui_locked(True)
-        api.APIWorker(api.get_status, self,
+        api.APIWorker(self._sender.api.get_status, self,
                       self._set_mission_status, self.set_ui_locked)
 
     def _set_mission_status(self, timestamp, state, mission_time,
