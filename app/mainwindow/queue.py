@@ -1,7 +1,6 @@
 from PyQt5.QtCore import QSortFilterProxyModel
 from PyQt5.QtWidgets import (
-    QDockWidget, QHeaderView, QStylePainter, QAbstractItemView,
-    QLabel
+    QDockWidget, QHeaderView, QStylePainter, QAbstractItemView, QLabel
 )
 
 from app.mainwindow.queuetablemodel import QueueTableModel

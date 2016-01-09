@@ -1,6 +1,6 @@
 import logging
 
-from PyQt5.QtCore import pyqtSignal, QThread, QAbstractListModel, Qt
+from PyQt5.QtCore import QAbstractListModel, Qt
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
 from app import api, timeutils
