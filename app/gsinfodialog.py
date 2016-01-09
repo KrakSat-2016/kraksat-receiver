@@ -27,7 +27,11 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
     """Set Ground Station info dialog"""
 
     def __init__(self, sender, parent=None):
-        # todo docs
+        """Constructor
+
+        :param app.sender.Sender sender: Sender instance to use
+        :param QWidget parent: dialog parent
+        """
         super().__init__(parent)
         self._sender = sender
 
