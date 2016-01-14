@@ -114,6 +114,7 @@ class GPSTests(ParserTestCase):
 
 class TestGPSUtils(TestCase):
     def test_parse_latitude(self):
+        """Test parse_latitude function"""
         self.assertAlmostEqual(gps.parse_latitude('3855.23816', 'N'),
                                38.920636, 4)
         self.assertAlmostEqual(gps.parse_latitude('3855.23816', 'S'),
@@ -121,6 +122,7 @@ class TestGPSUtils(TestCase):
         self.assertRaises(ParseError, gps.parse_latitude, '3855.23816', 'X')
 
     def test_parse_longitude(self):
+        """Test parse_longitude function"""
         self.assertAlmostEqual(gps.parse_longitude('00924.41358', 'E'),
                                9.406893, 4)
         self.assertAlmostEqual(gps.parse_longitude('00924.41358', 'W'),
@@ -128,6 +130,7 @@ class TestGPSUtils(TestCase):
         self.assertRaises(ParseError, gps.parse_longitude, '3855.23816', 'X')
 
     def test_parse_quality(self):
+        """Test parse_quality function"""
         self.assertEqual(gps.parse_quality('0'), 'no_fix')
         self.assertEqual(gps.parse_quality('1'), 'gps')
         self.assertEqual(gps.parse_quality('2'), 'dgps')
@@ -135,6 +138,7 @@ class TestGPSUtils(TestCase):
         self.assertRaises(ParseError, gps.parse_quality, 'lol1337')
 
     def test_parse_fix_type(self):
+        """Test parse_fix_type function"""
         self.assertEqual(gps.parse_fix_type('1'), 'no_fix')
         self.assertEqual(gps.parse_fix_type('2'), '2d')
         self.assertEqual(gps.parse_fix_type('3'), '3d')
@@ -142,10 +146,12 @@ class TestGPSUtils(TestCase):
         self.assertRaises(ParseError, gps.parse_quality, 'lol1337')
 
     def test_parse_speed(self):
+        """Test parse_speed function"""
         self.assertAlmostEqual(gps.parse_speed('31.332'), 58.026864, 3)
         self.assertRaises(ParseError, gps.parse_speed, 'lol1337')
 
     def test_checksum_valid(self):
+        """Test checksum_valid function"""
         self.assertEqual(gps.checksum_valid(
                 '$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39'),
                 '$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1')
