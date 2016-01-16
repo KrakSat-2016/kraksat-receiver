@@ -22,20 +22,20 @@ class GPSParser(Parser):
     def __init__(self):
         self.data = {}
 
-    def parse(self, id, timestamp, line):
-        line = checksum_valid(line)
-        if id == '$GPGGA':
-            return self._parse_gpgga(line)
-        elif id == '$GPGSA':
-            return self._parse_gpgsa(line)
-        elif id == '$GPGSV':
-            return self._parse_gpgsv(line)
-        elif id == '$GPRMC':
-            return self._parse_gprmc(line)
-        elif id == '$GPVTG':
+    def parse(self, line):
+        line.content = checksum_valid(line.content)
+        if line.id == '$GPGGA':
+            return self._parse_gpgga(line.content)
+        elif line.id == '$GPGSA':
+            return self._parse_gpgsa(line.content)
+        elif line.id == '$GPGSV':
+            return self._parse_gpgsv(line.content)
+        elif line.id == '$GPRMC':
+            return self._parse_gprmc(line.content)
+        elif line.id == '$GPVTG':
             # We don't get any data from GPVTG, but it's the last message, so
             # we can send gathered data here
-            self.data['timestamp'] = timestamp
+            self.data['timestamp'] = line.timestamp
             return self.data
 
     def _parse_gpgga(self, line):

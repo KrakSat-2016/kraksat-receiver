@@ -19,63 +19,60 @@ GPVTG_NO_FIX_LINE = '$GPVTG,0.00,T,,M,0.00,N,0.00,K,N*32'
 
 
 class GPSTests(ParserTestCase):
-    def setUp(self):
-        self.parser = GPSParser()
+    parser_class = GPSParser
 
     def test_gpgga(self):
         """Test parsing GPGGA message"""
-        self.parser.parse('$GPGGA', self.TIMESTAMP, GPGGA_LINE)
+        self.parse('$GPGGA', GPGGA_LINE)
         data = {'latitude': 48.1173, 'longitude': 11.5, 'altitude': 545.4,
                 'active_satellites': 3, 'quality': 'gps'}
         self.assertEqual(self.parser.data, data)
 
     def test_gpgga_no_fix(self):
         """Test parsing GPGGA without fix message"""
-        self.parser.parse('$GPGGA', self.TIMESTAMP, GPGGA_NO_FIX_LINE)
+        self.parse('$GPGGA', GPGGA_NO_FIX_LINE)
         data = {'quality': 'no_fix', 'active_satellites': 0}
         self.assertEqual(self.parser.data, data)
 
     def test_gpgsa(self):
         """Test parsing GPGSA message"""
-        self.parser.parse('$GPGSA', self.TIMESTAMP, GPGSA_LINE)
+        self.parse('$GPGSA', GPGSA_LINE)
         data = {'fix_type': '3d', 'pdop': 2.5, 'hdop': 1.3, 'vdop': 2.1}
         self.assertEqual(self.parser.data, data)
 
     def test_gpgsa_no_fix(self):
         """Test parsing GPGSA without fix message"""
-        self.parser.parse('$GPGSA', self.TIMESTAMP, GPGSA_NO_FIX_LINE)
+        self.parse('$GPGSA', GPGSA_NO_FIX_LINE)
         data = {'fix_type': 'no_fix'}
         self.assertEqual(self.parser.data, data)
 
     def test_gpgsv(self):
         """Test parsing GPGSV message"""
-        self.parser.parse('$GPGSV', self.TIMESTAMP, GPGSV_LINE)
+        self.parse('$GPGSV', GPGSV_LINE)
         data = {'satellites_in_view': 4}
         self.assertEqual(self.parser.data, data)
 
     def test_gprmc(self):
         """Test parsing GPRMC message"""
-        self.parser.parse('$GPRMC', self.TIMESTAMP, GPRMC_LINE)
+        self.parse('$GPRMC', GPRMC_LINE)
         data = {'direction': 84.4, 'speed_over_ground': 41.4848}
         self.assertEqual(self.parser.data, data)
 
     def test_gprmc_no_fix(self):
         """Test parsing GPRMC without fix message"""
-        self.parser.parse('$GPRMC', self.TIMESTAMP, GPRMC_NO_FIX_LINE)
+        self.parse('$GPRMC', GPRMC_NO_FIX_LINE)
         self.assertEqual(self.parser.data, {})
 
     def test_gpvtg(self):
         """Test parsing GPVTG message"""
         data = {'timestamp': self.TIMESTAMP}
-        self.assertEqual(self.parser.parse('$GPVTG', self.TIMESTAMP,
-                                           GPVTG_LINE), data)
+        self.assertEqual(self.parse('$GPVTG', GPVTG_LINE), data)
         self.assertEqual(self.parser.data, data)
 
     def test_gpvtg_no_fix(self):
         """Test parsing GPVTG without fix message"""
         data = {'timestamp': self.TIMESTAMP}
-        self.assertEqual(self.parser.parse('$GPVTG', self.TIMESTAMP,
-                                           GPVTG_NO_FIX_LINE), data)
+        self.assertEqual(self.parse('$GPVTG', GPVTG_NO_FIX_LINE), data)
         self.assertEqual(self.parser.data, data)
 
     def test_parse(self):
@@ -87,29 +84,20 @@ class GPSTests(ParserTestCase):
             'fix_type': '3d', 'pdop': 2.5, 'hdop': 1.3, 'vdop': 2.1,
             'active_satellites': 3, 'satellites_in_view': 4
         }
-        self.assertEqual(self.parser.parse('$GPGGA', self.TIMESTAMP,
-                                           GPGGA_LINE), None)
-        self.assertEqual(self.parser.parse('$GPGSA', self.TIMESTAMP,
-                                           GPGSA_LINE), None)
-        self.assertEqual(self.parser.parse('$GPGSV', self.TIMESTAMP,
-                                           GPGSV_LINE), None)
-        self.assertEqual(self.parser.parse('$GPRMC', self.TIMESTAMP,
-                                           GPRMC_LINE), None)
-        self.assertEqual(self.parser.parse('$GPVTG', self.TIMESTAMP,
-                                           GPVTG_LINE), data)
+        self.assertEqual(self.parse('$GPGGA', GPGGA_LINE), None)
+        self.assertEqual(self.parse('$GPGSA', GPGSA_LINE), None)
+        self.assertEqual(self.parse('$GPGSV', GPGSV_LINE), None)
+        self.assertEqual(self.parse('$GPRMC', GPRMC_LINE), None)
+        self.assertEqual(self.parse('$GPVTG', GPVTG_LINE), data)
 
     def test_parse_no_fix(self):
         """Test parsing multiple messages without fix"""
         data = {'timestamp': self.TIMESTAMP, 'active_satellites': 0,
                 'quality': 'no_fix', 'fix_type': 'no_fix'}
-        self.assertEqual(self.parser.parse('$GPGGA', self.TIMESTAMP,
-                                           GPGGA_NO_FIX_LINE), None)
-        self.assertEqual(self.parser.parse('$GPGSA', self.TIMESTAMP,
-                                           GPGSA_NO_FIX_LINE), None)
-        self.assertEqual(self.parser.parse('$GPRMC', self.TIMESTAMP,
-                                           GPRMC_NO_FIX_LINE), None)
-        self.assertEqual(self.parser.parse('$GPVTG', self.TIMESTAMP,
-                                           GPVTG_NO_FIX_LINE), data)
+        self.assertEqual(self.parse('$GPGGA', GPGGA_NO_FIX_LINE), None)
+        self.assertEqual(self.parse('$GPGSA', GPGSA_NO_FIX_LINE), None)
+        self.assertEqual(self.parse('$GPRMC', GPRMC_NO_FIX_LINE), None)
+        self.assertEqual(self.parse('$GPVTG', GPVTG_NO_FIX_LINE), data)
 
 
 class TestGPSUtils(TestCase):

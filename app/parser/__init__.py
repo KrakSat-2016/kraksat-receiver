@@ -1,3 +1,16 @@
+class OutputLine:
+    def __init__(self, id, timestamp, content):
+        """Constructor
+
+        :param str id: ID of the message type
+        :param datetime.datetime timestamp: message timestamp
+        :param str content: output line
+        """
+        self.id = id
+        self.timestamp = timestamp
+        self.content = content
+
+
 class Parser:
     """
     Class for the parsers for the data retrieved from the probe.
@@ -9,12 +22,11 @@ class Parser:
     ids = ()
     """List of the message IDs this parser should handle"""
 
-    def parse(self, id, timestamp, line):
+    def parse(self, line):
         """Parse a line of output
 
-        :param str id: ID of the message type
-        :param datetime.datetime timestamp: message timestamp
-        :param str line: output line
+        :param OutputLine line: output line (as an instance of OutputLine
+            class)
         :return: dictionary with the data to send or None, if nothing should
             be sent
         :rtype: dict|None
