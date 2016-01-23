@@ -10,3 +10,11 @@ Before first run or after making changes in files inside `app/ui` directory,
 ```
 python main.py
 ```
+
+## Unit Testing
+
+Running unit tests:
+
+```
+python -m unittest
+```
