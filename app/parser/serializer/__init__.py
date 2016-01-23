@@ -159,7 +159,10 @@ class BaseSerializer:
                 e.field_id = id
                 raise
             id += 1
-        return self.post_parse_data(self.data_cls(vals))
+
+        data = self.data_cls(vals)
+        self.post_parse_data(data)
+        return data
 
     def get_data(self, line_content):
         """Split data from line_content as list of separate fields
@@ -175,13 +178,12 @@ class BaseSerializer:
     def post_parse_data(self, data):
         """Invoked when all fields are parsed
 
-        Default implementation returns data. Subclasses may override it to e.g.
-        calculate some value using multiple fields.
+        Default implementation does nothing with the data. Subclasses may
+        override it to e.g. calculate some value using multiple fields.
 
-        :param data: parsed data
-        :return: value of ``data`` parameter, possibly modified
+        :param data: parsed data, can be changed inside the method
         """
-        return data
+        pass
 
     def parse(self, line_content):
         """Parse given line of output

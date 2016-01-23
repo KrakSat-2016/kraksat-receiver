@@ -1,10 +1,98 @@
 from app.parser import Parser, ParseError
+from app.parser.serializer import Serializer, fields
 
-NO_FIX = 'no_fix'
-GPS_QUALITY = 'gps'
-DGPS_QUALITY = 'dgps'
-FIX_2D = '2d'
-FIX_3D = '3d'
+
+class GPGGASerializer(Serializer):
+    """Serializer for GPGGA messages"""
+    timestamp = fields.IgnoredField()
+    latitude = fields.LatitudeField(empty=True)
+    latitude_dir = fields.LatitudeDirectionField(empty=True)
+    longitude = fields.LongitudeField(empty=True)
+    longitude_dir = fields.LongitudeDirectionField(empty=True)
+    quality = fields.FixQualityField()
+    active_satellites = fields.IntegerField()
+    hdop = fields.IgnoredField()  # Retrieved in GPGSA
+    altitude = fields.FloatField(empty=True)
+    altitude_unit = fields.IgnoredField(choices=('M',))  # Always M (meters)
+    geoidal_separation = fields.IgnoredField()
+    geoidal_separation_unit = fields.IgnoredField()
+    diff_station_last_update = fields.IgnoredField()
+    diff_station_id = fields.IgnoredField()
+
+    def post_parse_data(self, data):
+        if (data.latitude is not None and data.latitude_dir is not None and
+                data.longitude is not None and data.longitude_dir is not None):
+            data.latitude = data.latitude * data.latitude_dir
+            data.longitude = data.longitude * data.longitude_dir
+
+
+class GPGSASerializer(Serializer):
+    """Serializer for GPGSA messages"""
+    mode = fields.IgnoredField()
+    fix_type = fields.FixTypeField()
+    sv_id_1 = fields.IgnoredField()
+    sv_id_2 = fields.IgnoredField()
+    sv_id_3 = fields.IgnoredField()
+    sv_id_4 = fields.IgnoredField()
+    sv_id_5 = fields.IgnoredField()
+    sv_id_6 = fields.IgnoredField()
+    sv_id_7 = fields.IgnoredField()
+    sv_id_8 = fields.IgnoredField()
+    sv_id_9 = fields.IgnoredField()
+    sv_id_10 = fields.IgnoredField()
+    sv_id_11 = fields.IgnoredField()
+    sv_id_12 = fields.IgnoredField()
+    pdop = fields.FloatField(empty=True)
+    hdop = fields.FloatField(empty=True)
+    vdop = fields.FloatField(empty=True)
+
+
+class GPGSVSerializer(Serializer):
+    """Serializer for GPGSV messages"""
+    no_of_messages = fields.IgnoredField()
+    message_no = fields.IgnoredField()
+    satellites_in_view = fields.IntegerField()
+    sv_prn_no_1 = fields.IgnoredField()
+    elevation_1 = fields.IgnoredField()
+    azimuth_1 = fields.IgnoredField()
+    snr_1 = fields.IgnoredField()
+    sv_prn_no_2 = fields.IgnoredField()
+    elevation_2 = fields.IgnoredField()
+    azimuth_2 = fields.IgnoredField()
+    snr_2 = fields.IgnoredField()
+    sv_prn_no_3 = fields.IgnoredField()
+    elevation_3 = fields.IgnoredField()
+    azimuth_3 = fields.IgnoredField()
+    snr_3 = fields.IgnoredField()
+    sv_prn_no_4 = fields.IgnoredField()
+    elevation_4 = fields.IgnoredField()
+    azimuth_4 = fields.IgnoredField()
+    snr_4 = fields.IgnoredField()
+
+
+class GPRMCSerializer(Serializer):
+    """Serializer for GPRMC messages"""
+    VALIDITY_VALID = 'A'
+    VALIDITY_INVALID = 'V'
+
+    timestamp = fields.IgnoredField()
+    validity = fields.StringField(choices=(VALIDITY_VALID, VALIDITY_INVALID),
+                                  dict_included=False)
+    latitude = fields.IgnoredField()
+    latitude_dir = fields.IgnoredField()
+    longitude = fields.IgnoredField()
+    longitude_dir = fields.IgnoredField()
+    speed_over_ground = fields.KnotsSpeedField()
+    direction = fields.FloatField()
+    date_stamp = fields.IgnoredField()
+    variation = fields.IgnoredField()
+    variation_dir = fields.IgnoredField()
+    mode = fields.IgnoredField(optional=True)  # Introduced in NMEA 3.00
+
+    def post_parse_data(self, data):
+        if data.validity == self.VALIDITY_INVALID:
+            data.direction = None
+            data.speed_over_ground = None
 
 
 class GPSParser(Parser):
@@ -18,196 +106,27 @@ class GPSParser(Parser):
 
     url = '/gps/'
     ids = ('$GPGGA', '$GPGSA', '$GPGSV', '$GPRMC', '$GPVTG')
+    serializers = {
+        '$GPGGA': GPGGASerializer,
+        '$GPGSA': GPGSASerializer,
+        '$GPGSV': GPGSVSerializer,
+        '$GPRMC': GPRMCSerializer
+    }
 
     def __init__(self):
+        super().__init__()
         self.data = {}
 
     def parse(self, line):
         line.content = checksum_valid(line.content)
-        if line.id == '$GPGGA':
-            return self._parse_gpgga(line.content)
-        elif line.id == '$GPGSA':
-            return self._parse_gpgsa(line.content)
-        elif line.id == '$GPGSV':
-            return self._parse_gpgsv(line.content)
-        elif line.id == '$GPRMC':
-            return self._parse_gprmc(line.content)
-        elif line.id == '$GPVTG':
+        if line.id == '$GPVTG':
             # We don't get any data from GPVTG, but it's the last message, so
             # we can send gathered data here
             self.data['timestamp'] = line.timestamp
             return self.data
-
-    def _parse_gpgga(self, line):
-        """Parse GPGGA message (Global Positioning System Fix Data)
-
-        :param str line: output line to parse
-        """
-        (
-            _,  # UTC timestamp
-            latitude, latitude_dir,
-            longitude, longitude_dir,
-            quality, satellites, _,  # HDOP (retrieved in GPGSA)
-            altitude, _,  # Altitude unit (always meters)
-            _, _,  # Geoidal separation - value and unit (not used)
-            _, _  # Diff. station last update time and ID (not used)
-        ) = self._get_args(line)
-
-        quality = parse_quality(quality)
-        satellites = int(satellites)
-        self.data.update({
-            'quality': quality,
-            'active_satellites': satellites
-        })
-        if quality != NO_FIX:
-            latitude = parse_latitude(latitude, latitude_dir)
-            longitude = parse_longitude(longitude, longitude_dir)
-            altitude = float(altitude)
-            self.data.update({
-                'latitude': latitude,
-                'longitude': longitude,
-                'altitude': altitude
-            })
-
-    def _parse_gpgsa(self, line):
-        """Parse GPGSA message (GPS DOP and active satellites)
-
-        :param str line: output line to parse
-        """
-        (
-            _,  # Mode
-            fix_type, _, _, _, _, _, _, _, _, _, _, _, _,  # IDs of SVs
-            pdop, hdop, vdop
-        ) = self._get_args(line)
-
-        fix_type = parse_fix_type(fix_type)
-        self.data.update({
-            'fix_type': fix_type
-        })
-        if fix_type != NO_FIX:
-            pdop = float(pdop)
-            hdop = float(hdop)
-            vdop = float(vdop)
-            self.data.update({
-                'pdop': pdop,
-                'hdop': hdop,
-                'vdop': vdop
-            })
-
-    def _parse_gpgsv(self, line):
-        """Parse GPGSV message (GPS Satellites in view)
-
-        :param str line: output line to parse
-        """
-        satellites = int(self._get_args(line)[2])
-        self.data['satellites_in_view'] = satellites
-
-    def _parse_gprmc(self, line):
-        """Parse GPRMC message (Recommended minimum specific GPS/Transit data)
-
-        :param str line: output line to parse
-        """
-        (
-            _,  # UTC timestamp
-            validity, _, _, _, _,  # Latitude, dir, longitude, dir
-            speed, direction, _,  # Date stamp
-            _, *_  # Variation, east/west, mode indicator for NMEA 3.00+
-        ) = self._get_args(line)
-
-        if validity == 'A':
-            speed = parse_speed(speed)
-            direction = float(direction)
-            self.data.update({
-                'speed_over_ground': speed,
-                'direction': direction
-            })
-
-
-def parse_latitude(latitude, latitude_dir):
-    """Convert given latitude string to float value
-
-    :param str latitude: latitude string
-    :param str latitude_dir: string indicating the hemisphere (``N`` or ``S``)
-    :return: converted latitude string as float value
-    :rtype: float
-    :raise ParseError: when ``latitude_dir`` is neither ``N`` nor ``S``
-    """
-    return _parse_coord(latitude, latitude_dir, 'N', 'S')
-
-
-def parse_longitude(longitude, longitude_dir):
-    """Convert given longitude string to float value
-
-    :param str longitude: longitude string
-    :param str longitude_dir: string indicating the hemisphere (``E`` or ``W``)
-    :return: converted longitude string as float value
-    :rtype: float
-    :raise ParseError: when ``longitude_dir`` is neither ``E`` nor ``W``
-    """
-    return _parse_coord(longitude, longitude_dir, 'E', 'W')
-
-
-def _parse_coord(coord, direction, positive_sign, negative_sign):
-    """Convert given geographic coordinate string to float value
-
-    :param str coord: coordinate string
-    :param str direction: direction string
-    :param str positive_sign: direction when the return value is supposed to
-        be positive
-    :param str negative_sign: direction when the return value is supposed to
-        be negative
-    :rtype: float
-    :raise ParseError: when ``coord_dir`` is not equal ``positive_sign`` or
-        ``negative_sign``
-    """
-    if direction != positive_sign and direction != negative_sign:
-        raise ParseError("Coordinate direction '{}' is neither '{}' nor '{}'"
-                         .format(direction, positive_sign, negative_sign))
-
-    dot = coord.index('.')
-    sign = 1 if direction == positive_sign else -1
-    return sign * (float(coord[:dot - 2]) + float(coord[dot - 2:]) / 60)
-
-
-def parse_quality(quality):
-    """Parse GPS fix quality field value
-
-    :param str quality: ID of the quality
-    :return: one of the values: ``NO_FIX``, ``GPS_QUALITY``, ``DGPS_QUALITY``
-    :rtype: str
-    """
-    try:
-        return [NO_FIX, GPS_QUALITY, DGPS_QUALITY][int(quality)]
-    except (IndexError, ValueError):
-        raise ParseError("'{}' is not valid quality ID".format(quality))
-
-
-def parse_fix_type(fix_type):
-    """Parse GPS fix type field value
-
-    :param str fix_type: ID of the fix type
-    :return: one of the values: ``NO_FIX``, ``FIX_2D``, ``FIX_3D``
-    :rtype: str
-    """
-    try:
-        # I have literally no idea why quality is indexed from 0, but type
-        # from 1
-        return [NO_FIX, FIX_2D, FIX_3D][int(fix_type) - 1]
-    except (IndexError, ValueError):
-        raise ParseError("'{}' is not valid fix type ID".format(fix_type))
-
-
-def parse_speed(speed_in_knots):
-    """Convert speed in knots to kilometers per hour
-
-    :param str speed_in_knots: string containing speed in knots
-    :rtype: float
-    """
-    try:
-        return float(speed_in_knots) * 1.852
-    except ValueError:
-        raise ParseError("'{}' is not valid speed value"
-                         .format(speed_in_knots))
+        else:
+            # Use the serializers
+            self.data.update(super().parse(line))
 
 
 def checksum_valid(line):
