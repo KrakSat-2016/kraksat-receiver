@@ -97,7 +97,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
         # Append http:// to the server URL if it is not there
         text = self.serverEdit.text()
         if (text and not (text.startswith('http://') or
-                              text.startswith('https://'))):
+                          text.startswith('https://'))):
             self.serverEdit.setText('http://' + text)
 
     def _set_ui_locked(self, locked):
