@@ -22,8 +22,21 @@ class Parser:
     ids = ()
     """List of the message IDs this parser should handle"""
 
+    serializers = {}
+    """Dictionary containing (message ID -> serializer class) mappings for
+    easy data parsing"""
+
+    def __init__(self):
+        self._serializers = {}
+        for key, value in self.serializers.items():
+            self._serializers[key] = value()
+
     def parse(self, line):
         """Parse a line of output
+
+        The method tries to use defined serializers by default, raising
+        :py:class:`NotImplementedError` if no serializer is available for given
+        message ID. Subclasses should override this method for custom behavior.
 
         :param OutputLine line: output line (as an instance of OutputLine
             class)
@@ -31,7 +44,9 @@ class Parser:
             be sent
         :rtype: dict|None
         """
-        pass
+        if line.id in self._serializers:
+            return self._serializers[line.id].parse(line.content).as_dict()
+        raise NotImplementedError
 
     def _get_args(self, line):
         """Utility function to split the line with commas, omitting ID
