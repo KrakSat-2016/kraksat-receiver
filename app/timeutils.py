@@ -1,11 +1,39 @@
 import time
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 UTC_FORMAT = 'UTC{}{:02}:{:02}'
 ISO_8601_FORMAT = '{}{:02}:{:02}'
+
+
+def natural_timedelta(delta):
+    """Express timedelta in human-friendly format, e.g. 70 => '1min 10s'
+
+    Note that for 60 seconds, the function will return '1min 0s' and not just
+    '1min'. The same behavior is for hours.
+
+    :param timedelta|int delta: timedelta object or number of seconds as
+        integer
+    :return: timedelta in human-friendly format
+    :rtype: str
+    """
+    sec = delta
+    if isinstance(delta, timedelta):
+        sec = round(delta.total_seconds())
+    mins = sec // 60
+    hrs = mins // 60
+    sec %= 60
+    mins %= 60
+
+    result = '{}s'.format(sec)
+    if mins:
+        result = '{}min '.format(mins) + result
+    if hrs:
+        result = '{}h '.format(hrs) + result
+
+    return result
 
 
 class TimeOffset:

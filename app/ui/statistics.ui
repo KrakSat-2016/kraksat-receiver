@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>177</width>
-    <height>63</height>
+    <width>200</width>
+    <height>83</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,12 @@
     </item>
     <item row="0" column="1">
      <widget class="QLabel" name="timeSinceStartLabel">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>0s</string>
       </property>
@@ -50,8 +56,34 @@
     </item>
     <item row="1" column="1">
      <widget class="QLabel" name="timeSinceLastReceiveLabel">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>0s</string>
+       <string>None</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Requests sent:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="requestsSentLabel">
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>0</string>
       </property>
      </widget>
     </item>
