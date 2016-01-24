@@ -28,7 +28,7 @@ def natural_timedelta(delta):
     mins %= 60
 
     result = '{}s'.format(sec)
-    if mins:
+    if mins or hrs:
         result = '{}min '.format(mins) + result
     if hrs:
         result = '{}h '.format(hrs) + result
