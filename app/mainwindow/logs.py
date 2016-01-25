@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5.QtCore import QSortFilterProxyModel, Qt, QRegExp
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtGui import QStandardItemModel
@@ -7,6 +9,8 @@ from app import logger
 from app.mainwindow.logstablemodel import LogsTableModel
 from app.settings import Settings
 from app.ui.ui_logs import Ui_LogsDock
+from app.uiutils import get_max_text_width, TABLE_HEIGHT_PADDING, \
+    TABLE_WIDTH_PADDING
 
 
 class LogsDock(QDockWidget, Ui_LogsDock):
@@ -21,26 +25,31 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         self.reset_filter()
 
     def _init_table(self):
-        def on_rows_inserted(index, first, last):
-            for i in range(first, last + 1):
-                self.table.resizeRowToContents(i)
-
         source_model = LogsTableModel(self, logger.get_memory_handler())
         model = QSortFilterProxyModel(self)
         model.setSourceModel(source_model)
         model.setFilterKeyColumn(2)  # module column
         self.table.setModel(model)
-        model.rowsInserted.connect(on_rows_inserted)
 
+        # Headers
         self.table.verticalHeader().hide()
-        self.table.horizontalHeader().setSectionResizeMode(
-                QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table.horizontalHeader().setStretchLastSection(True)
+
+        # Set column widths
+        fm = self.table.fontMetrics()
+        self.table.horizontalHeader().resizeSection(
+                0, fm.width('00:00:00') + TABLE_WIDTH_PADDING)
+        self.table.horizontalHeader().resizeSection(1, get_max_text_width(
+                fm, logging._nameToLevel.keys()) + TABLE_WIDTH_PADDING)
+        self.table.horizontalHeader().resizeSection(2, get_max_text_width(
+                fm, logger.get_modules()) + TABLE_WIDTH_PADDING)
+        # Row height
+        self.table.verticalHeader().setDefaultSectionSize(
+                fm.height() + TABLE_HEIGHT_PADDING)
 
         self.table.setWordWrap(False)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        self.table.resizeRowsToContents()
 
     def _init_filter_combo_box(self):
         model = QStandardItemModel()
@@ -69,9 +78,6 @@ class LogsDock(QDockWidget, Ui_LogsDock):
                 self.table.model().setFilterRegExp(QRegExp('$^'))
             else:
                 self.table.model().setFilterRegExp(QRegExp(regexp))
-        for i in range(3):
-            # Resize all columns except Message (which expands automatically)
-            self.table.resizeColumnToContents(i)
 
     def save_settings(self):
         Settings()[self.CONFIG_LOGS_FILTER_STATE_KEY] = \
