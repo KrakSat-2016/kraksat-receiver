@@ -9,8 +9,9 @@ from app import logger
 from app.mainwindow.logstablemodel import LogsTableModel
 from app.settings import Settings
 from app.ui.ui_logs import Ui_LogsDock
-from app.uiutils import get_max_text_width, TABLE_HEIGHT_PADDING, \
-    TABLE_WIDTH_PADDING
+from app.uiutils import (
+    get_max_text_width, TABLE_HEIGHT_PADDING, TABLE_WIDTH_PADDING
+)
 
 
 class LogsDock(QDockWidget, Ui_LogsDock):
