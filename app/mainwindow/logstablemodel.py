@@ -39,8 +39,9 @@ class LogsTableModel(QAbstractTableModel):
         """
         count = len(self.records)
         self.beginInsertRows(QModelIndex(), count, count)
-        self.records.append(LogRecord(record.created, record.levelno,
-                                      record.name, record.getMessage()))
+        self.records.append(LogRecord(
+            record.created, record.levelno, record.name,
+            record.getMessage().splitlines()[0]))
         self.endInsertRows()
 
     def columnCount(self, parent=None, *args, **kwargs):
