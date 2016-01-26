@@ -1,6 +1,7 @@
 import logging
 from collections import namedtuple
 from datetime import datetime
+from enum import IntEnum
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
@@ -9,6 +10,13 @@ LogRecord = namedtuple('LogRecord', 'time, level, module, message')
 
 DISPLAY_DATETIME_FORMAT = '%H:%M:%S'
 TOOLTIP_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
+
+class Column(IntEnum):
+    timestamp = 0
+    level = 1
+    module = 2
+    message = 3
 
 
 class LogsTableModel(QAbstractTableModel):
@@ -56,17 +64,17 @@ class LogsTableModel(QAbstractTableModel):
         record = self.records[row]
 
         if role == Qt.DisplayRole:
-            if col == 0:
+            if col == Column.timestamp:
                 return (datetime.fromtimestamp(record.time)
                         .strftime(DISPLAY_DATETIME_FORMAT))
-            elif col == 1:
+            elif col == Column.level:
                 return logging.getLevelName(record.level)
-            elif col == 2:
+            elif col == Column.module:
                 return record.module
-            elif col == 3:
+            elif col == Column.message:
                 return record.message
         elif role == Qt.ToolTipRole:
-            if col == 0:
+            if col == Column.timestamp:
                 return (datetime.fromtimestamp(record.time)
                         .strftime(TOOLTIP_DATETIME_FORMAT))
 
