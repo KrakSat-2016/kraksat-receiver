@@ -2,8 +2,6 @@ from collections import deque, namedtuple
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
-from app.sender import RequestData
-
 STATUS_WAITING = 0
 STATUS_PROCESSING = 1
 STATUS_ERROR = 2
@@ -42,7 +40,8 @@ class QueueTableModel(QAbstractTableModel):
     def add_request(self, request_data):
         """Add given request to the queue.
 
-        :param RequestData request_data: request data of the new request
+        :param app.sender.RequestData request_data: request data of the new
+            request
         """
         count = len(self.queue)
         self.beginInsertRows(QModelIndex(), count, count)
@@ -54,8 +53,8 @@ class QueueTableModel(QAbstractTableModel):
     def set_status_processing(self, request_data):
         """Set status of given request to "Processing"
 
-        :param RequestData request_data: request data of the request to change
-            status of
+        :param app.sender.RequestData request_data: request data of the request
+            to change status of
         """
         for index, item in enumerate(self.queue):
             if request_data.id == item.id:
@@ -68,7 +67,8 @@ class QueueTableModel(QAbstractTableModel):
     def remove_request(self, request_data):
         """Remove provided request from the queue
 
-        :param RequestData request_data: request data of the request to remove
+        :param app.sender.RequestData request_data: request data of the request
+            to remove
         """
         for index, item in enumerate(self.queue):
             if request_data.id == item.id:
