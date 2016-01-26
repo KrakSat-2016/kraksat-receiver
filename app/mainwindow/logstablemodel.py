@@ -5,11 +5,15 @@ from enum import IntEnum
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
+from PyQt5.QtGui import QBrush, QColor
+
 # Lightweight version of log record class containing only the data we need
 LogRecord = namedtuple('LogRecord', 'time, level, module, message')
 
 DISPLAY_DATETIME_FORMAT = '%H:%M:%S'
 TOOLTIP_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
+ERROR_BRUSH = QBrush(QColor(255, 148, 148))
 
 
 class Column(IntEnum):
@@ -77,6 +81,9 @@ class LogsTableModel(QAbstractTableModel):
             if col == Column.timestamp:
                 return (datetime.fromtimestamp(record.time)
                         .strftime(TOOLTIP_DATETIME_FORMAT))
+        elif role == Qt.BackgroundRole:
+            if record.level >= logging.ERROR:
+                return ERROR_BRUSH
 
     def headerData(self, section, orientation, role=None):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
