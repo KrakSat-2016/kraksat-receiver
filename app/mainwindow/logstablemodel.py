@@ -62,6 +62,17 @@ class LogsTableModel(QAbstractTableModel):
     def rowCount(self, parent=None, *args, **kwargs):
         return len(self.records)
 
+    @staticmethod
+    def format_timestamp(record, format):
+        """Format timestamp from given record with given format
+
+        :param LogRecord record: record whose timestamp is to be formatted
+        :param str format: format to use
+        :return: formatted timestamp
+        :rtype: str
+        """
+        return datetime.fromtimestamp(record.time).strftime(format)
+
     def data(self, index, role=None):
         row = index.row()
         col = index.column()
@@ -69,8 +80,7 @@ class LogsTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if col == Column.timestamp:
-                return (datetime.fromtimestamp(record.time)
-                        .strftime(DISPLAY_DATETIME_FORMAT))
+                return self.format_timestamp(record, DISPLAY_DATETIME_FORMAT)
             elif col == Column.level:
                 return logging.getLevelName(record.level)
             elif col == Column.module:
@@ -79,8 +89,7 @@ class LogsTableModel(QAbstractTableModel):
                 return record.message
         elif role == Qt.ToolTipRole:
             if col == Column.timestamp:
-                return (datetime.fromtimestamp(record.time)
-                        .strftime(TOOLTIP_DATETIME_FORMAT))
+                return self.format_timestamp(record, TOOLTIP_DATETIME_FORMAT)
         elif role == Qt.BackgroundRole:
             if record.level >= logging.ERROR:
                 return ERROR_BRUSH

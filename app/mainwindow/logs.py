@@ -1,12 +1,15 @@
 import logging
+import os
 
-from PyQt5.QtCore import QSortFilterProxyModel, Qt, QRegExp
+from PyQt5.QtCore import QSortFilterProxyModel, Qt, QRegExp, QCoreApplication
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QDockWidget, QHeaderView, QAbstractItemView
 
 from app import logger
-from app.mainwindow.logstablemodel import LogsTableModel
+from app.mainwindow.logstablemodel import (
+    LogsTableModel, TOOLTIP_DATETIME_FORMAT
+)
 from app.settings import Settings
 from app.ui.ui_logs import Ui_LogsDock
 from app.uiutils import (
@@ -52,6 +55,8 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         self.table.setWordWrap(False)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
+        self.table.insertAction(None, self.actionCopy)
+
     def _init_filter_combo_box(self):
         model = QStandardItemModel()
         for module in logger.get_modules():
@@ -79,6 +84,32 @@ class LogsDock(QDockWidget, Ui_LogsDock):
                 self.table.model().setFilterRegExp(QRegExp('$^'))
             else:
                 self.table.model().setFilterRegExp(QRegExp(regexp))
+
+    @staticmethod
+    def format_record_for_copy(record):
+        """Format given LogRecord data to be copied to clipboard
+
+        The format is: "<timestamp> | <level> | <module> | <message>"
+        (similar to the one used by file logger).
+
+        :param app.mainwindow.logstablemodel.LogRecord record: record instance
+        :return: formatted record data to be copied to clipboard
+        :rtype: str
+        """
+        time = LogsTableModel.format_timestamp(record, TOOLTIP_DATETIME_FORMAT)
+        return ('{} | {} | {} | {}'
+                .format(time, logging.getLevelName(record.level),
+                        record.module, record.message))
+
+    def copy_selected(self):
+        """Copy data from selected table rows to clipboard"""
+        model = self.table.model().sourceModel()
+        text = os.linesep.join(
+                self.format_record_for_copy(model.records[index.row()])
+                for index in self.table.selectionModel().selectedRows()
+        )
+        if text:
+            QCoreApplication.instance().clipboard().setText(text)
 
     def save_settings(self):
         Settings()[self.CONFIG_LOGS_FILTER_STATE_KEY] = \
