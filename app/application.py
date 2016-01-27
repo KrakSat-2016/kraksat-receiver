@@ -7,6 +7,7 @@ from app.api import API
 from app.logger import set_up_logging
 from app.logindialog import LoginDialog
 from app.mainwindow import MainWindow
+from app.parser.outputparser import ParserManager
 from app.sender import QtSenderWorker
 
 
@@ -31,9 +32,12 @@ class Application:
         self.api.set_token(token)
         self.sender_worker = QtSenderWorker(self.api, self.q_app)
         sender = self.sender_worker.sender
+        self.parser_manager = ParserManager(self.q_app)
         self._init_main_window(sender)
+
         # todo gracefully terminate the thread on quit
         self.sender_worker.start()
+        self.parser_manager.parse_file()
         self.main_window.show()
 
     def _init_main_window(self, sender):
