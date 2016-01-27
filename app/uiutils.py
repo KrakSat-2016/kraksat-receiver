@@ -12,4 +12,4 @@ def get_max_text_width(fm, texts):
     :return: maximum text width
     :rtype: int
     """
-    return max(fm.width(text) for text in texts)
+    return max(map(fm.width, texts))
