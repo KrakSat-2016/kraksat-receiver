@@ -2,7 +2,7 @@ UI_DIR = app/ui
 RESOURCE_DIR = app/ui/res
 BUILD_DIR = app/ui
 
-UI_FILES = main.ui login.ui gsinfo.ui logs.ui queue.ui statistics.ui missionstatus.ui camera.ui
+UI_FILES = main.ui login.ui gsinfo.ui logs.ui parser.ui queue.ui statistics.ui missionstatus.ui camera.ui
 RESOURCES = res.qrc
 
 PYUIC = pyuic5

@@ -33,14 +33,14 @@ class Application:
         self.sender_worker = QtSenderWorker(self.api, self.q_app)
         sender = self.sender_worker.sender
         self.parser_manager = ParserManager(self.q_app)
-        self._init_main_window(sender)
+        self._init_main_window(sender, self.parser_manager)
 
         # todo gracefully terminate the thread on quit
         self.sender_worker.start()
         self.parser_manager.parse_file()
         self.main_window.show()
 
-    def _init_main_window(self, sender):
-        self.main_window = MainWindow(sender)
+    def _init_main_window(self, sender, parser_manager):
+        self.main_window = MainWindow(sender, parser_manager)
         self.dialog.close()
         self.dialog = None
