@@ -36,9 +36,7 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         self.table.setModel(model)
 
         # Headers
-        self.table.verticalHeader().hide()
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.table.horizontalHeader().setStretchLastSection(True)
 
         # Set column widths
         fm = self.table.fontMetrics()
@@ -51,9 +49,6 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         # Row height
         self.table.verticalHeader().setDefaultSectionSize(
                 fm.height() + TABLE_HEIGHT_PADDING)
-
-        self.table.setWordWrap(False)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.table.insertAction(None, self.actionCopy)
 
