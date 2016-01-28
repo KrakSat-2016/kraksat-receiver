@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
+from pathlib import Path
 
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from app.parser import OutputLine, ParseError
 from app.parser.gps import GPSParser
@@ -98,17 +99,21 @@ class QtOutputParserWorker(QThread, OutputParser):
                                                   .format(str(e)))
 
 
-class ParserManager:
+class ParserManager(QObject):
     """
     Manages QtOutputParserWorker instance and allows to run the parser easily.
     """
+    parser_started = pyqtSignal()
+    parser_terminated = pyqtSignal()
 
     def __init__(self, parent):
         """Constructor
 
         :param QObject parent: parent object for the worker QThread
         """
+        super(ParserManager, self).__init__(parent)
         self.worker = None
+        self.path = None
         self.parent = parent
 
     def is_running(self):
@@ -128,6 +133,9 @@ class ParserManager:
             # todo implement ParserManage.terminate()
             raise NotImplementedError
 
+    def _on_parser_terminated(self):
+        logging.getLogger('parser').warning('Parser terminated unexpectedly')
+
     def parse_file(self, path=None):
         """Starts the worker set to parse given file
 
@@ -136,11 +144,23 @@ class ParserManager:
             or the default filename (``data``) will be used if there's no
             value in settings
         :raise RuntimeError: if the worker is currently running
+        :raise FileNotFoundError: if the raw data file does not exist
         """
         if self.is_running():
             raise RuntimeError('The worker is already running')
         if path is None:
             path = Settings().value('parser/filename', 'data')
 
-        self.worker = QtOutputParserWorker(path, self.parent)
+        try:
+            self.path = str(Path(path).resolve())
+        except FileNotFoundError as e:
+            logging.getLogger('parser').exception(
+                    'Parser start failed: could not find data file ({})'
+                    .format(str(e)))
+            return
+
+        self.worker = QtOutputParserWorker(self.path, self.parent)
+        self.worker.started.connect(self.parser_started)
+        self.worker.finished.connect(self._on_parser_terminated)
+        self.worker.finished.connect(self.parser_terminated)
         self.worker.start()
