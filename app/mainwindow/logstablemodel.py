@@ -14,6 +14,7 @@ DISPLAY_DATETIME_FORMAT = '%H:%M:%S'
 TOOLTIP_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 ERROR_BRUSH = QBrush(QColor(255, 148, 148))
+WARNING_BRUSH = QBrush(QColor(250, 235, 204))
 
 
 class Column(IntEnum):
@@ -93,6 +94,8 @@ class LogsTableModel(QAbstractTableModel):
         elif role == Qt.BackgroundRole:
             if record.level >= logging.ERROR:
                 return ERROR_BRUSH
+            elif record.level >= logging.WARNING:
+                return WARNING_BRUSH
 
     def headerData(self, section, orientation, role=None):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
