@@ -13,7 +13,8 @@ from app.mainwindow.logstablemodel import (
 from app.settings import Settings
 from app.ui.ui_logs import Ui_LogsDock
 from app.uiutils import (
-    get_max_text_width, TABLE_HEIGHT_PADDING, TABLE_WIDTH_PADDING
+    get_max_text_width, TABLE_HEIGHT_PADDING, TABLE_WIDTH_PADDING,
+    setup_autoscroll
 )
 
 
@@ -51,6 +52,7 @@ class LogsDock(QDockWidget, Ui_LogsDock):
                 fm.height() + TABLE_HEIGHT_PADDING)
 
         self.table.insertAction(None, self.actionCopy)
+        setup_autoscroll(self.table)
 
     def _init_filter_combo_box(self):
         model = QStandardItemModel()
