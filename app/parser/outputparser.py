@@ -8,6 +8,8 @@ from app.parser import OutputLine, ParseError
 from app.parser.gps import GPSParser
 from app.settings import Settings
 
+PARSERS = [GPSParser]
+
 
 class BaseOutputParser:
     """
@@ -73,7 +75,7 @@ class OutputParser(BaseOutputParser):
     """
 
     def __init__(self):
-        parsers = [GPSParser()]
+        parsers = [Parser() for Parser in PARSERS]
         super().__init__(parsers)
 
 

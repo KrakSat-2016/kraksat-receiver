@@ -1,10 +1,12 @@
 from PyQt5.QtCore import QSortFilterProxyModel
-from PyQt5.QtWidgets import (
-    QDockWidget, QHeaderView, QStylePainter, QAbstractItemView, QLabel
-)
+from PyQt5.QtWidgets import QDockWidget, QHeaderView, QLabel
 
 from app.mainwindow.queuetablemodel import QueueTableModel
+from app.parser import outputparser
 from app.ui.ui_queue import Ui_QueueDock
+from app.uiutils import (
+    get_max_text_width, TABLE_WIDTH_PADDING, TABLE_HEIGHT_PADDING
+)
 
 
 class QueueDock(QDockWidget, Ui_QueueDock):
@@ -23,29 +25,30 @@ class QueueDock(QDockWidget, Ui_QueueDock):
         # todo init queue filter combo box
 
     def _init_table(self):
-        def on_rows_inserted(index, first, last):
-            for i in range(first, last + 1):
-                self.table.resizeRowToContents(i)
-
         source_model = QueueTableModel(self._sender, self)
         model = QSortFilterProxyModel(self)
         model.setSourceModel(source_model)
         model.setFilterKeyColumn(1)  # module column
         self.table.setModel(model)
-        model.rowsInserted.connect(on_rows_inserted)
 
         self.table.horizontalHeader().setSectionResizeMode(
                 QHeaderView.Fixed)
         # Resize columns basing on maximum contents widths
-        fm = QStylePainter(self.table).fontMetrics()
-        # We don't expect the number of requests to exceed 10M
+        fm = self.table.fontMetrics()
+        # We don't expect the number of requests to exceed 1M
         self.table.horizontalHeader().resizeSection(
-                0, fm.width('0000000') + 6)
-        # todo set to the longest module name width
-        self.table.horizontalHeader().resizeSection(
-                1, fm.width('0000000') + 6)
+                0, fm.width('000000') + TABLE_WIDTH_PADDING)
+        self.table.horizontalHeader().resizeSection(1, get_max_text_width(
+                fm, self.get_known_queue_modules()) + TABLE_WIDTH_PADDING)
+        # Row height
+        self.table.verticalHeader().setDefaultSectionSize(
+                fm.height() + TABLE_HEIGHT_PADDING)
 
-        self.table.resizeRowsToContents()
+    @staticmethod
+    def get_known_queue_modules():
+        """Get names of all app modules that sends requests via Sender"""
+        return ([cls.__name__ for cls in outputparser.PARSERS] +
+                ['GSInfoDialog', 'MissionStatus'])
 
     def create_statusbar_widget(self):
         """Create label for status bar showing number of requests processed

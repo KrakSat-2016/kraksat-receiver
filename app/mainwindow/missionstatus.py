@@ -90,7 +90,7 @@ class MissionStatusDock(QDockWidget, Ui_MissionStatusDock):
             mission_time = get_current_mission_time(self.last_change, now,
                                                     self.last_time)
 
-        self._sender.add_request('missionstatus', '/status/', {
+        self._sender.add_request('MissionStatus', '/status/', {
             'timestamp': api.encode_datetime(now),
             'phase': self.stateComboBox.currentData(),
             'mission_time': mission_time,
