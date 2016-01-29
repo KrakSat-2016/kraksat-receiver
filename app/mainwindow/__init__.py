@@ -2,7 +2,7 @@ import logging
 import os
 
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFrame
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFrame, QToolBar, QMenu
 
 from app.gsinfodialog import GSInfoDialog
 from app.mainwindow.camera import CameraDock
@@ -37,6 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.webview_go_home()
         self._init_docks()
+        self._init_toolbars()
         settings = Settings()
         self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
         self.restoreState(settings[self.CONFIG_STATE_KEY])
@@ -68,6 +69,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.addDockWidget(area, dock)
                 self.menuView.addAction(dock.toggleViewAction())
 
+    def _init_toolbars(self):
+        self.menuView.addSeparator()
+        self.toolbarsMenu = QMenu('&Toolbars')
+        for toolbar in self.findChildren(QToolBar):
+            self.toolbarsMenu.addAction(toolbar.toggleViewAction())
+        self.menuView.addMenu(self.toolbarsMenu)
+
     def _init_statusbar(self):
         self.statusBar().addPermanentWidget(
                 self.parserDock.create_statusbar_widget())
@@ -91,6 +99,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def webview_go_home(self):  # you are drunk
         # todo set to our equivalent of live.techswarm.org as soon as it runs
         self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
+
+    def set_queue_paused(self, paused):
+        """Set whether or not the request queue will be paused"""
+        self._sender.set_paused(paused)
 
     def closeEvent(self, event):
         settings = Settings()
