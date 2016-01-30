@@ -206,7 +206,7 @@
      <normaloff>:/res/pause.svg</normaloff>:/res/pause.svg</iconset>
    </property>
    <property name="text">
-    <string>Pause Request &amp;Queue</string>
+    <string>Pause &amp;Request Queue</string>
    </property>
    <property name="toolTip">
     <string>Pause Request Queue</string>
