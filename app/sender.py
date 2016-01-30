@@ -85,6 +85,7 @@ class Sender:
         with self.pause_lock:
             self.paused = paused
             self.unpaused.notify()
+            self.on_paused(paused)
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
@@ -113,6 +114,15 @@ class Sender:
         """
         pass
 
+    def on_paused(self, paused):
+        """Called when the queue is (un)paused.
+
+        The method is supposed to be overridden by subclasses.
+
+        :param bool paused: whether or not the queue is paused
+        """
+        pass
+
 
 class QtSender(QObject, Sender):
     """
@@ -123,6 +133,7 @@ class QtSender(QObject, Sender):
     request_added = pyqtSignal(RequestData)
     request_processing = pyqtSignal(RequestData)
     request_processed = pyqtSignal(RequestData)
+    queue_paused = pyqtSignal(bool)
 
     def on_request_added(self, request_data):
         self.request_added.emit(request_data)
@@ -132,6 +143,9 @@ class QtSender(QObject, Sender):
 
     def on_request_processed(self, request_data):
         self.request_processed.emit(request_data)
+
+    def on_paused(self, paused):
+        self.queue_paused.emit(paused)
 
 
 class QtSenderWorker(QThread):

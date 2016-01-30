@@ -22,7 +22,7 @@ class QueueDock(QDockWidget, Ui_QueueDock):
         self._sender = sender
         self.setupUi(self)
         self._init_table()
-        # todo init queue filter combo box
+        sender.queue_paused.connect(self.on_paused)
 
     def _init_table(self):
         source_model = QueueTableModel(self._sender, self)
@@ -69,3 +69,6 @@ class QueueDock(QDockWidget, Ui_QueueDock):
         queue_model.rowsInserted.connect(update_text)
         queue_model.rowsRemoved.connect(update_text)
         return queue_status_label
+
+    def on_paused(self, paused):
+        self.setWindowTitle('&Queue' + (' [paused]' if paused else ''))
