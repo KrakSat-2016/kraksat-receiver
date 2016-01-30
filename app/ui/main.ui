@@ -59,6 +59,7 @@
     <addaction name="actionTerminate"/>
     <addaction name="separator"/>
     <addaction name="actionPauseQueue"/>
+    <addaction name="actionSuspendProcessing"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -99,8 +100,10 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionParseFile"/>
-   <addaction name="actionPauseQueue"/>
    <addaction name="actionTerminate"/>
+   <addaction name="separator"/>
+   <addaction name="actionPauseQueue"/>
+   <addaction name="actionSuspendProcessing"/>
   </widget>
   <widget class="QToolBar" name="webViewToolBar">
    <property name="windowTitle">
@@ -231,6 +234,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSuspendProcessing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="res/res.qrc">
+     <normaloff>:/res/suspendprocessing.svg</normaloff>:/res/suspendprocessing.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Suspend Processing</string>
+   </property>
+   <property name="statusTip">
+    <string>Withhold received data from being further processed, e.g. to calculate planetary info</string>
    </property>
   </action>
  </widget>
