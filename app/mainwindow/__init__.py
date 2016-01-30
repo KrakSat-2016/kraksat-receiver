@@ -1,5 +1,6 @@
 import logging
 import os
+from functools import partial
 
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtWidgets import (
@@ -40,6 +41,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.webview_go_home()
         self._init_docks()
+        self._init_actions()
         self._init_toolbars()
         settings = Settings()
         self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
@@ -71,6 +73,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for dock in dock_list:
                 self.addDockWidget(area, dock)
                 self.menuView.addAction(dock.toggleViewAction())
+
+    def _init_actions(self):
+        self._parser_manager.parser_started.connect(
+                partial(self.actionTerminateParser.setEnabled, True))
+        self._parser_manager.parser_terminated.connect(
+                partial(self.actionTerminateParser.setEnabled, False))
+        self.actionTerminateParser.setEnabled(
+                self._parser_manager.is_running())
 
     def _init_toolbars(self):
         self.menuView.addSeparator()

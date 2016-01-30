@@ -56,7 +56,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionParseFile"/>
-    <addaction name="actionTerminate"/>
+    <addaction name="actionTerminateParser"/>
     <addaction name="separator"/>
     <addaction name="actionPauseQueue"/>
     <addaction name="actionSuspendProcessing"/>
@@ -101,7 +101,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionParseFile"/>
-   <addaction name="actionTerminate"/>
+   <addaction name="actionTerminateParser"/>
    <addaction name="separator"/>
    <addaction name="actionPauseQueue"/>
    <addaction name="actionSuspendProcessing"/>
@@ -186,10 +186,12 @@
     <string>Set Ground Station latitude, longitude and timezone</string>
    </property>
   </action>
-  <action name="actionTerminate">
+  <action name="actionTerminateParser">
    <property name="icon">
     <iconset resource="res/res.qrc">
-     <normaloff>:/res/terminate.svg</normaloff>:/res/terminate.svg</iconset>
+     <normaloff>:/res/terminate.svg</normaloff>
+     <disabledoff>:/res/terminate_disabled.svg</disabledoff>
+     <disabledon>:/res/terminate_disabled.svg</disabledon>:/res/terminate.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Terminate Parser</string>

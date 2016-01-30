@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="res">
+    <file>terminate_disabled.svg</file>
     <file>suspendprocessing.svg</file>
     <file>terminate.svg</file>
     <file>groundstation.svg</file>
