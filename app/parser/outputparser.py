@@ -1,6 +1,8 @@
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
+from time import sleep
 
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
@@ -23,6 +25,7 @@ class BaseOutputParser:
         """
         self._parsers = parsers
         self._ids_to_parsers = {parser.ids: parser for parser in parsers}
+        self.is_terminated = False
 
     def parse_file(self, filename):
         """Opens given file and parses the lines inside it indefinitely
@@ -31,13 +34,16 @@ class BaseOutputParser:
 
         :param str filename: path to the file to parse
         """
-        with open(filename, 'r') as f:
-            # todo a way to terminate the thread by using non-blocking IO and
-            # something like while not self.is_terminated
-            while True:
+        fd = os.open(filename, os.O_RDONLY | os.O_NONBLOCK)
+        with open(fd) as f:
+            while not self.is_terminated:
                 line = f.readline()
                 if line == '':
-                    break  # todo display message we've reached the end of file
+                    # We are not able to differentiate between EOF and blocking
+                    # IO, so we just wait a while assuming we'll get some data
+                    # later
+                    sleep(0.05)
+                    continue
                 try:
                     self.parse_line(line.rstrip('\r\n'))
                 except ParseError as e:
@@ -67,6 +73,15 @@ class BaseOutputParser:
                     return
 
         raise ParseError('Line was not parsed by any parser')
+
+    def mark_terminated(self):
+        """Set the parser terminated
+
+        The effect of calling this function is return from parse_file at the
+        next loop iteration (so, in practice, after parsing currently parsed
+        line or after waiting at most 50ms).
+        """
+        self.is_terminated = True
 
 
 class OutputParser(BaseOutputParser):
@@ -117,6 +132,7 @@ class ParserManager(QObject):
         self.worker = None
         self.path = None
         self.parent = parent
+        self.terminated_by_user = False
 
     def is_running(self):
         """Return ``True`` if the worker is currently running
@@ -132,11 +148,15 @@ class ParserManager(QObject):
         Does nothing if the worker is not running.
         """
         if self.is_running():
-            # todo implement ParserManage.terminate()
-            raise NotImplementedError
+            self.terminated_by_user = True
+            self.worker.mark_terminated()
 
     def _on_parser_terminated(self):
-        logging.getLogger('parser').warning('Parser terminated unexpectedly')
+        logger = logging.getLogger('parser')
+        if self.terminated_by_user:
+            logger.info('Parser was terminated by the user')
+        else:
+            logger.warning('Parser terminated unexpectedly')
 
     def parse_file(self, path=None):
         """Starts the worker set to parse given file

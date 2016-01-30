@@ -116,6 +116,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # todo set to our equivalent of live.techswarm.org as soon as it runs
         self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
 
+    def terminate_parser(self):
+        msg_box = QMessageBox(
+                QMessageBox.Warning, 'Terminating the parser',
+                'Are you sure you want to terminate the parser?',
+                QMessageBox.Cancel)
+        terminate_btn = msg_box.addButton('Terminate', QMessageBox.ActionRole)
+        msg_box.exec()
+        if msg_box.clickedButton() == terminate_btn:
+            self._parser_manager.terminate()
+
     def set_queue_paused(self, paused):
         """Set whether or not the request queue will be paused"""
         self._sender.set_paused(paused)
