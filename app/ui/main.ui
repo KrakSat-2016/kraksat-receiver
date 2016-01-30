@@ -76,6 +76,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionAboutQt"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -251,6 +252,11 @@
     <string>Withhold received data from being further processed, e.g. to calculate planetary info</string>
    </property>
   </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About &amp;Qt</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -359,6 +365,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAboutQt</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_about_qt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>347</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
@@ -366,5 +388,6 @@
   <slot>show_set_gs_info()</slot>
   <slot>refresh_mission_status()</slot>
   <slot>set_queue_paused(bool)</slot>
+  <slot>show_about_qt()</slot>
  </slots>
 </ui>

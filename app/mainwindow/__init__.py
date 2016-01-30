@@ -2,7 +2,10 @@ import logging
 import os
 
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QFrame, QToolBar, QMenu
+from PyQt5.QtWidgets import (
+    QMainWindow, QMessageBox, QFrame, QFileDialog, QToolBar, QMenu,
+    QApplication
+)
 
 from app.gsinfodialog import GSInfoDialog
 from app.mainwindow.camera import CameraDock
@@ -95,6 +98,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',
                             ABOUT_HTML)
+
+    def show_about_qt(self):
+        QApplication.aboutQt()
 
     def webview_go_home(self):  # you are drunk
         # todo set to our equivalent of live.techswarm.org as soon as it runs
