@@ -84,7 +84,8 @@ class Sender:
         """
         with self.pause_lock:
             self.paused = paused
-            self.unpaused.notify()
+            if not paused:
+                self.unpaused.notify()
             self.on_paused(paused)
 
     def on_request_added(self, request_data):
