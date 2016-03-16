@@ -117,6 +117,37 @@ class IntegerField(Field):
             raise ValidationError('Invalid integer value: {}'.format(data))
 
 
+class HexIntegerField(Field):
+    """Field for storing hexadecimal integer values"""
+
+    def to_python(self, data):
+        try:
+            return int(data, 16)
+        except ValueError:
+            raise ValidationError('Invalid hex integer value: {}'.format(data))
+
+
+class HexSignedIntegerField(HexIntegerField):
+    """Field for storing hexadecimal signed integer values"""
+
+    def __init__(self, length, *args, **kwargs):
+        """Constructor
+
+        :param int length: length of the number in bits
+        """
+        super().__init__(*args, **kwargs)
+        self.length = length
+
+    def to_python(self, data):
+        v = super().to_python(data)
+        if v >= 1 << self.length:
+            raise ValidationError('Number longer than declared ({} bits): {}'
+                                  .format(self.length, data))
+        if v >= 1 << (self.length - 1):
+            return v - (1 << self.length)
+        return v
+
+
 class FloatField(Field):
     """Field for storing float values"""
 
@@ -125,6 +156,113 @@ class FloatField(Field):
             return float(data)
         except ValueError:
             raise ValidationError('Invalid float value: {}'.format(data))
+
+
+####################
+# Telemetry fields #
+####################
+
+class VoltageField(HexIntegerField):
+    # todo docs
+
+    def to_python(self, data):
+        # todo implement conversion
+        return super().to_python(data)
+
+
+class CurrentField(HexIntegerField):
+    # todo docs
+
+    def to_python(self, data):
+        # todo implement conversion
+        return super().to_python(data)
+
+
+class OxygenField(HexIntegerField):
+    # todo docs
+
+    def to_python(self, data):
+        # todo implement conversion
+        return super().to_python(data)
+
+
+class TemperatureField(HexIntegerField):
+    """Field that converts temperature as LSB (raw sensor output) to ℃
+
+    Consult HTU21D sensor datasheet for reference.
+    """
+
+    def to_python(self, data):
+        v = super().to_python(data)
+        return -46.85 + 175.72 * v / 2 ** 16
+
+
+class HumidityField(HexIntegerField):
+    """Field that converts relative humidity as LSB (raw sensor output) to %.
+
+    Consult HTU21D sensor datasheet for reference.
+    """
+
+    def to_python(self, data):
+        v = super().to_python(data)
+        return -6 + 125 * v / 2 ** 16
+
+
+class RadiationField(HexIntegerField):
+    """Field that converts radiation as LSB (raw sensor output) to R/h"""
+
+    def to_python(self, data):
+        # todo implement conversion
+        return super().to_python(data)
+
+
+class PressureField(HexIntegerField):
+    """Field that converts pressure as LSB (raw sensor output) to hPa.
+
+    Consult LPS25H sensor datasheet for reference.
+    """
+
+    def to_python(self, data):
+        return super().to_python(data) / 4096
+
+
+class GyroField(HexSignedIntegerField):
+    """Field that convert angular velocity as LSB (raw sensor output) to dps.
+
+    Consult AltIMU-10 v4 (L3GD20H) sensor datasheet for reference. This
+    assumes ±245dps sensitivity is used.
+    """
+    def __init__(self, *args):
+        super().__init__(16, *args)
+
+    def to_python(self, data):
+        return super().to_python(data) * 8.75 / 1000
+
+
+class AccelerationField(HexSignedIntegerField):
+    """Field that converts acceleration as LSB (raw sensor output) to g.
+
+    Consult AltIMU-10 v4 (LSM303D) sensor datasheet for reference. This
+    assumes ±2g sensitivity is used.
+    """
+    def __init__(self, *args):
+        super().__init__(16, *args)
+
+    def to_python(self, data):
+        return super().to_python(data) * 0.061 / 1000
+
+
+class MagneticField(HexSignedIntegerField):
+    """Field that converts magnetic field as LSB (raw sensor output) to gauss.
+
+    Consult AltIMU-10 v4 (LSM303D) sensor datasheet for reference. This
+    assumes ±4gauss sensitivity is used.
+    """
+    def __init__(self, *args):
+        super().__init__(16, *args)
+
+    def to_python(self, data):
+        return super().to_python(data) * 0.080 / 1000
 
 
 ##############
