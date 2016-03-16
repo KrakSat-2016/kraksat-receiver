@@ -13,8 +13,79 @@
   <property name="windowTitle">
    <string>&amp;Camera</string>
   </property>
-  <widget class="QWidget" name="dockWidgetContents"/>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="CameraComboBox" name="cameraComboBox"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
  </widget>
- <resources/>
- <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>CameraComboBox</class>
+   <extends>QComboBox</extends>
+   <header>app.mainwindow.cameracombobox</header>
+   <slots>
+    <signal>camera_selected(QCameraInfo)</signal>
+    <slot>item_selected(int)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="res/res.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>cameraComboBox</sender>
+   <signal>activated(int)</signal>
+   <receiver>cameraComboBox</receiver>
+   <slot>item_selected(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>114</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cameraComboBox</sender>
+   <signal>camera_selected(QCameraInfo)</signal>
+   <receiver>CameraDock</receiver>
+   <slot>change_camera(QCameraInfo)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>114</x>
+     <y>82</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>114</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>change_camera(QCameraInfo)</slot>
+ </slots>
 </ui>
