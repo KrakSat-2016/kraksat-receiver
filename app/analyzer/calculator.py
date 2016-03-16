@@ -66,16 +66,20 @@ class Calculator:
         # give best approximation
         avg_acceleration = statistics.median(self.collector['acceleration'])
         # to avoid big measurement errors use median instead of last point
-        ground_pressure = statistics.median(self.collector['pressure'][-10:])
+        ground_pressure = statistics.median(self.collector['pressure'][-6:])
         numerator = 0
         denominator = 0
-        for altitude, pressure in zip(alti, press):
+        for altitude, pressure in zip(alti, press[:-6]):
             try:
                 numerator -= Calculator.R * avg_temp \
                             / avg_acceleration / altitude \
                             * math.log(pressure / ground_pressure)
+                print(Calculator.R * avg_temp \
+                            / avg_acceleration / altitude \
+                            * math.log(pressure / ground_pressure))
             except ZeroDivisionError:
                 pass
             else:
                 denominator += 1
+        print(numerator / denominator)
         return numerator / denominator

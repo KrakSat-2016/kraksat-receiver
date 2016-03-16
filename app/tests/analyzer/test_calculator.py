@@ -17,10 +17,18 @@ def temperature(height):
     return -6.49 * height / 1000 + 273.15 + 20
 
 
+def temperature_with_error(height):
+    return temperature(height) + 0.01 * random.uniform(-1, 1)
+
+
 def pressure(height):
     numerator = -((9.80665 + acceleration(height))/2) * 0.0289644 * height
     denominator = 8.31432 * ((temperature(height) + 273.15 + 20)/2)
     return 101325 * math.exp(numerator/denominator)
+
+
+def pressure_with_error(height):
+    return pressure(height) + 10 * random.uniform(-1, 1)
 
 
 class CalculatorTest(unittest.TestCase):
@@ -59,7 +67,7 @@ class CalculatorTest(unittest.TestCase):
         for i in range(1000, 0, -3):
             self.collector['altitude'].append(i)
             self.collector['acceleration'].append(acceleration(i))
-            self.collector['pressure'].append(pressure(i))
-            self.collector['temperature'].append(temperature(i))
+            self.collector['pressure'].append(pressure_with_error(i))
+            self.collector['temperature'].append(temperature_with_error(i))
         molar_mass = self.calc.calculate_molar_mass()
         self.assertIsNotNone(molar_mass)
