@@ -1,5 +1,11 @@
 # kraksat-receiver
 
+## Requirements
+
+* Python 3.5
+* Qt 5.4
+* PyQt
+
 ## Building
 
 Before first run or after making changes in files inside `app/ui/` directory,
