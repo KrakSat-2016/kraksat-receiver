@@ -45,8 +45,13 @@ class BaseOutputParser:
                     # later
                     sleep(0.05)
                     continue
+                line = line.rstrip('\r\n')
+                if line == '':
+                    logging.getLogger('parser').warning('Empty line received')
+                    continue
+
                 try:
-                    self.parse_line(line.rstrip('\r\n'))
+                    self.parse_line(line)
                 except ParseError as e:
                     logging.getLogger('parser').exception(
                         'Could not parse line: {} ({})'
