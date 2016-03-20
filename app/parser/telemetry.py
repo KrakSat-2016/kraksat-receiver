@@ -1,5 +1,5 @@
 from app.parser import Parser
-from app.parser.serializer import fields, Serializer, ValidationError
+from app.parser.serializer import fields, Serializer
 
 
 class TelemetrySerializer(Serializer):
@@ -22,12 +22,6 @@ class TelemetrySerializer(Serializer):
     magnet_x = fields.MagneticField()
     magnet_y = fields.MagneticField()
     magnet_z = fields.MagneticField()
-
-    def get_data(self, line_content):
-        # Ignore the comma at the end
-        if line_content[-1] != ',':
-            raise ValidationError('Comma expected at the end')
-        return super().get_data(line_content[:-1])
 
 
 class TelemetryParser(Parser):

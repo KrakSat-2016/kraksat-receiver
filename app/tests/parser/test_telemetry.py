@@ -2,7 +2,7 @@ from app.parser.telemetry import TelemetryParser
 from app.tests.parser import ParserTestCase
 
 TELEMETRY_LINE = ('S,0,0,0,0,0,325e,68c2,6448,3295,3d1,7e,fdd3,d,e83d,e6bd,'
-                  'cdb6,58c,fcbe,995,')
+                  'cdb6,58c,fcbe,995')
 
 TELEMETRY_DATA = {
     'error': 0,
