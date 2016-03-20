@@ -1,5 +1,4 @@
 import unittest
-import inspect
 import os
 
 from app.analyzer.kundt import Kundt
