@@ -1,4 +1,5 @@
 from numpy.polynomial.polynomial import polyfit, polyval
+from numpy import arange
 import statistics
 
 
@@ -41,7 +42,7 @@ class Kundt:
         coefficients = polyfit(list(map(lambda x: x[0], points)),
                                list(map(lambda x: x[1], points)), 5)
         result, amplitude = 0, 0
-        for i in range(points[0][0], points[-1][0], -1):
+        for i in arange(points[0][0], points[-1][0], -0.1):
             if polyval(i, coefficients) > amplitude:
                 amplitude = polyval(i, coefficients)
                 result = i

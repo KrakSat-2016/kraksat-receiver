@@ -17,7 +17,7 @@ class KundtTest(unittest.TestCase):
         points = []
         for line in data:
             i, y, x = line.strip().split(sep=';')
-            points.append((int(float(x.replace(',', '.'))), int(y)))
+            points.append((float(x.replace(',', '.')), float(y)))
         data.close()
         speed_of_sound = Kundt.speed_of_sound(points)
         self.assertAlmostEqual(340, speed_of_sound, delta=5)
