@@ -48,16 +48,6 @@ class Parser:
             return self._serializers[line.id].parse(line.content).as_dict()
         raise NotImplementedError
 
-    def _get_args(self, line):
-        """Utility function to split the line with commas, omitting ID
-
-        :param str line: parsed line
-        :return: list of values that were comma-separated without the first
-            value (message type ID)
-        :rtype: list
-        """
-        return line.split(',')[1:]
-
 
 class ParseError(Exception):
     pass
