@@ -34,6 +34,7 @@ class Calculator:
         for radius in range(1, int(1e8+1), 100000):
             numerator = 0
             denominator = 0
+            print(radius)
 
             for acceleration, altitude in\
                     self.collector.get_iter('acceleration', 'altitude'):

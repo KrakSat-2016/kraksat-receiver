@@ -2,6 +2,9 @@ import statistics
 
 
 class CollectorRecord:
+    __slots__ = ['acceleration', 'altitude', 'temperature', 'timestamp',
+                 'pressure']
+
     def __init__(self):
         self.acceleration = None
         self.altitude = None
