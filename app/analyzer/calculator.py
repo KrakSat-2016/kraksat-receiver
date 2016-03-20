@@ -11,8 +11,7 @@ class Calculator:
 
     def __init__(self, collector):
         """
-        :param dictionary collector: dictionary witch contains lists of values
-        for calculations
+        :param Collector collector: data for calculations
         """
         self.collector = collector
 
@@ -32,16 +31,20 @@ class Calculator:
         # could be set to smaller steps to get better precision,
         # but since measurement error are so big compared to
         # measured values I find it not necessary
-        for radius in range(1, int(1e8+1), 10000):
-            accel = self.collector['acceleration']
-            alti = self.collector['altitude']
-            msum = 0
-            for acceleration, altitude in zip(accel, alti):
-                msum += acceleration * (radius + altitude) ** 2 / Calculator.G
-            mass = msum / min(len(accel), len(alti))
+        for radius in range(1, int(1e8+1), 100000):
+            numerator = 0
+            denominator = 0
+
+            for acceleration, altitude in\
+                    self.collector.get_iter('acceleration', 'altitude'):
+                numerator += (acceleration * (radius + altitude) ** 2 /
+                              Calculator.G)
+                denominator += 1
+            mass = numerator / denominator
 
             error = 0
-            for acceleration, altitude in zip(accel, alti):
+            for acceleration, altitude in\
+                    self.collector.get_iter('acceleration', 'altitude'):
                 error += (acceleration - Calculator.G *
                           mass / (radius + altitude) ** 2)**2
 
@@ -57,29 +60,28 @@ class Calculator:
         """
         use linear regression
         (in this case arithmetic mean)
+        require at least 7 measurements
         :return: molar mass
+        :rtype: float
         """
-        alti = self.collector['altitude']
-        press = self.collector['pressure']
-        avg_temp = statistics.mean(self.collector['temperature'])
+        avg_temp = statistics.mean(
+                list(self.collector.get_iter('temperature')))
         # acceleration can be treat as constant, so median should
         # give best approximation
-        avg_acceleration = statistics.median(self.collector['acceleration'])
+        avg_acceleration = statistics.median(
+                list(self.collector.get_iter('acceleration')))
         # to avoid big measurement errors use median instead of last point
-        ground_pressure = statistics.median(self.collector['pressure'][-6:])
+        ground_pressure = self.collector.get_ground_pressure()
         numerator = 0
         denominator = 0
-        for altitude, pressure in zip(alti, press[:-6]):
+        for altitude, pressure in\
+                self.collector.get_iter('altitude', 'pressure'):
             try:
                 numerator -= Calculator.R * avg_temp \
                             / avg_acceleration / altitude \
                             * math.log(pressure / ground_pressure)
-                print(Calculator.R * avg_temp \
-                            / avg_acceleration / altitude \
-                            * math.log(pressure / ground_pressure))
             except ZeroDivisionError:
                 pass
             else:
                 denominator += 1
-        print(numerator / denominator)
         return numerator / denominator

@@ -3,6 +3,7 @@ import random
 import math
 
 from app.analyzer.calculator import Calculator
+from app.analyzer.collector import Collector
 
 earth_mass = 5.97219e24
 earth_radius = 6.3781e6
@@ -33,18 +34,13 @@ def pressure_with_error(height):
 
 class CalculatorTest(unittest.TestCase):
     def setUp(self):
-        self.collector = {
-            'altitude': [],
-            'acceleration': [],
-            'pressure': [],
-            'temperature': [],
-        }
+        self.collector = Collector()
         self.calc = Calculator(self.collector)
 
     def test_calculate(self):
-        for i in range(1000, 0, -3):
-            self.collector['altitude'].append(i)
-            self.collector['acceleration'].append(acceleration(i))
+        for i in range(100000, 0, -3):
+            self.collector.add_value(1000 - i, 'altitude', i)
+            self.collector.add_value(1000 - i, 'acceleration', acceleration(i))
         radius, mass = self.calc.calculate_radius_mass()
         self.assertAlmostEqual(radius, earth_radius, delta=1e4)
         self.assertAlmostEqual(mass / radius ** 2,
@@ -54,10 +50,9 @@ class CalculatorTest(unittest.TestCase):
         random_mass = random.uniform(1e10, 1e12)
         random_radius = random.uniform(1e5, 1e7)
         for i in range(1000, 0, -3):
-            self.collector['altitude'].append(i)
-            self.collector['acceleration'].append(
-                    acceleration(i, random_radius, random_mass)
-            )
+            self.collector.add_value(1000 - i, 'altitude', i)
+            self.collector.add_value(1000 - i, 'acceleration', acceleration(
+                    i, random_radius, random_mass))
         radius, mass = self.calc.calculate_radius_mass()
         self.assertAlmostEqual(radius, random_radius, delta=1e4)
         self.assertAlmostEqual(mass / radius ** 2,
@@ -65,9 +60,11 @@ class CalculatorTest(unittest.TestCase):
 
     def test_molar_mass(self):
         for i in range(1000, 0, -3):
-            self.collector['altitude'].append(i)
-            self.collector['acceleration'].append(acceleration(i))
-            self.collector['pressure'].append(pressure_with_error(i))
-            self.collector['temperature'].append(temperature_with_error(i))
+            self.collector.add_value(1000 - i, 'altitude', i)
+            self.collector.add_value(1000 - i, 'acceleration', acceleration(i))
+            self.collector.add_value(1000 - i, 'pressure',
+                                     pressure_with_error(i))
+            self.collector.add_value(1000 - i, 'temperature',
+                                     temperature_with_error(i))
         molar_mass = self.calc.calculate_molar_mass()
         self.assertIsNotNone(molar_mass)
