@@ -14,9 +14,7 @@ class KundtTest(unittest.TestCase):
         self.assertIsNotNone(speed_of_sound)
 
     def test_with_real_data(self):
-        dirname = os.path.dirname(os.path.abspath(
-                inspect.getfile(inspect.currentframe())))
-        data = open(dirname + '/' + 'capture8.csv')
+        data = open(os.path.dirname(__file__) + '/capture8.csv')
         points = []
         for line in data:
             i, y, x = line.strip().split(sep=';')
