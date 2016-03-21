@@ -265,6 +265,19 @@ class MagneticField(HexSignedIntegerField):
         return super().to_python(data) * 0.080 / 1000
 
 
+################
+# Kundt fields #
+################
+
+
+class FrequencyField(HexIntegerField):
+    """Field that converts frequency output from Kundt tube module to Hz."""
+
+    def to_python(self, data):
+        v = super().to_python(data)
+        return (32000000 / ((v + 1) * 2)) * 4
+
+
 ##############
 # GPS fields #
 ##############
