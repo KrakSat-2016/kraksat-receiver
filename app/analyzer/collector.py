@@ -16,11 +16,16 @@ class CollectorRecord:
 class Collector:
     """
     Collect data for scientific computations.
+    To append Kundt's tube measurement, append to kundt list;
+    when no new measurement is going to be send set is_kundt_ready flag
     """
     def __init__(self):
         self.data = []
         self.current_record = None
         self.current_timestamp = None
+
+        self.kundt = []
+        self.is_kundt_ready = False
 
     def add_value(self, timestamp, key, value):
         """
@@ -32,40 +37,25 @@ class Collector:
         if timestamp != self.current_timestamp:
             if self.current_record is not None:
                 self.data.append(self.current_record)
-            self.current_record = CollectorRecord
+            self.current_record = CollectorRecord()
         self.current_timestamp = timestamp
         self.current_record.timestamp = timestamp
         setattr(self.current_record, key, value)
 
-    def get_iter(self, *keys):
-        return CollectorIterator(self, keys)
+    def get_iter(self, *args):
+        for record in self.data:
+            if args.__len__() == 1:
+                res = getattr(record, args[0])
+                if res is None:
+                    continue
+            else:
+                res = tuple(getattr(record, key) for key in args)
+                if any(map(lambda x: x is None, res)):
+                    continue
+            yield res
 
     def get_ground_pressure(self):
         pressure = []
         for i in self.data[-6:]:
             pressure.append(i.pressure)
         return statistics.median(pressure)
-
-
-class CollectorIterator:
-    def __init__(self, obj, keys):
-        self.keys = keys
-        self.n = -1
-        self.obj = obj
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        while True:
-            self.n += 1
-            try:
-                current_record = self.obj.data[self.n]
-            except IndexError:
-                raise StopIteration
-            try:
-                if self.keys.__len__() == 1:
-                    return getattr(current_record, self.keys[0])
-                return tuple(getattr(current_record, i) for i in self.keys)
-            except AttributeError:
-                pass

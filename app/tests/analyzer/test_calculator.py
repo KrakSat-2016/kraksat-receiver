@@ -35,13 +35,12 @@ def pressure_with_error(height):
 class CalculatorTest(unittest.TestCase):
     def setUp(self):
         self.collector = Collector()
-        self.calc = Calculator(self.collector)
 
     def test_calculate(self):
-        for i in range(100000, 0, -3):
+        for i in range(1000, 0, -3):
             self.collector.add_value(1000 - i, 'altitude', i)
             self.collector.add_value(1000 - i, 'acceleration', acceleration(i))
-        radius, mass = self.calc.calculate_radius_mass()
+        radius, mass = Calculator.calculate_radius_mass(self.collector)
         self.assertAlmostEqual(radius, earth_radius, delta=1e4)
         self.assertAlmostEqual(mass / radius ** 2,
                                earth_mass / earth_radius ** 2, delta=1e7)
@@ -53,7 +52,7 @@ class CalculatorTest(unittest.TestCase):
             self.collector.add_value(1000 - i, 'altitude', i)
             self.collector.add_value(1000 - i, 'acceleration', acceleration(
                     i, random_radius, random_mass))
-        radius, mass = self.calc.calculate_radius_mass()
+        radius, mass = Calculator.calculate_radius_mass(self.collector)
         self.assertAlmostEqual(radius, random_radius, delta=1e4)
         self.assertAlmostEqual(mass / radius ** 2,
                                random_mass / random_radius ** 2, delta=1e7)
@@ -66,5 +65,5 @@ class CalculatorTest(unittest.TestCase):
                                      pressure_with_error(i))
             self.collector.add_value(1000 - i, 'temperature',
                                      temperature_with_error(i))
-        molar_mass = self.calc.calculate_molar_mass()
+        molar_mass = Calculator.calculate_molar_mass(self.collector)
         self.assertIsNotNone(molar_mass)

@@ -17,16 +17,13 @@ class Calculator:
     # Speed of light
     C = 299792458
 
-    def __init__(self, collector):
-        """
-        :param Collector collector: data for calculations
-        """
-        self.collector = collector
-
-    def calculate_radius_mass(self):
+    @staticmethod
+    def calculate_radius_mass(collector):
         """
         Use linear search to find best radius and derivative to
         find mass
+        :param collector: data for calculations
+        :type collector: Collector
         :return: (radius, mass)
         :rtype: (float, float)
         """
@@ -39,13 +36,12 @@ class Calculator:
         # could be set to smaller steps to get better precision,
         # but since measurement error are so big compared to
         # measured values I find it not necessary
-        for radius in range(1, int(1e8+1), 10000):
+        for radius in range(1, int(1e7+1), 1000):
             numerator = 0
             denominator = 0
-            print(radius)
 
             for acceleration, altitude in\
-                    self.collector.get_iter('acceleration', 'altitude'):
+                    collector.get_iter('acceleration', 'altitude'):
                 numerator += (acceleration * (radius + altitude) ** 2 /
                               Calculator.G)
                 denominator += 1
@@ -53,7 +49,7 @@ class Calculator:
 
             error = 0
             for acceleration, altitude in\
-                    self.collector.get_iter('acceleration', 'altitude'):
+                    collector.get_iter('acceleration', 'altitude'):
                 error += (acceleration - Calculator.G *
                           mass / (radius + altitude) ** 2)**2
 
@@ -65,26 +61,29 @@ class Calculator:
                 })
         return best['radius'], best['mass']
 
-    def calculate_molar_mass(self):
+    @staticmethod
+    def calculate_molar_mass(collector):
         """
         use linear regression
         (in this case arithmetic mean)
         require at least 7 measurements
+        :param collector: data for calculations
+        :type collector: Collector
         :return: molar mass
         :rtype: float
         """
         avg_temp = statistics.mean(
-                list(self.collector.get_iter('temperature')))
+                list(collector.get_iter('temperature')))
         # acceleration can be treat as constant, so median should
         # give best approximation
         avg_acceleration = statistics.median(
-                list(self.collector.get_iter('acceleration')))
+                list(collector.get_iter('acceleration')))
         # to avoid big measurement errors use median instead of last point
-        ground_pressure = self.collector.get_ground_pressure()
+        ground_pressure = collector.get_ground_pressure()
         numerator = 0
         denominator = 0
         for altitude, pressure in\
-                self.collector.get_iter('altitude', 'pressure'):
+                collector.get_iter('altitude', 'pressure'):
             try:
                 numerator -= Calculator.R * avg_temp \
                             / avg_acceleration / altitude \
@@ -95,22 +94,27 @@ class Calculator:
                 denominator += 1
         return numerator / denominator
 
-    def calculate_adiabatic_index(self, speed_of_sound, molar_mass):
-        return speed_of_sound ** 2 * molar_mass / (self.R *
-                   self.collector.get_average_temperature())
+    @staticmethod
+    def calculate_adiabatic_index(collector, speed_of_sound, molar_mass):
+        return (speed_of_sound ** 2 * molar_mass /
+                (Calculator.R * collector.get_average_temperature()))
 
-    def perform_calculations(self):
+    @staticmethod
+    def perform_calculations(collector):
         """
         perform all calculations possible with currently collected data
         compute: molar_mass, radius, mass, speed_of_sound, adiabatic_index,
         density_of_atmosphere, average_mass_of_molecule, specific_gas_constant,
         refractive_index, molar_refractivity, speed_of_light
-        :return: dict with calculated values
+        :param collector: data for calculations
+        :type collector: Collector
+        :return:calculated values
+        :rtype: dict
         """
-        radius, mass = self.calculate_radius_mass()
-        molar_mass = self.calculate_molar_mass()
-        average_mass_of_molecule = molar_mass / self.A
-        specific_gas_constant = self.R / molar_mass
+        radius, mass = Calculator.calculate_radius_mass(collector)
+        molar_mass = Calculator.calculate_molar_mass(collector)
+        average_mass_of_molecule = molar_mass / Calculator.A
+        specific_gas_constant = Calculator.R / molar_mass
 
         result = {
             'radius': radius,
@@ -120,27 +124,29 @@ class Calculator:
             'specific_gas_constant': specific_gas_constant,
         }
 
-        if self.collector.is_kundt_ready:
-            speed_of_sound = Kundt.speed_of_sound(self.collector.kundt)
+        if collector.is_kundt_ready:
+            speed_of_sound = Kundt.speed_of_sound(collector.kundt)
             result['speed_of_sound'] = speed_of_sound
 
-            adiabatic_index = self.calculate_adiabatic_index(
+            adiabatic_index = Calculator.calculate_adiabatic_index(
+                collector,
                 speed_of_sound,
                 molar_mass,
             )
             result['adiabatic_index'] = adiabatic_index
 
             density_of_atmosphere = (adiabatic_index **
-                self.collector.get_ground_pressure() / speed_of_sound ** 2)
+                                     collector.get_ground_pressure() /
+                                     speed_of_sound ** 2)
             result['density_of_atmosphere'] = density_of_atmosphere
 
             refractive_index = (
-                (3 * molar_mass * self.collector.get_ground_pressure()) -
-                (2 * adiabatic_index * self.R *
-                    self.collector.get_average_temperature) /
+                (3 * molar_mass * collector.get_ground_pressure()) -
+                (2 * adiabatic_index * Calculator.R *
+                    collector.get_average_temperature()) /
                 (
-                    adiabatic_index * self.R *
-                    self.collector.get_average_temperature())
+                    adiabatic_index * Calculator.R *
+                    collector.get_average_temperature())
                 ) ** 0.5
             result['refractive_index'] = refractive_index
 
@@ -148,7 +154,7 @@ class Calculator:
                 (refractive_index ** 2 - 1) / (refractive_index ** 2 + 2))
             result['molar_refractivity'] = molar_refractivity
 
-            speed_of_light = self.C / refractive_index
+            speed_of_light = Calculator.C / refractive_index
             result['speed_of_light'] = speed_of_light
 
         return result
