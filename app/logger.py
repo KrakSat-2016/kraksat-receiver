@@ -20,7 +20,7 @@ config = {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'precise',
             'filename': 'receiver.log',
-            'maxBytes': 50000,
+            'maxBytes': 500000,
             'backupCount': 5
         },
         'memory': {
