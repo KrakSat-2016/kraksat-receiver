@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import (
 )
 
 from app.gsinfodialog import GSInfoDialog
-from app.mainwindow.camera import CameraDock
 from app.mainwindow.logs import LogsDock
 from app.mainwindow.missionstatus import MissionStatusDock
 from app.mainwindow.parser import ParserDock
@@ -55,13 +54,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.parserDock = ParserDock(self, self._parser_manager)
         self.queueDock = QueueDock(self, self._sender)
         self.statisticsDock = StatisticsDock(self, self._sender)
-        self.cameraDock = CameraDock(self)
         self.missionStatusDock = MissionStatusDock(self, self._sender)
         docks = {
             Qt.LeftDockWidgetArea: (
                 self.statisticsDock,
                 self.queueDock,
-                self.cameraDock,
                 self.missionStatusDock,
             ),
             Qt.BottomDockWidgetArea: (
