@@ -27,6 +27,10 @@ class Collector:
         self.kundt = []
         self.is_kundt_ready = False
 
+        self.landing_timestamp = None
+
+        self.previous = None
+
     def add_value(self, timestamp, key, value):
         """
         add new measurement
@@ -58,4 +62,25 @@ class Collector:
         pressure = []
         for i in self.data[-6:]:
             pressure.append(i.pressure)
+        # To avoid big measurement errors use median instead of last point
         return statistics.median(pressure)
+
+    def get_average_acceleration(self):
+        # If can is still flying use median of all measurements,
+        # otherwise use last 10 measurements
+        if self.landing_timestamp is None:
+            return statistics.median(self.get_iter('acceleration'))
+        acceleration = []
+        for i in self.data[-10:]:
+            acceleration.append(i)
+        return statistics.median(acceleration)
+
+    def get_average_temperature(self):
+        numerator, denominator = 0, 0
+        for temp, timestamp in self.get_iter('temperature', 'timestamp'):
+            if self.landing_timestamp is not None \
+                    and timestamp > self.landing_timestamp:
+                break
+            numerator += temp
+            denominator += 1
+        return numerator / denominator

@@ -1,6 +1,7 @@
 import unittest
 import random
 import math
+import os
 
 from app.analyzer.calculator import Calculator
 from app.analyzer.collector import Collector
@@ -67,3 +68,20 @@ class CalculatorTest(unittest.TestCase):
                                      temperature_with_error(i))
         molar_mass = Calculator.calculate_molar_mass(self.collector)
         self.assertIsNotNone(molar_mass)
+
+    def test_perform_calculations(self):
+        for i in range(1000, 0, -3):
+            self.collector.add_value(1000 - i, 'altitude', i)
+            self.collector.add_value(1000 - i, 'acceleration', acceleration(i))
+            self.collector.add_value(1000 - i, 'pressure', pressure(i))
+            self.collector.add_value(1000 - i, 'temperature', temperature(i))
+
+        with open(os.path.dirname(__file__) + '/capture8.csv') as data:
+            for line in data:
+                _, y, x = line.strip().split(sep=';')
+                self.collector.kundt.append((float(x.replace(',', '.')),
+                                             float(y)))
+        self.collector.is_kundt_ready = True
+
+        res = Calculator.perform_calculations(self.collector)
+        self.assertIn('molar_mass', res)

@@ -1,5 +1,4 @@
 import math
-import statistics
 
 from app.analyzer.kundt import Kundt
 
@@ -72,13 +71,8 @@ class Calculator:
         :return: molar mass
         :rtype: float
         """
-        avg_temp = statistics.mean(
-                list(collector.get_iter('temperature')))
-        # acceleration can be treat as constant, so median should
-        # give best approximation
-        avg_acceleration = statistics.median(
-                list(collector.get_iter('acceleration')))
-        # to avoid big measurement errors use median instead of last point
+        avg_temp = collector.get_average_temperature()
+        avg_acceleration = collector.get_average_acceleration()
         ground_pressure = collector.get_ground_pressure()
         numerator = 0
         denominator = 0
@@ -100,7 +94,7 @@ class Calculator:
                 (Calculator.R * collector.get_average_temperature()))
 
     @staticmethod
-    def perform_calculations(collector):
+    def perform_calculations(collector, skip_slow=False, dont_overwrite=False):
         """
         perform all calculations possible with currently collected data
         compute: molar_mass, radius, mass, speed_of_sound, adiabatic_index,
@@ -108,10 +102,19 @@ class Calculator:
         refractive_index, molar_refractivity, speed_of_light
         :param collector: data for calculations
         :type collector: Collector
-        :return:calculated values
+        :param skip_slow: if set previously calculated value of radius and mass
+            will be used; if they don't exist, have no effect
+        :param dont_overwrite: if set newly calculated values won't be stored
+            in collector.previous
+        :return: calculated values
         :rtype: dict
         """
-        radius, mass = Calculator.calculate_radius_mass(collector)
+        if skip_slow and collector.previous is not None:
+            radius = collector.previous['radius']
+            mass = collector.previous['mass']
+        else:
+            radius, mass = Calculator.calculate_radius_mass(collector)
+
         molar_mass = Calculator.calculate_molar_mass(collector)
         average_mass_of_molecule = molar_mass / Calculator.A
         specific_gas_constant = Calculator.R / molar_mass
@@ -140,21 +143,23 @@ class Calculator:
                                      speed_of_sound ** 2)
             result['density_of_atmosphere'] = density_of_atmosphere
 
-            refractive_index = (
-                (3 * molar_mass * collector.get_ground_pressure()) -
-                (2 * adiabatic_index * Calculator.R *
-                    collector.get_average_temperature()) /
-                (
-                    adiabatic_index * Calculator.R *
-                    collector.get_average_temperature())
-                ) ** 0.5
+            refractive_index = ((3 * molar_mass *
+                                 collector.get_ground_pressure()) -
+                                (2 * adiabatic_index * Calculator.R *
+                                 collector.get_average_temperature()) /
+                                (adiabatic_index * Calculator.R *
+                                 collector.get_average_temperature())) ** 0.5
             result['refractive_index'] = refractive_index
 
-            molar_refractivity = (molar_mass / adiabatic_index *
-                (refractive_index ** 2 - 1) / (refractive_index ** 2 + 2))
+            molar_refractivity = (molar_mass /
+                                  adiabatic_index *
+                                  (refractive_index ** 2 - 1) /
+                                  (refractive_index ** 2 + 2))
             result['molar_refractivity'] = molar_refractivity
 
             speed_of_light = Calculator.C / refractive_index
             result['speed_of_light'] = speed_of_light
 
+        if not dont_overwrite:
+            collector.previous = result
         return result
