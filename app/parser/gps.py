@@ -105,8 +105,8 @@ class GPSParser(Parser):
     """
 
     url = '/gps/'
-    ids = ('$GPGGA', '$GPGSA', '$GPGSV', '$GPRMC', '$GPVTG')
-    serializers = {
+    id = ('$GPGGA', '$GPGSA', '$GPGSV', '$GPRMC', '$GPVTG')
+    serializer = {
         '$GPGGA': GPGGASerializer,
         '$GPGSA': GPGSASerializer,
         '$GPGSV': GPGSVSerializer,

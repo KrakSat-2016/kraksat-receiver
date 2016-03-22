@@ -1,3 +1,6 @@
+import collections
+
+
 class OutputLine:
     def __init__(self, id, timestamp, content):
         """Constructor
@@ -19,17 +22,41 @@ class Parser:
     url = None
     """URL of the API endpoint to send returned data to"""
 
-    ids = ()
-    """List of the message IDs this parser should handle"""
+    id = None
+    """Single message ID this parser handles, or list of the message IDs"""
 
-    serializers = {}
-    """Dictionary containing (message ID -> serializer class) mappings for
-    easy data parsing"""
+    serializer = None
+    """Serializer class to use to parse the data, or dictionary containing
+    (message ID -> serializer class) mappings"""
 
     def __init__(self):
-        self._serializers = {}
-        for key, value in self.serializers.items():
-            self._serializers[key] = value()
+        # Create serializer instance(s)
+        if isinstance(self.serializer, dict):
+            self._serializers = {}
+            for key, value in self.serializer.items():
+                self._serializers[key] = value()
+        else:
+            self.serializer = self.serializer()
+
+    def can_parse(self, line):
+        """Check if given file can be parsed by current Parser
+
+        Default implementation iterates over the IDs specified in `self.id`
+        and returns one if found at the beginning of provided line.
+
+        :param str line: line to be parsed
+        :return: message ID if given line can be parsed by current Parser;
+            `False` otherwise
+        :rtype: str|bool
+        """
+        if isinstance(self.id, collections.Iterable):
+            for msg_id in self.id:
+                if line.startswith(msg_id):
+                    return msg_id
+        elif isinstance(self.id, str):
+            if line.startswith(self.id):
+                return self.id
+        return False
 
     def parse(self, line):
         """Parse a line of output
@@ -44,9 +71,11 @@ class Parser:
             be sent
         :rtype: dict|None
         """
-        if line.id in self._serializers:
-            return self._serializers[line.id].parse(line.content).as_dict()
-        raise NotImplementedError
+        if isinstance(self.serializer, dict):
+            if line.id in self._serializers:
+                return self._serializers[line.id].parse(line.content).as_dict()
+            raise NotImplementedError
+        return self.serializer.parse(line.content).as_dict()
 
 
 class ParseError(Exception):

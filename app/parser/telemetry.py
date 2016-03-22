@@ -26,7 +26,5 @@ class TelemetrySerializer(Serializer):
 
 class TelemetryParser(Parser):
     url = '/telemetry/'
-    ids = ('S',)
-    serializers = {
-        'S': TelemetrySerializer
-    }
+    id = 'S'
+    serializer = TelemetrySerializer

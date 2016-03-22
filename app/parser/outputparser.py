@@ -24,7 +24,6 @@ class BaseOutputParser:
         :param list parsers: list of parsers to use
         """
         self._parsers = parsers
-        self._ids_to_parsers = {parser.ids: parser for parser in parsers}
         self.is_terminated = False
 
     def parse_file(self, filename):
@@ -70,12 +69,12 @@ class BaseOutputParser:
             (a subclass called :py:class:`ValidationError` is usually raised
             in that case)
         """
-        for ids, parser in self._ids_to_parsers.items():
-            for id in ids:
-                if line.startswith(id):
-                    # todo parse datetime from file
-                    parser.parse(OutputLine(id, datetime.now(), line))
-                    return
+        for parser in self._parsers:
+            msg_id = parser.can_parse(line)
+            if msg_id:
+                # todo parse datetime from file
+                parser.parse(OutputLine(msg_id, datetime.now(), line))
+                return
 
         raise ParseError('Line was not parsed by any parser')
 

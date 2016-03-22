@@ -18,8 +18,10 @@ class ParserTestCase(TestCase):
     def setUp(self):
         self.parser = self.parser_class()
 
-    def parse(self, id, line):
-        return self.parser.parse(OutputLine(id, self.TIMESTAMP, line))
+    def parse(self, line):
+        msg_id = self.parser.can_parse(line)
+        self.assertTrue(msg_id)
+        return self.parser.parse(OutputLine(msg_id, self.TIMESTAMP, line))
 
     def assertDictAlmostEqual(self, first, second, places=7):
         """Assert that all dict items are equal or "almost equal" for floats.

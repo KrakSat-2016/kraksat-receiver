@@ -20,5 +20,5 @@ class TelemetryTests(ParserTestCase):
 
     def test_telemetry(self):
         """Test parsing telemetry ("S") message"""
-        d = self.parse('S', TELEMETRY_LINE)
+        d = self.parse(TELEMETRY_LINE)
         self.assertDictAlmostEqual(d, TELEMETRY_DATA)
