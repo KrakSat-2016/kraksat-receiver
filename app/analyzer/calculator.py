@@ -1,4 +1,6 @@
 import math
+import functools
+import operator
 
 from app.analyzer.kundt import Kundt
 
@@ -92,6 +94,31 @@ class Calculator:
     def calculate_adiabatic_index(collector, speed_of_sound, molar_mass):
         return (speed_of_sound ** 2 * molar_mass /
                 (Calculator.R * collector.get_average_temperature()))
+
+    @staticmethod
+    def calculate_esi_index(radius, mass, temperature):
+        """
+        Compute Earth Similarity Index
+        :param radius: radius of planet
+        :type radius: float
+        :param mass: mass of planet
+        :type mass: float
+        :param temperature: average surface temperature of planet
+        :type temperature: float
+        :return: ESI
+        :rtype: float
+        """
+        density = mass / ((4 / 3) * math.pi * radius ** 3)
+        escape_velocity = (2 * Calculator.G * mass / radius) ** 0.5
+
+        factors = [
+            (radius, 6.3781e6, 0.57/4),
+            (density, 5513, 1.07/4),
+            (escape_velocity, 11200, 0.70/4),
+            (temperature + 273.15, 288, 5.58/4)
+        ]
+        res = [(1 - abs(x - y)/abs(x + y)) ** z for x, y, z in factors]
+        return functools.reduce(operator.mul, res)
 
     @staticmethod
     def perform_calculations(collector, skip_slow=False, dont_overwrite=False):

@@ -85,3 +85,12 @@ class CalculatorTest(unittest.TestCase):
 
         res = Calculator.perform_calculations(self.collector)
         self.assertIn('molar_mass', res)
+
+    def test_esi_with_earth_values(self):
+        esi = Calculator.calculate_esi_index(earth_radius, earth_mass, 14.85)
+        self.assertAlmostEqual(esi, 1, delta=1e-3)
+
+    def test_esi_with_mars_values(self):
+        esi = Calculator.calculate_esi_index(earth_radius * 0.53,
+                                             earth_mass * 0.105, -63)
+        self.assertAlmostEqual(esi, 0.64, delta=2e-2)
