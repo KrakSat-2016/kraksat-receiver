@@ -24,6 +24,7 @@ with open(os.path.join(os.path.dirname(__file__), 'about.html')) as f:
 class MainWindow(QMainWindow, Ui_MainWindow):
     CONFIG_GEOMETRY_KEY = 'mainWindow/geometry'
     CONFIG_STATE_KEY = 'mainWindow/state'
+    CONFIG_LAST_FILE_KEY = 'mainWindow/lastFile'
 
     def __init__(self, sender, parser_manager):
         """Constructor
@@ -126,6 +127,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_queue_paused(self, paused):
         """Set whether or not the request queue will be paused"""
         self._sender.set_paused(paused)
+
+    def choose_parser_file(self):
+        if self._parser_manager.is_running():
+            msg_box = QMessageBox(
+                    QMessageBox.Question, 'Parser is running',
+                    'The parser is already running.', QMessageBox.Cancel)
+            msg_box.setInformativeText('Do you want to terminate it?')
+            terminate_btn = msg_box.addButton('Terminate',
+                                              QMessageBox.ActionRole)
+            msg_box.exec()
+            if msg_box.clickedButton() == terminate_btn:
+                self._parser_manager.terminate()
+            else:
+                return
+
+        file_name, file_filter = QFileDialog().getOpenFileName(
+                self, 'Choose named pipe or output file',
+                Settings().value(self.CONFIG_LAST_FILE_KEY, os.getcwd()), '',
+                None, QFileDialog.HideNameFilterDetails)
+        if file_name:
+            self._parser_manager.parse_file(file_name)
+            Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
 
     def closeEvent(self, event):
         settings = Settings()

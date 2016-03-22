@@ -368,6 +368,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionParseFile</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>choose_parser_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>347</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionAboutQt</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -406,6 +422,7 @@
   <slot>show_set_gs_info()</slot>
   <slot>refresh_mission_status()</slot>
   <slot>set_queue_paused(bool)</slot>
+  <slot>choose_parser_file()</slot>
   <slot>show_about_qt()</slot>
   <slot>terminate_parser()</slot>
  </slots>

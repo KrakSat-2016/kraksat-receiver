@@ -37,7 +37,6 @@ class Application:
 
         # todo gracefully terminate the thread on quit
         self.sender_worker.start()
-        self.parser_manager.parse_file()
         self.main_window.show()
 
     def _init_main_window(self, sender, parser_manager):

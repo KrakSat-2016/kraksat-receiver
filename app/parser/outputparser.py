@@ -9,7 +9,6 @@ from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from app.parser import OutputLine, ParseError
 from app.parser.telemetry import TelemetryParser
 from app.parser.gps import GPSParser
-from app.settings import Settings
 
 PARSERS = [GPSParser, TelemetryParser]
 
@@ -164,20 +163,15 @@ class ParserManager(QObject):
         else:
             logger.warning('Parser terminated unexpectedly')
 
-    def parse_file(self, path=None):
+    def parse_file(self, path):
         """Starts the worker set to parse given file
 
-        :param str|None path: path to the file to parse. ``None`` means the
-            path will be retrieved from the settings (``parser/filename`` key)
-            or the default filename (``data``) will be used if there's no
-            value in settings
+        :param str|None path: path to the file to parse
         :raise RuntimeError: if the worker is currently running
         :raise FileNotFoundError: if the raw data file does not exist
         """
         if self.is_running():
             raise RuntimeError('The worker is already running')
-        if path is None:
-            path = Settings().value('parser/filename', 'data')
 
         try:
             self.path = str(Path(path).resolve())
@@ -186,6 +180,8 @@ class ParserManager(QObject):
                     'Parser start failed: could not find data file ({})'
                     .format(str(e)))
             return
+        logging.getLogger('parser').info('Starting parser: {}'
+                                         .format(self.path))
 
         self.worker = QtOutputParserWorker(self.path, self.parent)
         self.worker.started.connect(self.parser_started)
