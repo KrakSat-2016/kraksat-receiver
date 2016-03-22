@@ -7,10 +7,11 @@ from time import sleep
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from app.parser import OutputLine, ParseError
+from app.parser.kundt import KundtParser
 from app.parser.telemetry import TelemetryParser
 from app.parser.gps import GPSParser
 
-PARSERS = [GPSParser, TelemetryParser]
+PARSERS = [GPSParser, TelemetryParser, KundtParser]
 
 
 class BaseOutputParser:
