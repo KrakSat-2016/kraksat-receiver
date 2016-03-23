@@ -32,7 +32,7 @@ class Application:
         self.api.set_token(token)
         self.sender_worker = QtSenderWorker(self.api, self.q_app)
         sender = self.sender_worker.sender
-        self.parser_manager = ParserManager(self.q_app)
+        self.parser_manager = ParserManager(self.q_app, sender)
         self._init_main_window(sender, self.parser_manager)
 
         # todo gracefully terminate the thread on quit
