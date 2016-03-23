@@ -7,7 +7,7 @@ class Kundt:
     """
     Calculate speed of sound
     """
-    length = 0.0539
+    LENGTH = 0.0539
 
     @staticmethod
     def get_peak_points(points, length=50):
@@ -50,4 +50,4 @@ class Kundt:
 
     @staticmethod
     def speed_of_sound(points):
-        return Kundt.frequency(Kundt.get_peak_points(points)) * Kundt.length
+        return Kundt.frequency(Kundt.get_peak_points(points)) * Kundt.LENGTH

@@ -81,9 +81,9 @@ class Calculator:
         for altitude, pressure in\
                 collector.get_iter('altitude', 'pressure'):
             try:
-                numerator -= Calculator.R * avg_temp \
-                            / avg_acceleration / altitude \
-                            * math.log(pressure / ground_pressure)
+                numerator -= (Calculator.R * avg_temp /
+                              avg_acceleration / altitude *
+                              math.log(pressure / ground_pressure))
             except ZeroDivisionError:
                 pass
             else:

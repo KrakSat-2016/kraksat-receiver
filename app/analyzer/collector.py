@@ -33,7 +33,7 @@ class Collector:
 
     def add_value(self, timestamp, key, value):
         """
-        add new measurement
+        Add new measurement
         :param timestamp: timestamp of measurement
         :param key: key on witch value will be stored
         :param value: measurement value
@@ -78,8 +78,8 @@ class Collector:
     def get_average_temperature(self):
         numerator, denominator = 0, 0
         for temp, timestamp in self.get_iter('temperature', 'timestamp'):
-            if self.landing_timestamp is not None \
-                    and timestamp > self.landing_timestamp:
+            if (self.landing_timestamp is not None and
+                    timestamp > self.landing_timestamp):
                 break
             numerator += temp
             denominator += 1
