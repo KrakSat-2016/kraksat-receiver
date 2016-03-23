@@ -7,7 +7,7 @@ class TelemetrySerializer(Serializer):
     voltage = fields.VoltageField(dict_included=False)
     current = fields.CurrentField(dict_included=False)
     oxygen = fields.OxygenField(dict_included=False)
-    geiger_cpm = fields.RadiationField(dict_included=False)
+    ion_radiation = fields.RadiationField(dict_included=False)
     humidity_measure_time = fields.HexIntegerField(dict_included=False)
     humidity = fields.HumidityField()
     temperature = fields.TemperatureField()
