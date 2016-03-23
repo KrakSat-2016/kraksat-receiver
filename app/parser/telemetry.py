@@ -3,11 +3,11 @@ from app.parser.serializer import fields, Serializer
 
 
 class TelemetrySerializer(Serializer):
-    error = fields.HexIntegerField()
-    voltage = fields.VoltageField(dict_included=False)
-    current = fields.CurrentField(dict_included=False)
-    oxygen = fields.OxygenField(dict_included=False)
-    ion_radiation = fields.RadiationField(dict_included=False)
+    error = fields.HexIntegerField(dict_included=False)
+    voltage = fields.VoltageField()
+    current = fields.CurrentField()
+    oxygen = fields.OxygenField()
+    ion_radiation = fields.RadiationField()
     humidity_measure_time = fields.HexIntegerField(dict_included=False)
     humidity = fields.HumidityField()
     temperature = fields.TemperatureField()
