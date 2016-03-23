@@ -2,6 +2,7 @@ from collections import deque, namedtuple
 from datetime import datetime
 from threading import RLock, Condition
 
+import requests
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 
 from app import api
@@ -10,7 +11,6 @@ RequestData = namedtuple('RequestData', 'id, module, url, data, files, '
                                         'callback')
 
 
-# todo use requests.Session for keep-alive connection
 class Sender:
     """
     Class that maintains API request queue, as well as allows adding and
@@ -26,6 +26,7 @@ class Sender:
         :param app.api.API api: API instance to use
         """
         self.api = api
+        self.session = requests.Session()
         self.id = 1
         self.lock = RLock()
         self.not_empty = Condition(self.lock)
@@ -71,7 +72,7 @@ class Sender:
                 self.unpaused.wait()
         self.on_request_processing(request_data)
         self.api.create(request_data.url, request_data.data,
-                        request_data.files)
+                        request_data.files, requests_object=self.session)
         # todo better error handling (catching APIErrors and possibly other)
         self.on_request_processed(request_data)
         if request_data.callback:

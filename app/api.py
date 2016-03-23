@@ -145,27 +145,32 @@ class API:
         elif response.status_code != requests.codes.no_content:
             self.__unknown_response(response)
 
-    def create(self, url, data, files=None):
-        response, json = self._request(url, data, files=files)
+    def create(self, url, data, files=None, requests_object=requests):
+        response, json = self._request(url, data, files=files,
+                                       requests_object=requests_object)
         if response.status_code != requests.codes.created:
             raise APIError('201 status code was expected when creating '
                            'resource; got {}'.format(response.status_code),
                            response)
 
-    def _request(self, url, data={}, files=None, method='post'):
+    def _request(self, url, data={}, files=None, method='post',
+                 requests_object=requests):
         """Make a request to given URL with provided data
 
         :param str url: relative URL
         :param dict data: data to send
         :param dict|None files: files to send
         :param str method: HTTP method to use
+        :param requests_object: requests object to make the request with. Uses
+            ``requests`` module by default; ``requests.Session`` instance
+            can be used instead.
         :return: :py:class:`requests.Response` object and json contents (or
             ``None`` in case of errors)
         :rtype: tuple[requests.Response, dict]|tuple[requests.Response, None]
         """
         url = urllib.parse.urljoin(self.server_url, url)
-        response = requests.request(method, url, data=data, files=files,
-                                    auth=self.auth)
+        response = requests_object.request(method, url, data=data, files=files,
+                                           auth=self.auth)
         if response.status_code in (requests.codes.ok, requests.codes.created):
             try:
                 return response, response.json()
