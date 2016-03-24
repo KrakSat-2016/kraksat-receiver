@@ -11,7 +11,7 @@ class GPGGASerializer(Serializer):
     longitude_dir = fields.LongitudeDirectionField(empty=True)
     quality = fields.FixQualityField()
     active_satellites = fields.IntegerField()
-    hdop = fields.IgnoredField()  # Retrieved in GPGSA
+    hdop = fields.FloatField(empty=True)
     altitude = fields.FloatField(empty=True)
     altitude_unit = fields.IgnoredField(choices=('M',))  # Always M (meters)
     geoidal_separation = fields.IgnoredField()
@@ -103,6 +103,31 @@ class GPSParser(Parser):
     * http://www.gpsinformation.org/dale/nmea.htm
     * http://aprs.gids.nl/nmea/
     """
+    url = '/gps/'
+    id = ('$GPGGA', '$GPRMC')
+    serializer = {
+        '$GPGGA': GPGGASerializer,
+        '$GPRMC': GPRMCSerializer
+    }
+
+    def __init__(self):
+        super().__init__()
+        self.data = {}
+
+    def parse(self, line):
+        line.content = checksum_valid(line.content)
+        self.data.update(super().parse(line))
+        if line.id == '$GPRMC':
+            return self.data.copy()
+
+
+class ExtendedGPSParser(GPSParser):
+    """Subclass of GPSParser that parses a few more GPS messages
+
+    The class is intended only to test possible future use - parsing more
+    messages than only '$GPGGA' and '$GPRMC'. It isn't (and shouldn't be) used
+    anywhere in application's code.
+    """
 
     url = '/gps/'
     id = ('$GPGGA', '$GPGSA', '$GPGSV', '$GPRMC', '$GPVTG')
@@ -113,20 +138,15 @@ class GPSParser(Parser):
         '$GPRMC': GPRMCSerializer
     }
 
-    def __init__(self):
-        super().__init__()
-        self.data = {}
-
     def parse(self, line):
         line.content = checksum_valid(line.content)
         if line.id == '$GPVTG':
             # We don't get any data from GPVTG, but it's the last message, so
             # we can send gathered data here
-            self.data['timestamp'] = line.timestamp
-            return self.data
+            return self.data.copy()
         else:
             # Use the serializers
-            self.data.update(super().parse(line))
+            self.data.update(super(GPSParser, self).parse(line))
 
 
 def checksum_valid(line):

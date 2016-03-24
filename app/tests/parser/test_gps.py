@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from app.parser import gps, ParseError
-from app.parser.gps import GPSParser
+from app.parser.gps import GPSParser, ExtendedGPSParser
 from app.tests.parser import ParserTestCase
 
 GPGGA_LINE = ('$GPGGA,123519,4807.038,N,01130.000,W,1,03,0.9,545.4,M,46.9,M,,'
@@ -25,7 +25,7 @@ class GPSTests(ParserTestCase):
         """Test parsing GPGGA message"""
         self.parse(GPGGA_LINE)
         data = {'latitude': 48.1173, 'longitude': -11.5, 'altitude': 545.4,
-                'active_satellites': 3, 'quality': 'gps'}
+                'active_satellites': 3, 'hdop': 0.9, 'quality': 'gps'}
         self.assertEqual(self.parser.data, data)
 
     def test_gpgga_no_fix(self):
@@ -33,6 +33,37 @@ class GPSTests(ParserTestCase):
         self.parse(GPGGA_NO_FIX_LINE)
         data = {'quality': 'no_fix', 'active_satellites': 0}
         self.assertEqual(self.parser.data, data)
+
+    def test_gprmc(self):
+        """Test parsing GPRMC message"""
+        self.parse(GPRMC_LINE)
+        data = {'direction': 84.4, 'speed_over_ground': 41.4848}
+        self.assertEqual(self.parser.data, data)
+
+    def test_gprmc_no_fix(self):
+        """Test parsing GPRMC without fix message"""
+        self.parse(GPRMC_NO_FIX_LINE)
+        self.assertEqual(self.parser.data, {})
+
+    def test_parse(self):
+        """Test parsing multiple messages"""
+        data = {
+            'latitude': 48.1173, 'longitude': -11.5, 'altitude': 545.4,
+            'quality': 'gps', 'direction': 84.4, 'speed_over_ground': 41.4848,
+            'hdop': 0.9, 'active_satellites': 3
+        }
+        self.assertEqual(self.parse(GPGGA_LINE), None)
+        self.assertEqual(self.parse(GPRMC_LINE), data)
+
+    def test_parse_no_fix(self):
+        """Test parsing multiple messages without fix"""
+        data = {'active_satellites': 0, 'quality': 'no_fix'}
+        self.assertEqual(self.parse(GPGGA_NO_FIX_LINE), None)
+        self.assertEqual(self.parse(GPRMC_NO_FIX_LINE), data)
+
+
+class ExtendedGPSTests(ParserTestCase):
+    parser_class = ExtendedGPSParser
 
     def test_gpgsa(self):
         """Test parsing GPGSA message"""
@@ -52,33 +83,21 @@ class GPSTests(ParserTestCase):
         data = {'satellites_in_view': 4}
         self.assertEqual(self.parser.data, data)
 
-    def test_gprmc(self):
-        """Test parsing GPRMC message"""
-        self.parse(GPRMC_LINE)
-        data = {'direction': 84.4, 'speed_over_ground': 41.4848}
-        self.assertEqual(self.parser.data, data)
-
-    def test_gprmc_no_fix(self):
-        """Test parsing GPRMC without fix message"""
-        self.parse(GPRMC_NO_FIX_LINE)
-        self.assertEqual(self.parser.data, {})
-
     def test_gpvtg(self):
         """Test parsing GPVTG message"""
-        data = {'timestamp': self.TIMESTAMP}
+        data = {}
         self.assertEqual(self.parse(GPVTG_LINE), data)
         self.assertEqual(self.parser.data, data)
 
     def test_gpvtg_no_fix(self):
         """Test parsing GPVTG without fix message"""
-        data = {'timestamp': self.TIMESTAMP}
+        data = {}
         self.assertEqual(self.parse(GPVTG_NO_FIX_LINE), data)
         self.assertEqual(self.parser.data, data)
 
     def test_parse(self):
         """Test parsing multiple messages"""
         data = {
-            'timestamp': self.TIMESTAMP,
             'latitude': 48.1173, 'longitude': -11.5, 'altitude': 545.4,
             'quality': 'gps', 'direction': 84.4, 'speed_over_ground': 41.4848,
             'fix_type': '3d', 'pdop': 2.5, 'hdop': 1.3, 'vdop': 2.1,
@@ -92,8 +111,8 @@ class GPSTests(ParserTestCase):
 
     def test_parse_no_fix(self):
         """Test parsing multiple messages without fix"""
-        data = {'timestamp': self.TIMESTAMP, 'active_satellites': 0,
-                'quality': 'no_fix', 'fix_type': 'no_fix'}
+        data = {'active_satellites': 0, 'quality': 'no_fix',
+                'fix_type': 'no_fix'}
         self.assertEqual(self.parse(GPGGA_NO_FIX_LINE), None)
         self.assertEqual(self.parse(GPGSA_NO_FIX_LINE), None)
         self.assertEqual(self.parse(GPRMC_NO_FIX_LINE), None)
