@@ -94,7 +94,8 @@ class Sender:
 
         The method is supposed to be overridden by subclasses.
 
-        :param RequestData request_data: data of the request being added
+        :param RequestData request_data: RequestData instance for the request
+            being added to the queue
         """
         pass
 
@@ -103,7 +104,8 @@ class Sender:
 
         The method is supposed to be overridden by subclasses.
 
-        :param RequestData request_data: data of the request being added
+        :param RequestData request_data: RequestData instance for the request
+            being currently processed
         """
         pass
 
@@ -112,7 +114,8 @@ class Sender:
 
         The method is supposed to be overridden by subclasses.
 
-        :param RequestData request_data: data of the request being added
+        :param RequestData request_data: RequestData instance for the request
+            being removed from the queue
         """
         pass
 
