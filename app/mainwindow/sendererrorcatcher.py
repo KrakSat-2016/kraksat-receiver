@@ -2,7 +2,6 @@ import json
 
 import requests
 from PyQt5.QtWidgets import QMessageBox
-from simplejson import JSONDecodeError
 
 from app.api import APIError
 
@@ -30,7 +29,7 @@ class SenderErrorCatcher:
             try:
                 json_contents = exception.response.json()
                 details = json.dumps(json_contents, indent=4)
-            except JSONDecodeError:
+            except json.JSONDecodeError:
                 details = exception.response.text
         return msg, details
 
