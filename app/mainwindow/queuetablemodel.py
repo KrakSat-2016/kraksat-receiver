@@ -1,17 +1,24 @@
 from collections import deque, namedtuple
+from enum import IntEnum
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
 from app.colors import ERROR_BRUSH
 
-STATUS_WAITING = 0
-STATUS_PROCESSING = 1
-STATUS_ERROR = 2
-STATUS_TO_STRING = {
-    STATUS_WAITING: 'Waiting',
-    STATUS_PROCESSING: 'Processing',
-    STATUS_ERROR: 'Error'
-}
+
+class Status(IntEnum):
+    waiting = 0
+    processing = 1
+    error = 2
+
+    @staticmethod
+    def as_string(status_id):
+        status_to_string = {
+            Status.waiting: 'Waiting',
+            Status.processing: 'Processing',
+            Status.error: 'Error'
+        }
+        return status_to_string[status_id]
 
 
 # Lightweight version of RequestData that only keeps fields we need to display
@@ -50,13 +57,13 @@ class QueueTableModel(QAbstractTableModel):
         self.beginInsertRows(QModelIndex(), count, count)
         self.queue.append(LightRequestData(request_data.id,
                                            request_data.module,
-                                           STATUS_WAITING))
+                                           Status.waiting))
         self.endInsertRows()
 
     def on_error(self, request_data, exception, traceback_exception):
-        self.set_request_status(request_data, STATUS_ERROR)
+        self.set_request_status(request_data, Status.error)
 
-    def set_request_status(self, request_data, status_id=STATUS_PROCESSING):
+    def set_request_status(self, request_data, status_id=Status.processing):
         """Set status of given request
 
         :param app.sender.RequestData request_data: request data of the request
@@ -98,12 +105,12 @@ class QueueTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if col == 2:
-                return STATUS_TO_STRING[request_data.status]
+                return Status.as_string(request_data.status)
             return request_data[col]
         if role == Qt.TextAlignmentRole and col == 0:
             return Qt.AlignRight + Qt.AlignVCenter
         elif role == Qt.BackgroundRole:
-            if request_data.status == STATUS_ERROR:
+            if request_data.status == Status.error:
                 return ERROR_BRUSH
 
     def headerData(self, section, orientation, role=None):
