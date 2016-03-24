@@ -3,6 +3,7 @@ import functools
 import operator
 
 from app.analyzer.kundt import Kundt
+from app.analyzer.radius_mass import radius_mass
 
 
 class Calculator:
@@ -28,39 +29,13 @@ class Calculator:
         :return: (radius, mass)
         :rtype: (float, float)
         """
-        best = {
-            'error': float('inf'),
-            'mass': 0,
-            'radius': 0
-        }
-
-        # could be set to smaller steps to get better precision,
-        # but since measurement error are so big compared to
-        # measured values I find it not necessary
-        for radius in range(1, int(1e7+1), 1000):
-            numerator = 0
-            denominator = 0
-
-            for acceleration, altitude in\
-                    collector.get_iter('acceleration', 'altitude'):
-                numerator += (acceleration * (radius + altitude) ** 2 /
-                              Calculator.G)
-                denominator += 1
-            mass = numerator / denominator
-
-            error = 0
-            for acceleration, altitude in\
-                    collector.get_iter('acceleration', 'altitude'):
-                error += (acceleration - Calculator.G *
-                          mass / (radius + altitude) ** 2)**2
-
-            if error < best['error']:
-                best.update({
-                    'error': error,
-                    'mass': mass,
-                    'radius': radius
-                })
-        return best['radius'], best['mass']
+        accel = []
+        alti = []
+        for accel_val, alti_val in\
+                collector.get_iter('acceleration', 'altitude'):
+            accel.append(accel_val)
+            alti.append(alti_val)
+        return radius_mass(alti, accel, 1e3, 1e7)
 
     @staticmethod
     def calculate_molar_mass(collector):
