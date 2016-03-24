@@ -13,6 +13,7 @@ from app.mainwindow.logs import LogsDock
 from app.mainwindow.missionstatus import MissionStatusDock
 from app.mainwindow.parser import ParserDock
 from app.mainwindow.queue import QueueDock
+from app.mainwindow.sendererrorcatcher import QtSenderErrorCatcher
 from app.mainwindow.statistics import StatisticsDock
 from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._sender = sender
         self._parser_manager = parser_manager
         self.setupUi(self)
+        self.sender_error_catcher = QtSenderErrorCatcher(self, sender)
 
         self.webview_go_home()
         self._init_docks()

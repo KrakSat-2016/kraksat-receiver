@@ -2,6 +2,8 @@ from collections import deque, namedtuple
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
+from app.colors import ERROR_BRUSH
+
 STATUS_WAITING = 0
 STATUS_PROCESSING = 1
 STATUS_ERROR = 2
@@ -34,7 +36,8 @@ class QueueTableModel(QAbstractTableModel):
         super().__init__(parent)
         self.queue = deque()
         sender.request_added.connect(self.add_request)
-        sender.request_processing.connect(self.set_status_processing)
+        sender.request_processing.connect(self.set_request_status)
+        sender.error_occurred.connect(self.on_error)
         sender.request_processed.connect(self.remove_request)
 
     def add_request(self, request_data):
@@ -50,15 +53,19 @@ class QueueTableModel(QAbstractTableModel):
                                            STATUS_WAITING))
         self.endInsertRows()
 
-    def set_status_processing(self, request_data):
-        """Set status of given request to "Processing"
+    def on_error(self, request_data, exception, traceback_exception):
+        self.set_request_status(request_data, STATUS_ERROR)
+
+    def set_request_status(self, request_data, status_id=STATUS_PROCESSING):
+        """Set status of given request
 
         :param app.sender.RequestData request_data: request data of the request
             to change status of
+        :param int status_id: status ID to set
         """
         for index, item in enumerate(self.queue):
             if request_data.id == item.id:
-                self.queue[index] = item._replace(status=STATUS_PROCESSING)
+                self.queue[index] = item._replace(status=status_id)
                 model_index = self.index(index, 2)
                 self.dataChanged.emit(model_index, model_index)
                 return
@@ -95,6 +102,9 @@ class QueueTableModel(QAbstractTableModel):
             return request_data[col]
         if role == Qt.TextAlignmentRole and col == 0:
             return Qt.AlignRight + Qt.AlignVCenter
+        elif role == Qt.BackgroundRole:
+            if request_data.status == STATUS_ERROR:
+                return ERROR_BRUSH
 
     def headerData(self, section, orientation, role=None):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:

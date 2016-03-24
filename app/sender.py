@@ -1,11 +1,14 @@
+import sys
 from collections import deque, namedtuple
 from datetime import datetime
 from threading import RLock, Condition
+from traceback import TracebackException
 
 import requests
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 
 from app import api
+from app.api import APIError
 
 RequestData = namedtuple('RequestData', 'id, module, url, data, files, '
                                         'callback')
@@ -67,13 +70,28 @@ class Sender:
             while not len(self.queue):
                 self.not_empty.wait()
             request_data = self.queue.popleft()
-        with self.pause_lock:
-            if self.paused:
-                self.unpaused.wait()
-        self.on_request_processing(request_data)
-        self.api.create(request_data.url, request_data.data,
-                        request_data.files, requests_object=self.session)
-        # todo better error handling (catching APIErrors and possibly other)
+
+        repeat = True
+        while repeat:
+            repeat = False
+
+            with self.pause_lock:
+                if self.paused:
+                    self.unpaused.wait()
+            self.on_request_processing(request_data)
+
+            try:
+                self.api.create(
+                    request_data.url, request_data.data, request_data.files,
+                    requests_object=self.session)
+            except (requests.exceptions.RequestException, APIError):
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                tb_exc = TracebackException.from_exception(exc_value)
+                self.on_error(request_data, exc_value, tb_exc)
+                self.set_paused(True)
+
+                repeat = True
+
         self.on_request_processed(request_data)
         if request_data.callback:
             request_data.callback()
@@ -128,6 +146,17 @@ class Sender:
         """
         pass
 
+    def on_error(self, request_data, exception, traceback_exception):
+        """Called when an error occurs when processing given request.
+
+        :param RequestData request_data: RequestData instance for the request
+            being processed when the error occurred
+        :param BaseException exception: exception thrown
+        :param TracebackException traceback_exception: TracebackException
+            object for the exception
+        """
+        pass
+
 
 class QtSender(QObject, Sender):
     """
@@ -139,6 +168,7 @@ class QtSender(QObject, Sender):
     request_processing = pyqtSignal(RequestData)
     request_processed = pyqtSignal(RequestData)
     queue_paused = pyqtSignal(bool)
+    error_occurred = pyqtSignal(RequestData, BaseException, TracebackException)
 
     def on_request_added(self, request_data):
         self.request_added.emit(request_data)
@@ -151,6 +181,9 @@ class QtSender(QObject, Sender):
 
     def on_paused(self, paused):
         self.queue_paused.emit(paused)
+
+    def on_error(self, request_data, exception, traceback_exception):
+        self.error_occurred.emit(request_data, exception, traceback_exception)
 
 
 class QtSenderWorker(QThread):

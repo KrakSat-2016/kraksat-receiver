@@ -59,8 +59,11 @@ class APIError(Exception):
         :param requests.Response response: response received from the server
         """
         if response is not None:
-            message = message + '\nResponse body: ' + response.text
-        super().__init__(message)
+            exc_msg = message + '\nResponse body: ' + response.text
+        else:
+            exc_msg = message
+        super().__init__(exc_msg)
+        self.message = message
         self.response = response
 
 
