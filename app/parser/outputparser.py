@@ -77,10 +77,13 @@ class BaseOutputParser:
             msg_id = parser.can_parse(line)
             if msg_id:
                 # todo parse datetime from file
-                data = parser.parse(OutputLine(msg_id, datetime.now(), line))
+                output_line = OutputLine(msg_id, datetime.now(), line)
+                data = parser.parse(output_line)
                 if data:
-                    self.sender.add_request(parser.__class__.__name__,
-                                            parser.url, data)
+                    data['timestamp'] = output_line.timestamp
+                    self.sender.add_request(
+                        parser.__class__.__name__, parser.url, data,
+                        append_timestamp=False)
                 return
 
         raise ParseError('Line was not parsed by any parser')
