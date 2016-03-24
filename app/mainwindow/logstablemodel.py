@@ -5,16 +5,13 @@ from enum import IntEnum
 
 from PyQt5.QtCore import QAbstractTableModel, Qt, QModelIndex
 
-from PyQt5.QtGui import QBrush, QColor
+from app.colors import ERROR_BRUSH, WARNING_BRUSH
 
 # Lightweight version of log record class containing only the data we need
 LogRecord = namedtuple('LogRecord', 'time, level, module, message')
 
 DISPLAY_DATETIME_FORMAT = '%H:%M:%S'
 TOOLTIP_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
-ERROR_BRUSH = QBrush(QColor(255, 148, 148))
-WARNING_BRUSH = QBrush(QColor(250, 235, 204))
 
 
 class Column(IntEnum):
