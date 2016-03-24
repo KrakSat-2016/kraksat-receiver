@@ -79,6 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 partial(self.actionTerminateParser.setEnabled, False))
         self.actionTerminateParser.setEnabled(
                 self._parser_manager.is_running())
+        self._sender.queue_paused.connect(self.actionPauseQueue.setChecked)
 
     def _init_toolbars(self):
         self.menuView.addSeparator()
