@@ -47,6 +47,7 @@ class QtSenderErrorCatcher(SenderErrorCatcher):
             ``error_occurred`` signal
         """
         self.parent = parent
+        self.sender = sender
         sender.error_occurred.connect(self.on_error)
 
     def on_error(self, request_data, exception, traceback_exception):
@@ -55,7 +56,17 @@ class QtSenderErrorCatcher(SenderErrorCatcher):
             QMessageBox.Critical, 'Error processing a request', msg,
             QMessageBox.Ok, self.parent)
         msg_box.setInformativeText(
-            'Request queue was paused automatically. Unpause it to continue '
-            'sending the data.')
+            'Request queue was paused automatically. You can unpause the '
+            'queue later to resend the request, try again now or remove the '
+            'request from the queue and continue.')
+        try_again_btn = msg_box.addButton('Try again', QMessageBox.AcceptRole)
+        remove_req_btn = msg_box.addButton('Remove request and unpause',
+                                           QMessageBox.DestructiveRole)
         msg_box.setDetailedText(details)
+
         msg_box.exec()
+        clicked_button = msg_box.clickedButton()
+        if clicked_button == remove_req_btn:
+            self.sender.set_skip_current()
+        if clicked_button in (try_again_btn, remove_req_btn):
+            self.sender.set_paused(False)

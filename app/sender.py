@@ -36,6 +36,7 @@ class Sender:
         self.paused = False
         self.pause_lock = RLock()
         self.unpaused = Condition(self.pause_lock)
+        self.skip_current = False
 
         self.queue = deque()
 
@@ -78,6 +79,11 @@ class Sender:
             with self.pause_lock:
                 if self.paused:
                     self.unpaused.wait()
+            with self.lock:
+                if self.skip_current:
+                    self.skip_current = False
+                    break
+
             self.on_request_processing(request_data)
 
             try:
@@ -106,6 +112,11 @@ class Sender:
             if not paused:
                 self.unpaused.notify()
             self.on_paused(paused)
+
+    def set_skip_current(self):
+        """Causes the currently processed request to be skipped"""
+        with self.lock:
+            self.skip_current = True
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
