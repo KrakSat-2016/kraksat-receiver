@@ -83,7 +83,7 @@
   <customwidget>
    <class>FilterComboBox</class>
    <extends>QComboBox</extends>
-   <header>app.filtercombobox</header>
+   <header>app.widgets.filtercombobox</header>
    <slots>
     <signal>popup_hidden()</signal>
    </slots>

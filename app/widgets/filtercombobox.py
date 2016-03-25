@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QCheckBox
 
-from app.checkcombobox import CheckComboBox, CheckComboBoxDelegate
+from app.widgets.checkcombobox import CheckComboBox, CheckComboBoxDelegate
 
 
 class FilterComboBoxDelegate(CheckComboBoxDelegate):

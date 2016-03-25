@@ -7,7 +7,6 @@ from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QDockWidget, QHeaderView
 
 from app import logger
-from app.autotooltipdelegate import AutoToolTipDelegate
 from app.mainwindow.logstablemodel import (
     LogsTableModel, TOOLTIP_DATETIME_FORMAT
 )
@@ -17,6 +16,7 @@ from app.uiutils import (
     get_max_text_width, TABLE_HEIGHT_PADDING, TABLE_WIDTH_PADDING,
     setup_autoscroll
 )
+from app.widgets.autotooltipdelegate import AutoToolTipDelegate
 
 
 class LogsDock(QDockWidget, Ui_LogsDock):
