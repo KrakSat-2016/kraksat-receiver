@@ -159,7 +159,7 @@
     <string>Reload current website</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="actionHome">
@@ -173,6 +173,9 @@
    <property name="statusTip">
     <string>Go to KrakSat website home</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+Home</string>
+   </property>
   </action>
   <action name="actionSetGSInfo">
    <property name="icon">
@@ -184,6 +187,9 @@
    </property>
    <property name="statusTip">
     <string>Set Ground Station latitude, longitude and timezone</string>
+   </property>
+   <property name="shortcut">
+    <string>F6</string>
    </property>
   </action>
   <action name="actionTerminateParser">
@@ -220,6 +226,9 @@
    <property name="statusTip">
     <string>Temporarily prevent from sending data to the server</string>
    </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
   </action>
   <action name="actionParseFile">
    <property name="icon">
@@ -252,6 +261,9 @@
    </property>
    <property name="statusTip">
     <string>Withhold received data from being further processed, e.g. to calculate planetary info</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
   <action name="actionAboutQt">
