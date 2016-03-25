@@ -71,8 +71,8 @@ static char radius_mass_docstring[] =
     "param altitude: list of altitude values\n"
     "param acceleration: list of acceleration values\n"
     "param step: difference between two next tested radii\n"
-    "param max_radius: maximal tested radius"
-    "return: radius and mass"
+    "param max_radius: maximal tested radius\n"
+    "return: radius and mass\n"
     ":rtype: (float, float)";
 
 static PyMethodDef module_methods[] = {
