@@ -20,7 +20,12 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
 
     if(!PyList_Check(altitude_list) || !PyList_Check(altitude_list)) {
         PyErr_SetString(PyExc_TypeError, "list is required");
-        return NULL;
+        goto error_exit;
+    }
+
+    if(PyList_Size(acceleration_list) != PyList_Size(altitude_list)) {
+        PyErr_SetString(PyExc_TypeError, "lists have to be same length");
+        goto error_exit;
     }
 
 
@@ -30,11 +35,11 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
             PyObject *act_alti_obj = PyList_GetItem(altitude_list, i);
             PyObject *act_accel_obj = PyList_GetItem(acceleration_list, i);
             if(act_alti_obj == NULL || act_accel_obj == NULL)
-                return NULL;
+                goto error_exit;
             double act_alti = PyFloat_AsDouble(act_alti_obj);
             double act_accel = PyFloat_AsDouble(act_accel_obj);
             if(PyErr_Occurred())
-                return NULL;
+                goto error_exit;
 
             numerator += act_accel * square(rad + act_alti) / G;
         }
@@ -46,11 +51,11 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
             PyObject *act_alti_obj = PyList_GetItem(altitude_list, i);
             PyObject *act_accel_obj = PyList_GetItem(acceleration_list, i);
             if(act_alti_obj == NULL || act_accel_obj == NULL)
-                return NULL;
+                goto error_exit;
             double act_alti = PyFloat_AsDouble(act_alti_obj);
             double act_accel = PyFloat_AsDouble(act_accel_obj);
             if(PyErr_Occurred())
-                return NULL;
+                goto error_exit;
 
             error += square(act_accel - G * mass / square(rad + act_alti));
         }
@@ -63,7 +68,14 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
         }
     }
 
+    Py_DECREF(altitude_list);
+    Py_DECREF(acceleration_list);
     return Py_BuildValue("dd", res_radius, res_mass);
+
+    error_exit:
+        Py_DECREF(altitude_list);
+        Py_DECREF(acceleration_list);
+        return NULL;
 }
 
 static char radius_mass_docstring[] =
