@@ -55,7 +55,8 @@ class BaseOutputParser:
                 try:
                     self.parse_line(line)
                 except ParseError as e:
-                    logging.getLogger('parser').exception(
+                    logger_name = e.parser_name if e.parser_name else 'parser'
+                    logging.getLogger(logger_name).exception(
                         'Could not parse line: {} ({})'
                         .format(line, str(e))
                     )
@@ -76,14 +77,19 @@ class BaseOutputParser:
         for parser in self._parsers:
             msg_id = parser.can_parse(line)
             if msg_id:
+                parser_name = parser.__class__.__name__
                 # todo parse datetime from file
                 output_line = OutputLine(msg_id, datetime.now(), line)
-                data = parser.parse(output_line)
+                try:
+                    data = parser.parse(output_line)
+                except ParseError as e:
+                    # Add parser_name info
+                    e.parser_name = parser_name
+                    raise
                 if data:
                     data['timestamp'] = output_line.timestamp
                     self.sender.add_request(
-                        parser.__class__.__name__, parser.url, data,
-                        append_timestamp=False)
+                        parser_name, parser.url, data, append_timestamp=False)
                 return
 
         raise ParseError('Line was not parsed by any parser')

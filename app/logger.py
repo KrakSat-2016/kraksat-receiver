@@ -2,6 +2,8 @@ import logging
 import logging.config
 
 # Level for probe errors
+from app.parser.outputparser import PARSERS
+
 PROBE = 100
 
 config = {
@@ -63,5 +65,9 @@ def get_modules():
 
     :return: list of modules
     """
-    return ["main", "logger", "mainwindow", "logindialog", "gsinfodialog",
-            "parser", "sender", "probe", "py.warnings"]
+    return (
+        ["main", "logger", "mainwindow", "logindialog", "gsinfodialog",
+         "parser"] +
+        [x.__name__ for x in PARSERS] +
+        ["sender", "probe", "py.warnings"]
+    )

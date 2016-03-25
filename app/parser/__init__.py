@@ -79,4 +79,6 @@ class Parser:
 
 
 class ParseError(Exception):
-    pass
+    def __init__(self, message, parser_name=None):
+        super().__init__(message)
+        self.parser_name = parser_name
