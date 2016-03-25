@@ -7,6 +7,7 @@ from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QDockWidget, QHeaderView, QAbstractItemView
 
 from app import logger
+from app.autotooltipdelegate import AutoToolTipDelegate
 from app.mainwindow.logstablemodel import (
     LogsTableModel, TOOLTIP_DATETIME_FORMAT
 )
@@ -35,6 +36,7 @@ class LogsDock(QDockWidget, Ui_LogsDock):
         model.setSourceModel(source_model)
         model.setFilterKeyColumn(2)  # module column
         self.table.setModel(model)
+        self.table.setItemDelegate(AutoToolTipDelegate(self.table))
 
         # Headers
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
