@@ -4,7 +4,7 @@ import os
 from PyQt5.QtCore import QSortFilterProxyModel, Qt, QRegExp, QCoreApplication
 from PyQt5.QtGui import QStandardItem
 from PyQt5.QtGui import QStandardItemModel
-from PyQt5.QtWidgets import QDockWidget, QHeaderView, QAbstractItemView
+from PyQt5.QtWidgets import QDockWidget, QHeaderView
 
 from app import logger
 from app.autotooltipdelegate import AutoToolTipDelegate
