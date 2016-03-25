@@ -23,6 +23,10 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
         return NULL;
     }
 
+     if(PyList_Size(acceleration_list) != PyList_Size(altitude_list)) {
+        PyErr_SetString(PyExc_TypeError, "lists have to be same length");
+        goto error_exit;
+    }
 
     for(double rad = step; rad < max_radius; rad += step) {
         double numerator = 0;
