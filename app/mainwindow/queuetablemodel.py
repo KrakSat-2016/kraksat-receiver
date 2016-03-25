@@ -1,3 +1,4 @@
+import logging
 from collections import deque, namedtuple
 from enum import IntEnum
 
@@ -66,6 +67,9 @@ class QueueTableModel(QAbstractTableModel):
     def set_request_status(self, request_data, status_id=Status.processing):
         """Set status of given request
 
+        If provided ``request_data`` was not found in our local list, the
+        incident is logged as a warning.
+
         :param app.sender.RequestData request_data: request data of the request
             to change status of
         :param int status_id: status ID to set
@@ -76,10 +80,15 @@ class QueueTableModel(QAbstractTableModel):
                 model_index = self.index(index, 2)
                 self.dataChanged.emit(model_index, model_index)
                 return
-        # todo error
+        logging.getLogger('mainwindow').warning(
+            'QueueTableModel was requested to set status on invalid '
+            'RequestData object: ' + str(request_data))
 
     def remove_request(self, request_data):
         """Remove provided request from the queue
+
+        If provided ``request_data`` was not found in our local list, the
+        incident is logged as a warning.
 
         :param app.sender.RequestData request_data: request data of the request
             to remove
@@ -90,7 +99,9 @@ class QueueTableModel(QAbstractTableModel):
                 del self.queue[index]
                 self.endRemoveRows()
                 return
-        # todo error
+        logging.getLogger('mainwindow').warning(
+            'QueueTableModel was requested to remove invalid RequestData '
+            'object: ' + str(request_data))
 
     def columnCount(self, parent=None, *args, **kwargs):
         return 3
