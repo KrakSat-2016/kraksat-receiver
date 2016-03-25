@@ -1,6 +1,9 @@
 import logging
 import logging.config
 
+# Level for probe errors
+PROBE = 100
+
 config = {
     'version': 1,
     'formatters': {
@@ -38,6 +41,7 @@ config = {
 def set_up_logging():
     """Configure the logging module."""
     logging.config.dictConfig(config)
+    logging.addLevelName(PROBE, 'PROBE')
     logging.getLogger('api').disabled = False
     logging.captureWarnings(True)
     logging.getLogger('logger').info("Set up logging")
@@ -60,4 +64,4 @@ def get_modules():
     :return: list of modules
     """
     return ["main", "logger", "mainwindow", "logindialog", "gsinfodialog",
-            "parser", "sender", "py.warnings"]
+            "parser", "sender", "probe", "py.warnings"]
