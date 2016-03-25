@@ -1,3 +1,4 @@
+import logging
 import sys
 from collections import deque, namedtuple
 from datetime import datetime
@@ -92,6 +93,8 @@ class Sender:
                     requests_object=self.session)
             except (requests.exceptions.RequestException, APIError):
                 exc_type, exc_value, exc_traceback = sys.exc_info()
+                logging.getLogger('sender').exception(
+                    'Could not send request: ' + str(exc_value))
                 tb_exc = TracebackException.from_exception(exc_value)
                 self.on_error(request_data, exc_value, tb_exc)
                 self.set_paused(True)
