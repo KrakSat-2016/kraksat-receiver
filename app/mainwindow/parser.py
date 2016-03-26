@@ -2,26 +2,16 @@ import html
 import os
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDockWidget, QLabel
-
-from app.ui.ui_parser import Ui_ParserDock
+from PyQt5.QtWidgets import QLabel
 
 
-class ParserDock(QDockWidget, Ui_ParserDock):
-    def __init__(self, parent, parser_manager):
-        """Constructor
-
-        :param QObject parent: dock parent object
-        :param parser_manager: parser manager instance
-        :type parser_manager: app.parser.outputparser.ParserManager
-        """
-        super().__init__(parent)
-        self._parser_manager = parser_manager
-        self.setupUi(self)
-
-    def create_statusbar_widget(self):
+class QtParser:
+    @staticmethod
+    def create_statusbar_widget(parser_manager):
         """Create label for status bar showing current status of the parser
 
+        :param parser_manager: parser manager instance
+        :type parser_manager: app.parser.outputparser.ParserManager
         :return: label widget
         :rtype: QLabel
         """
@@ -30,8 +20,8 @@ class ParserDock(QDockWidget, Ui_ParserDock):
         parser_label.setOpenExternalLinks(True)
 
         def update_text():
-            if self._parser_manager.is_running():
-                path = self._parser_manager.path
+            if parser_manager.is_running():
+                path = parser_manager.path
                 dir_path = 'file://' + os.path.dirname(path)
                 url_escaped = html.escape(path)
                 text = ('Parsing <a href="{}">{}</a>'
@@ -45,7 +35,7 @@ class ParserDock(QDockWidget, Ui_ParserDock):
             parser_label.setText(text)
 
         update_text()
-        self._parser_manager.parser_started.connect(update_text)
-        self._parser_manager.parser_terminated.connect(update_text)
+        parser_manager.parser_started.connect(update_text)
+        parser_manager.parser_terminated.connect(update_text)
 
         return parser_label

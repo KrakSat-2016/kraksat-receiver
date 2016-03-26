@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 from app.gsinfodialog import GSInfoDialog
 from app.mainwindow.logs import LogsDock
 from app.mainwindow.missionstatus import MissionStatusDock
-from app.mainwindow.parser import ParserDock
+from app.mainwindow.parser import QtParser
 from app.mainwindow.queue import QueueDock
 from app.mainwindow.statistics import StatisticsDock
 from app.sender.sendererrorcatcher import QtSenderErrorCatcher
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _init_statusbar(self):
         self.statusBar().addPermanentWidget(
-                self.parserDock.create_statusbar_widget())
+                QtParser.create_statusbar_widget(self._parser_manager))
         self.statusBar().addPermanentWidget(self._create_statusbar_separator())
         self.statusBar().addPermanentWidget(
                 self.queueDock.create_statusbar_widget())
