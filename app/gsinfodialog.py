@@ -38,7 +38,7 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
         self._sender = sender
 
         self.setupUi(self)
-        self.loginButton = self.buttonBox.addButton(
+        self.submitButton = self.buttonBox.addButton(
                 "&Submit", QDialogButtonBox.AcceptRole)
 
         self._init_timezone_combo_box()
@@ -65,7 +65,7 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
         :param bool locked: True if the UI should be disabled; False otherwise
         """
         for widget in [self.latitudeSpinBox, self.longitudeSpinBox,
-                       self.timezoneComboBox, self.loginButton]:
+                       self.timezoneComboBox, self.submitButton]:
             widget.setEnabled(not locked)
 
     def retrieve_current_info(self):
