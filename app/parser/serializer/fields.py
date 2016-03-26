@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from app.parser import ParseError
 
 
@@ -161,6 +163,44 @@ class FloatField(Field):
 ####################
 # Telemetry fields #
 ####################
+
+
+ProbeError = namedtuple('ProbeError', 'id, name')
+
+
+class ErrorField(HexIntegerField):
+    """
+    Field that converts error number as provided by the probe to a set
+    of ProbeErrors. Bit masks are used to identify each error.
+    """
+
+    OK = ProbeError(0, 'ALL_OK')
+    ERROR_HARD_RST = ProbeError(1 << 0, 'HARD_RST')
+    ERROR_HTU21D_DISABLED = ProbeError(1 << 1, 'HTU21D_DISABLED')
+    ERROR_GYRO_DISABLED = ProbeError(1 << 2, 'GYRO_DISABLED')
+    ERROR_ACC_MAGN_DISABLED = ProbeError(1 << 3, 'ACC_MAGN_DISABLED')
+    ERROR_LOW_BAT = ProbeError(1 << 4, 'LOW_BAT')
+    ERROR_SD_CARD_DISABLED = ProbeError(1 << 5, 'SD_CARD_DISABLED')
+    ERROR_GPS = ProbeError(1 << 6, 'GPS')
+    ERROR_KUNDT_TUBE = ProbeError(1 << 7, 'KUNDT_TUBE')
+    ERROR_WATCHDOG = ProbeError(1 << 8, 'WATCHDOG')
+    ERRORS = [
+        ERROR_HARD_RST, ERROR_HTU21D_DISABLED, ERROR_GYRO_DISABLED,
+        ERROR_ACC_MAGN_DISABLED, ERROR_LOW_BAT, ERROR_SD_CARD_DISABLED,
+        ERROR_GPS, ERROR_KUNDT_TUBE, ERROR_WATCHDOG
+    ]
+
+    def to_python(self, data):
+        """
+        :return: ``ErrorField.OK`` if 'OK' code was provided; set of errors
+            otherwise (possibly empty if unspecified error occurred)
+        :rtype: set|ProbeError
+        """
+        v = super().to_python(data)
+        if v == ErrorField.OK.id:
+            return ErrorField.OK
+        return {err for err in ErrorField.ERRORS if v & err.id == err.id}
+
 
 class VoltageField(HexIntegerField):
     # todo docs
