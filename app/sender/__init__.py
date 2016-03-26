@@ -31,19 +31,37 @@ class Sender:
 
         :param app.api.API api: API instance to use
         """
-        self.api = api
+        self.api = api  # API instance
+        # Session instance for persistent connection
         self.session = requests.Session()
+        # ID for the next RequestData to use
         self.id = 1
+
+        # Queue containing RequestData objects
+        self.queue = deque()
+
+        # Lock to avoid overriding queue data by multiple threads (also used
+        # for variables listed immediately below)
         self.lock = RLock()
+        # Condition object that notifies waiting thread whenever an item is
+        # added to the queue, so the thread can grab it and process
         self.not_empty = Condition(self.lock)
-        self.paused = False
-        self.pause_lock = RLock()
-        self.unpaused = Condition(self.pause_lock)
+        # Whether or not a request is currently being processed in
+        # process_request. Used for better estimation of queue size in __len__
         self.currently_processing = False
+        # Whether or not the next request should be skipped by process_request
         self.skip_current = False
+        # Whether or not the sender was told to be terminated and
+        # process_request or process_indefinitely should return ASAP
         self.terminated = False
 
-        self.queue = deque()
+        # Lock to avoid overriding "paused" variable by multiple threads
+        self.pause_lock = RLock()
+        # Whether or not sending data is temporarily suspended
+        self.paused = False
+        # Condition object that notifies waiting thread that "paused"
+        # variable was set to False, so processing the queue can continue
+        self.unpaused = Condition(self.pause_lock)
 
     def add_request(self, module, url, data, files=None,
                     append_timestamp=True, callback=None):
