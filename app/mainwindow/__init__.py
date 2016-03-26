@@ -120,6 +120,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
 
     def terminate_parser(self):
+        """Ask if user wants to terminate the parser and if so, terminate it
+
+        :return: ``True`` if the parser was terminated; ``False`` if user
+            clicked 'Cancel' button
+        :rtype: bool
+        """
         msg_box = QMessageBox(
                 QMessageBox.Warning, 'Terminating the parser',
                 'Are you sure you want to terminate the parser?',
@@ -128,6 +134,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         msg_box.exec()
         if msg_box.clickedButton() == terminate_btn:
             self._parser_manager.terminate()
+            return True
+        return False
 
     def set_queue_paused(self, paused):
         """Set whether or not the request queue will be paused"""
