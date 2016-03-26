@@ -29,8 +29,6 @@ class Collector:
 
         self.landing_timestamp = None
 
-        self.previous = None
-
     def add_value(self, timestamp, key, value):
         """
         Add new measurement

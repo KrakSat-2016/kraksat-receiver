@@ -94,7 +94,7 @@ class Calculator:
         return functools.reduce(operator.mul, res)
 
     @staticmethod
-    def perform_calculations(collector, skip_slow=False, dont_overwrite=False):
+    def perform_calculations(collector):
         """
         perform all calculations possible with currently collected data
         compute: molar_mass, radius, mass, speed_of_sound, adiabatic_index,
@@ -102,18 +102,10 @@ class Calculator:
         refractive_index, molar_refractivity, speed_of_light
         :param collector: data for calculations
         :type collector: Collector
-        :param skip_slow: if set previously calculated value of radius and mass
-            will be used; if they don't exist, have no effect
-        :param dont_overwrite: if set newly calculated values won't be stored
-            in collector.previous
         :return: calculated values
         :rtype: dict
         """
-        if skip_slow and collector.previous is not None:
-            radius = collector.previous['radius']
-            mass = collector.previous['mass']
-        else:
-            radius, mass = Calculator.calculate_radius_mass(collector)
+        radius, mass = Calculator.calculate_radius_mass(collector)
 
         molar_mass = Calculator.calculate_molar_mass(collector)
         average_mass_of_molecule = molar_mass / Calculator.A
@@ -158,6 +150,4 @@ class Calculator:
             speed_of_light = Calculator.C / refractive_index
             result['speed_of_light'] = speed_of_light
 
-        if not dont_overwrite:
-            collector.previous = result
         return result
