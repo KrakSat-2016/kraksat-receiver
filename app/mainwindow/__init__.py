@@ -164,7 +164,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
 
     def terminate_sender(self):
-        """Terminate sender, asking the user for permission if still running"""
+        """Terminate sender, asking the user for permission if still running
+
+        :return: ``True`` if sender was terminated; ``False`` otherwise
+        :rtype: bool
+        """
 
         if len(self._sender):
             msg_box = QMessageBox(QMessageBox.Warning, 'Sender is running',
