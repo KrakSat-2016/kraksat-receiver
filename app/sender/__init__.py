@@ -121,7 +121,9 @@ class Sender:
     def set_skip_current(self):
         """Causes the currently processed request to be skipped"""
         with self.lock:
-            self.skip_current = True
+            if not self.skip_current:
+                self.skip_current = True
+                self.logger.warning('Skipping current request')
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
