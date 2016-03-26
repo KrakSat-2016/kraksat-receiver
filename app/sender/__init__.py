@@ -39,7 +39,9 @@ class Sender:
         self.paused = False
         self.pause_lock = RLock()
         self.unpaused = Condition(self.pause_lock)
+        self.currently_processing = False
         self.skip_current = False
+        self.terminated = False
 
         self.queue = deque()
 
@@ -68,12 +70,36 @@ class Sender:
             self.not_empty.notify()
         self.on_request_added(request_data)
 
+    def __len__(self):
+        """Return number of requests currently in the request queue
+
+        Note that this returns 1 more than just a length of the underlying
+        queue if some request is currently being processed.
+
+        :rtype: int
+        """
+        with self.lock:
+            return len(self.queue) + (1 if self.currently_processing else 0)
+
+    def process_indefinitely(self):
+        """Process requests as long as sender is not terminated
+
+        See :py:method:`set_terminated` to terminate executing of this
+        function.
+        """
+        while not self.terminated:
+            self.process_request()
+
     def process_request(self):
         """Process single request"""
         with self.lock:
+            self.currently_processing = False
             while not len(self.queue):
                 self.not_empty.wait()
+                if self.terminated:
+                    return
             request_data = self.queue.popleft()
+            self.currently_processing = True
 
         repeat = True
         while repeat:
@@ -86,6 +112,8 @@ class Sender:
                 if self.skip_current:
                     self.skip_current = False
                     break
+                if self.terminated:
+                    return
 
             self.on_request_processing(request_data)
 
@@ -118,12 +146,33 @@ class Sender:
                 self.unpaused.notify()
             self.on_paused(paused)
 
+    def is_paused(self):
+        """Check if the sender is currently paused
+
+        :return: ``True`` if the sender is currently paused; ``False``
+            otherwise
+        :rtype: bool
+        """
+        with self.pause_lock:
+            return self.paused
+
     def set_skip_current(self):
         """Causes the currently processed request to be skipped"""
         with self.lock:
             if not self.skip_current:
                 self.skip_current = True
                 self.logger.warning('Skipping current request')
+
+    def set_terminated(self):
+        """Terminate processing requests
+
+        Releases any lock :py:method:`process_request` may be waiting for;
+        also prevents this method from being called again.
+        """
+        self.terminated = True
+        with self.lock, self.pause_lock:
+            self.not_empty.notify_all()
+            self.unpaused.notify_all()
 
     def on_request_added(self, request_data):
         """Called when a request is added to the queue.
@@ -219,5 +268,4 @@ class QtSenderWorker(QThread):
         self.sender = QtSender(self, api=api)
 
     def run(self):
-        while True:
-            self.sender.process_request()
+        self.sender.process_indefinitely()

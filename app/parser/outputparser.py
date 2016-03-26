@@ -177,6 +177,24 @@ class ParserManager(QObject):
             self.terminated_by_user = True
             self.worker.mark_terminated()
 
+    def wait(self, time=None):
+        """Wait for the Parser worker to finish execution
+
+        If the worker is not running, return immediately.
+
+        :param int time: how long to wait for the thread to be terminated in
+            msecs, or ``None`` to wait indefinitely
+        :return: ``True`` if the thread was terminated in given ``time``;
+            ``False`` terminated
+        :rtype: bool
+        """
+        if self.is_running():
+            if time is None:
+                return self.worker.wait()
+            else:
+                return self.worker.wait(time)
+        return True
+
     def _on_parser_terminated(self):
         if self.terminated_by_user:
             self.logger.info('Parser was terminated by the user')

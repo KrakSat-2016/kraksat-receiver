@@ -26,6 +26,11 @@ class Application:
         self.dialog = LoginDialog(self.api)
         self.dialog.token_obtained.connect(self._init_app)
         exit_code = self.q_app.exec_()
+        self.logger.info('Waiting for all threads to be terminated...')
+        for thread, name in [(self.parser_manager, 'Parser'),
+                             (self.sender_worker, 'Sender')]:
+            if not thread.wait(1000):
+                self.logger.error('Thread %s failed to terminate', name)
         self.logger.info('Shutting down with exit code %d', exit_code)
         sys.exit(exit_code)
 
@@ -36,7 +41,6 @@ class Application:
         self.parser_manager = ParserManager(self.q_app, sender)
         self._init_main_window(sender, self.parser_manager)
 
-        # todo gracefully terminate the thread on quit
         self.sender_worker.start()
         self.main_window.show()
 

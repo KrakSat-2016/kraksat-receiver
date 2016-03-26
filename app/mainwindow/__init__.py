@@ -163,7 +163,53 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self._parser_manager.parse_file(file_name)
             Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
 
+    def terminate_sender(self):
+        """Terminate sender, asking the user for permission if still running"""
+
+        if len(self._sender):
+            msg_box = QMessageBox(QMessageBox.Warning, 'Sender is running',
+                                  None, QMessageBox.Cancel)
+            msg_box.setInformativeText(
+                'If you terminate the application now, the data will be '
+                'lost. Are you sure you want to quit?')
+            terminate_btn = msg_box.addButton('Terminate without sending',
+                                              QMessageBox.DestructiveRole)
+
+            if self._sender.is_paused():
+                msg_box.setText('Request queue is paused, but there are still '
+                                'some requests that are awaiting to be sent.')
+                unpause_btn = msg_box.addButton('Unpause queue',
+                                                QMessageBox.AcceptRole)
+            else:
+                msg_box.setText('There are still some requests that are '
+                                'awaiting to be sent.')
+                unpause_btn = None
+
+            msg_box.exec()
+            clicked_btn = msg_box.clickedButton()
+            if clicked_btn == terminate_btn:
+                pass
+            elif clicked_btn == unpause_btn:
+                self._sender.set_paused(False)
+                return False
+            else:
+                # Cancel button
+                return False
+
+        self._sender.set_terminated()
+        return True
+
     def closeEvent(self, event):
+        if self._parser_manager.is_running():
+            if not self.terminate_parser():
+                event.ignore()
+                return
+        if not self.terminate_sender():
+            event.ignore()
+            return
+        self.save_state()
+
+    def save_state(self):
         settings = Settings()
         settings[self.CONFIG_GEOMETRY_KEY] = self.saveGeometry()
         settings[self.CONFIG_STATE_KEY] = self.saveState()
