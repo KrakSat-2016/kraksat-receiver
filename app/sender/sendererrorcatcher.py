@@ -29,7 +29,7 @@ class SenderErrorCatcher:
             try:
                 json_contents = exception.response.json()
                 details = json.dumps(json_contents, indent=4)
-            except json.JSONDecodeError:
+            except Exception:
                 details = exception.response.text
         return msg, details
 

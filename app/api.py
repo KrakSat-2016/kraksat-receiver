@@ -1,6 +1,5 @@
 import logging
 import urllib.parse
-from json import JSONDecodeError
 
 import dateutil.parser
 import requests
@@ -177,7 +176,7 @@ class API:
         if response.status_code in (requests.codes.ok, requests.codes.created):
             try:
                 return response, response.json()
-            except JSONDecodeError:
+            except Exception:
                 self.logger.warning(
                     "Could not decode JSON despite %d status code\n"
                     "Contents: %s", response.status_code, response.text,
