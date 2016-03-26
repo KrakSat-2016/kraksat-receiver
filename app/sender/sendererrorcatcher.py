@@ -69,4 +69,4 @@ class QtSenderErrorCatcher(SenderErrorCatcher):
         if clicked_button == remove_req_btn:
             self.sender.set_skip_current()
         if clicked_button in (try_again_btn, remove_req_btn):
-            self.sender.set_paused(False)
+            self.sender.paused = False

@@ -137,7 +137,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def set_queue_paused(self, paused):
         """Set whether or not the request queue will be paused"""
-        self._sender.set_paused(paused)
+        self._sender.paused = paused
 
     def choose_parser_file(self):
         if self._parser_manager.is_running():
@@ -177,7 +177,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             terminate_btn = msg_box.addButton('Terminate without sending',
                                               QMessageBox.DestructiveRole)
 
-            if self._sender.is_paused():
+            if self._sender.paused:
                 msg_box.setText('Request queue is paused, but there are still '
                                 'some requests that are awaiting to be sent.')
                 unpause_btn = msg_box.addButton('Unpause queue',
@@ -192,7 +192,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if clicked_btn == terminate_btn:
                 pass
             elif clicked_btn == unpause_btn:
-                self._sender.set_paused(False)
+                self._sender.paused = False
                 return False
             else:
                 # Cancel button

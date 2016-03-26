@@ -58,7 +58,7 @@ class Sender:
         # Lock to avoid overriding "paused" variable by multiple threads
         self.pause_lock = RLock()
         # Whether or not sending data is temporarily suspended
-        self.paused = False
+        self._paused = False
         # Condition object that notifies waiting thread that "paused"
         # variable was set to False, so processing the queue can continue
         self.unpaused = Condition(self.pause_lock)
@@ -124,7 +124,7 @@ class Sender:
             repeat = False
 
             with self.pause_lock:
-                if self.paused:
+                if self._paused:
                     self.unpaused.wait()
             with self.lock:
                 if self.skip_current:
@@ -145,7 +145,7 @@ class Sender:
                     'Could not send request: ' + str(exc_value))
                 tb_exc = TracebackException.from_exception(exc_value)
                 self.on_error(request_data, exc_value, tb_exc)
-                self.set_paused(True)
+                self.paused = True
 
                 repeat = True
 
@@ -153,18 +153,8 @@ class Sender:
         if request_data.callback:
             request_data.callback()
 
-    def set_paused(self, paused):
-        """(Un)pause the queue
-
-        :param bool paused: whether or not request processing should be paused
-        """
-        with self.pause_lock:
-            self.paused = paused
-            if not paused:
-                self.unpaused.notify()
-            self.on_paused(paused)
-
-    def is_paused(self):
+    @property
+    def paused(self):
         """Check if the sender is currently paused
 
         :return: ``True`` if the sender is currently paused; ``False``
@@ -172,7 +162,19 @@ class Sender:
         :rtype: bool
         """
         with self.pause_lock:
-            return self.paused
+            return self._paused
+
+    @paused.setter
+    def paused(self, paused):
+        """(Un)pause the queue
+
+        :param bool paused: whether or not request processing should be paused
+        """
+        with self.pause_lock:
+            self._paused = paused
+            if not paused:
+                self.unpaused.notify()
+            self.on_paused(paused)
 
     def set_skip_current(self):
         """Causes the currently processed request to be skipped"""
