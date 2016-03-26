@@ -24,6 +24,8 @@ class Sender:
     class in a separate thread (see :py:class:`QtSenderWorker`).
     """
 
+    logger = logging.getLogger('Sender')
+
     def __init__(self, api):
         """Constructor
 
@@ -93,7 +95,7 @@ class Sender:
                     requests_object=self.session)
             except (requests.exceptions.RequestException, APIError):
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                logging.getLogger('sender').exception(
+                self.logger.exception(
                     'Could not send request: ' + str(exc_value))
                 tb_exc = TracebackException.from_exception(exc_value)
                 self.on_error(request_data, exc_value, tb_exc)

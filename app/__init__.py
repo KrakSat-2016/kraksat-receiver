@@ -12,9 +12,11 @@ from app.sender import QtSenderWorker
 
 
 class Application:
+    logger = logging.getLogger('Main')
+
     def __init__(self):
         set_up_logging()
-        logging.getLogger('main').info('Starting up the app')
+        self.logger.info('Starting up the app')
 
         self.api = API()
         self.main_window = None
@@ -24,8 +26,7 @@ class Application:
         self.dialog = LoginDialog(self.api)
         self.dialog.token_obtained.connect(self._init_app)
         exit_code = self.q_app.exec_()
-        logging.getLogger('main').info('Shutting down with exit code %d',
-                                       exit_code)
+        self.logger.info('Shutting down with exit code %d', exit_code)
         sys.exit(exit_code)
 
     def _init_app(self, token):

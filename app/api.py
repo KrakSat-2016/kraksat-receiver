@@ -79,7 +79,7 @@ class TokenAuth(AuthBase):
 
 
 class API:
-    logger = logging.getLogger('api')
+    logger = logging.getLogger('API')
 
     def __init__(self):
         self.server_url = None  # Address of the API server

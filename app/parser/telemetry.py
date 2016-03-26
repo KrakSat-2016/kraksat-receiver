@@ -44,7 +44,7 @@ class TelemetrySerializer(Serializer):
     def parse(self, line_content):
         data = super().parse(line_content)
         if data.error != ERROR_NAME_TO_ID['ALL_OK']:
-            logging.getLogger('probe').log(
+            logging.getLogger('Probe').log(
                 logger.PROBE, 'The probe reported an error: ' +
                               ERROR_ID_TO_NAME[data.error])
         return data

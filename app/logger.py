@@ -44,9 +44,11 @@ def set_up_logging():
     """Configure the logging module."""
     logging.config.dictConfig(config)
     logging.addLevelName(PROBE, 'PROBE')
-    logging.getLogger('api').disabled = False
+    for module_name in get_modules():
+        # Re-enable loggers with conflicting names
+        logging.getLogger(module_name).disabled = False
     logging.captureWarnings(True)
-    logging.getLogger('logger').info("Set up logging")
+    logging.getLogger('Logger').info("Set up logging")
 
 
 def get_memory_handler():
@@ -66,8 +68,8 @@ def get_modules():
     :return: list of modules
     """
     return (
-        ["main", "logger", "mainwindow", "logindialog", "gsinfodialog",
-         "parser"] +
+        ["Main", "Logger", "MainWindow", "LoginDialog", "GSInfoDialog",
+         "Parser"] +
         [x.__name__ for x in PARSERS] +
-        ["sender", "probe", "py.warnings"]
+        ["Sender", "Probe", "py.warnings"]
     )

@@ -27,6 +27,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CONFIG_STATE_KEY = 'mainWindow/state'
     CONFIG_LAST_FILE_KEY = 'mainWindow/lastFile'
 
+    logger = logging.getLogger('MainWindow')
+
     def __init__(self, sender, parser_manager):
         """Constructor
 
@@ -50,7 +52,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.restoreState(settings[self.CONFIG_STATE_KEY])
         self._init_statusbar()
 
-        logging.getLogger('mainwindow').info("Main Window initialized")
+        self.logger.info("Main Window initialized")
 
     def _init_docks(self):
         self.logsDock = LogsDock(self)

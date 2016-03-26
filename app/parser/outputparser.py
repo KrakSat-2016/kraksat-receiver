@@ -19,6 +19,8 @@ class BaseOutputParser:
     Base parser class intended to parse the output file indefinitely
     """
 
+    logger = logging.getLogger('Parser')
+
     def __init__(self, parsers, sender):
         """Constructor
 
@@ -49,17 +51,16 @@ class BaseOutputParser:
                     continue
                 line = line.rstrip('\r\n')
                 if line == '':
-                    logging.getLogger('parser').warning('Empty line received')
+                    self.logger.warning('Empty line received')
                     continue
 
                 try:
                     self.parse_line(line)
                 except ParseError as e:
-                    logger_name = e.parser_name if e.parser_name else 'parser'
-                    logging.getLogger(logger_name).exception(
-                        'Could not parse line: {} ({})'
-                        .format(line, str(e))
-                    )
+                    logger = (logging.getLogger(e.parser_name) if e.parser_name
+                              else self.logger)
+                    logger.exception('Could not parse line: %s (%s)', line,
+                                     str(e))
 
     def parse_line(self, line):
         """Parse single line of output
@@ -134,14 +135,14 @@ class QtOutputParserWorker(QThread, OutputParser):
         try:
             self.parse_file(self.path)
         except OSError as e:
-            logging.getLogger('parser').exception('Could not parse file ({})'
-                                                  .format(str(e)))
+            self.logger.exception('Could not parse file (%s)', str(e))
 
 
 class ParserManager(QObject):
     """
     Manages QtOutputParserWorker instance and allows to run the parser easily.
     """
+    logger = logging.getLogger('Parser')
     parser_started = pyqtSignal()
     parser_terminated = pyqtSignal()
 
@@ -177,11 +178,10 @@ class ParserManager(QObject):
             self.worker.mark_terminated()
 
     def _on_parser_terminated(self):
-        logger = logging.getLogger('parser')
         if self.terminated_by_user:
-            logger.info('Parser was terminated by the user')
+            self.logger.info('Parser was terminated by the user')
         else:
-            logger.warning('Parser terminated unexpectedly')
+            self.logger.warning('Parser terminated unexpectedly')
 
     def parse_file(self, path):
         """Starts the worker set to parse given file
@@ -196,11 +196,11 @@ class ParserManager(QObject):
         try:
             self.path = str(Path(path).resolve())
         except FileNotFoundError as e:
-            logging.getLogger('parser').exception(
-                    'Parser start failed: could not find data file ({})'
-                    .format(str(e)))
+            self.logger.exception(
+                'Parser start failed: could not find data file (%s)',
+                str(e))
             return
-        logging.getLogger('parser').info('Starting parser: {}'
+        self.logger.info('Starting parser: {}'
                                          .format(self.path))
 
         self.worker = QtOutputParserWorker(self.path, self.sender, self.parent)

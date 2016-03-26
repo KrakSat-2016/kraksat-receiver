@@ -9,6 +9,7 @@ from app.ui.ui_login import Ui_LoginDialog
 
 
 class LoginDialog(QDialog, Ui_LoginDialog):
+    logger = logging.getLogger('LoginDialog')
     token_obtained = pyqtSignal(str)
 
     def __init__(self, api):
@@ -30,7 +31,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
         self.show()
         self.thread = None
-        logging.getLogger('logindialog').info("Login dialog initialized")
+        self.logger.info("Login dialog initialized")
 
     def restore_field_values(self):
         settings = Settings()
@@ -71,8 +72,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                     else:
                         self.error_occurred.emit("Could not sign in", "")
                 except Exception:
-                    logging.getLogger('logindialog').exception(
-                            "Could not connect to the server")
+                    self.logger.exception("Could not connect to the server")
                     self.error_occurred.emit("Could not connect to the server",
                                              traceback.format_exc())
 

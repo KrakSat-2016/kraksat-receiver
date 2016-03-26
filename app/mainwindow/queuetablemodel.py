@@ -35,6 +35,8 @@ class QueueTableModel(QAbstractTableModel):
     thread-safe queue retrieval.
     """
 
+    logger = logging.getLogger('MainWindow')
+
     def __init__(self, sender, parent=None):
         """Constructor
 
@@ -80,9 +82,9 @@ class QueueTableModel(QAbstractTableModel):
                 model_index = self.index(index, 2)
                 self.dataChanged.emit(model_index, model_index)
                 return
-        logging.getLogger('mainwindow').warning(
+        self.logger.warning(
             'QueueTableModel was requested to set status on invalid '
-            'RequestData object: ' + str(request_data))
+            'RequestData object: %s', request_data)
 
     def remove_request(self, request_data):
         """Remove provided request from the queue
@@ -99,9 +101,9 @@ class QueueTableModel(QAbstractTableModel):
                 del self.queue[index]
                 self.endRemoveRows()
                 return
-        logging.getLogger('mainwindow').warning(
+        self.logger.warning(
             'QueueTableModel was requested to remove invalid RequestData '
-            'object: ' + str(request_data))
+            'object: %s', request_data)
 
     def columnCount(self, parent=None, *args, **kwargs):
         return 3

@@ -26,6 +26,8 @@ class TimezoneComboBoxModel(QAbstractListModel):
 class GSInfoDialog(QDialog, Ui_GSInfoDialog):
     """Set Ground Station info dialog"""
 
+    logger = logging.getLogger('GSInfoDialog')
+
     def __init__(self, sender, parent=None):
         """Constructor
 
@@ -52,9 +54,8 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
             self.timezoneComboBox.setCurrentIndex(
                     timeutils.OFFSETS.index(current))
         except ValueError:
-            logging.getLogger('gsinfodialog').warning(
-                    'Could not set current timezone in combo box',
-                    exc_info=True)
+            self.logger.warning('Could not set current timezone in combo box',
+                                exc_info=True)
             self.timezoneComboBox.setCurrentIndex(
                     timeutils.OFFSETS.index(timeutils.TimeOffset(0, 0)))
 
