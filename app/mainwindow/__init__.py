@@ -56,7 +56,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def _init_docks(self):
         self.logsDock = LogsDock(self)
-        self.parserDock = ParserDock(self, self._parser_manager)
         self.queueDock = QueueDock(self, self._sender)
         self.statisticsDock = StatisticsDock(self, self._sender)
         self.missionStatusDock = MissionStatusDock(self, self._sender)
@@ -68,7 +67,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ),
             Qt.BottomDockWidgetArea: (
                 self.logsDock,
-                self.parserDock
             )
         }
         for area, dock_list in docks.items():
