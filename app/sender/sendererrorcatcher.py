@@ -15,7 +15,7 @@ class SenderErrorCatcher:
     UI.
     """
 
-    def process_error(self, exception, traceback_exception):
+    def process_error(self, request_data, exception, traceback_exception):
         """Generate message and error details to be displayed for the user
 
         :return: two strings: message and error details to display
@@ -28,9 +28,13 @@ class SenderErrorCatcher:
             msg = exception.message
             try:
                 json_contents = exception.response.json()
-                details = json.dumps(json_contents, indent=4)
+                contents = json.dumps(json_contents, indent=4)
             except Exception:
-                details = exception.response.text
+                contents = exception.response.text
+            details = ('URL: {}\n\nRequest body:\n{}\n\nResponse body:\n{}'
+                       .format(exception.response.request.url,
+                               exception.response.request.body,
+                               contents))
         return msg, details
 
 
@@ -51,7 +55,8 @@ class QtSenderErrorCatcher(SenderErrorCatcher):
         sender.error_occurred.connect(self.on_error)
 
     def on_error(self, request_data, exception, traceback_exception):
-        msg, details = self.process_error(exception, traceback_exception)
+        msg, details = self.process_error(request_data, exception,
+                                          traceback_exception)
         msg_box = QMessageBox(
             QMessageBox.Critical, 'Error processing a request', msg,
             QMessageBox.Ok, self.parent)
