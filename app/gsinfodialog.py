@@ -67,6 +67,10 @@ class GSInfoDialog(QDialog, Ui_GSInfoDialog):
         for widget in [self.latitudeSpinBox, self.longitudeSpinBox,
                        self.timezoneComboBox, self.submitButton]:
             widget.setEnabled(not locked)
+        if not locked:
+            # Fix focus and default button after re-enabling UI
+            self.latitudeSpinBox.setFocus(Qt.OtherFocusReason)
+            self.submitButton.setDefault(True)
 
     def retrieve_current_info(self):
         """Retrieve GS info from API server in a separate thread."""
