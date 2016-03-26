@@ -58,6 +58,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
 
         server, username, password = self._get_form_data()
         api = self.api
+        logger = self.logger
 
         class TokenWorker(QThread):
             token_obtained = pyqtSignal(str)
@@ -72,7 +73,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                     else:
                         self.error_occurred.emit("Could not sign in", "")
                 except Exception:
-                    self.logger.exception("Could not connect to the server")
+                    logger.exception("Could not connect to the server")
                     self.error_occurred.emit("Could not connect to the server",
                                              traceback.format_exc())
 
