@@ -85,8 +85,8 @@ class Sender:
                                        callback)
             self.id += 1
             self.queue.append(request_data)
+            self.on_request_added(request_data)
             self.not_empty.notify()
-        self.on_request_added(request_data)
 
     def __len__(self):
         """Return number of requests currently in the request queue
