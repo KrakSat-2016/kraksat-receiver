@@ -40,12 +40,10 @@ class Calculator:
     @staticmethod
     def calculate_molar_mass(collector):
         """
-        use linear regression
-        (in this case arithmetic mean)
-        require at least 7 measurements
+        Use linear regression (in this case arithmetic mean)
         :param collector: data for calculations
         :type collector: Collector
-        :return: molar mass
+        :return: molar mass [kg/mol]
         :rtype: float
         """
         avg_temp = collector.get_average_temperature()
@@ -140,21 +138,19 @@ class Calculator:
             )
             result['adiabatic_index'] = adiabatic_index
 
-            density_of_atmosphere = (adiabatic_index **
+            density_of_atmosphere = (adiabatic_index *
                                      collector.get_ground_pressure() /
                                      speed_of_sound ** 2)
             result['density_of_atmosphere'] = density_of_atmosphere
 
-            refractive_index = ((3 * molar_mass *
-                                 collector.get_ground_pressure()) -
-                                (2 * adiabatic_index * Calculator.R *
-                                 collector.get_average_temperature()) /
-                                (adiabatic_index * Calculator.R *
-                                 collector.get_average_temperature())) ** 0.5
+            refractive_index = (3 * molar_mass *
+                                collector.get_ground_pressure() /
+                                density_of_atmosphere / Calculator.R /
+                                collector.get_average_temperature() - 2) ** 0.5
             result['refractive_index'] = refractive_index
 
             molar_refractivity = (molar_mass /
-                                  adiabatic_index *
+                                  density_of_atmosphere *
                                   (refractive_index ** 2 - 1) /
                                   (refractive_index ** 2 + 2))
             result['molar_refractivity'] = molar_refractivity

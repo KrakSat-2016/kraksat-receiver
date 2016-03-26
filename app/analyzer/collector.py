@@ -60,7 +60,7 @@ class Collector:
 
     def get_ground_pressure(self):
         pressure = []
-        for i in self.data[-6:]:
+        for i in self.data[-3:]:
             pressure.append(i.pressure)
         # To avoid big measurement errors use median instead of last point
         return statistics.median(pressure)

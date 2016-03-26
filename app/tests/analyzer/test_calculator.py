@@ -67,7 +67,7 @@ class CalculatorTest(unittest.TestCase):
             self.collector.add_value(1000 - i, 'temperature',
                                      temperature_with_error(i))
         molar_mass = Calculator.calculate_molar_mass(self.collector)
-        self.assertIsNotNone(molar_mass)
+        self.assertAlmostEqual(molar_mass, 2.897e-2, delta=3e-3)
 
     def test_perform_calculations(self):
         for i in range(1000, 0, -3):
@@ -84,7 +84,9 @@ class CalculatorTest(unittest.TestCase):
         self.collector.is_kundt_ready = True
 
         res = Calculator.perform_calculations(self.collector)
-        self.assertIn('molar_mass', res)
+        self.assertAlmostEqual(res['adiabatic_index'], 1.4, delta=0.1)
+        self.assertAlmostEqual(res['density_of_atmosphere'], 1.4, delta=0.3)
+        self.assertAlmostEqual(res['refractive_index'], 1.0, delta=1e-2)
 
     def test_esi_with_earth_values(self):
         esi = Calculator.calculate_esi_index(earth_radius, earth_mass, 14.85)
