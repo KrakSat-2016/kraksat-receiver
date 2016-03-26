@@ -24,7 +24,7 @@ class Application:
 
         self.q_app = QApplication(sys.argv)
         # Remove ugly frame around Status Bar items on some styles
-        self.q_app.setStyleSheet('QStatusBar::item { border-width: 0px };')
+        self.q_app.setStyleSheet('QStatusBar::item { border-width: 0px }')
         self.dialog = LoginDialog(self.api)
         self.dialog.token_obtained.connect(self._init_app)
         exit_code = self.q_app.exec_()
