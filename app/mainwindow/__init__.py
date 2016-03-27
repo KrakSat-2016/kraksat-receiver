@@ -49,8 +49,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._init_actions()
         self._init_toolbars()
         settings = Settings()
-        self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
-        self.restoreState(settings[self.CONFIG_STATE_KEY])
+        if self.CONFIG_GEOMETRY_KEY in settings:
+            self.restoreGeometry(settings[self.CONFIG_GEOMETRY_KEY])
+        if self.CONFIG_STATE_KEY in settings:
+            self.restoreState(settings[self.CONFIG_STATE_KEY])
         self._init_statusbar()
 
         self.logger.info("Main Window initialized")
