@@ -14,7 +14,7 @@ def format_size(size):
     :rtype: str
     """
     if abs(size) < 1000:
-        return SIZE_FORMAT.format(size, '')
+        return str(size) + 'B'
 
     for unit in ('k', 'M', 'G'):
         size /= 1000
