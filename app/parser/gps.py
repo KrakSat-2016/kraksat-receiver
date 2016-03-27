@@ -138,7 +138,7 @@ class ExtendedGPSParser(GPSParser):
         '$GPRMC': GPRMCSerializer
     }
 
-    def parse(self, line):
+    def parse(self, line, probe_start_time):
         line.content = checksum_valid(line.content)
         if line.id == '$GPVTG':
             # We don't get any data from GPVTG, but it's the last message, so
@@ -146,7 +146,8 @@ class ExtendedGPSParser(GPSParser):
             return self.data.copy()
         else:
             # Use the serializers
-            self.data.update(super(GPSParser, self).parse(line))
+            self.data.update(super(GPSParser, self).parse(line,
+                                                          probe_start_time))
 
 
 def checksum_valid(line):

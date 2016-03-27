@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from app.parser.telemetry import TelemetryParser
 from app.tests.parser import ParserTestCase
 
@@ -5,6 +7,8 @@ TELEMETRY_LINE = ('S,0,f,e,d,c,325e,68c2,6448,3295,3d1,7e,fdd3,d,e83d,e6bd,'
                   'cdb6,58c,fcbe,995')
 
 TELEMETRY_DATA = {
+    'timestamp': ParserTestCase.TIMESTAMP + timedelta(milliseconds=0x325e),
+    'sht_timestamp': ParserTestCase.TIMESTAMP + timedelta(milliseconds=0x3295),
     'voltage': 15, 'current': 14, 'oxygen': 13, 'ion_radiation': 12,
     'humidity': 45.15127563, 'temperature': 21.98367676,
     'pressure': 0.23852539,
