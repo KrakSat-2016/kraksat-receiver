@@ -208,8 +208,8 @@ class TimestampField(HexIntegerField):
     probe software).
 
     Note that this field does not have any special implementation; since fields
-    do not receive an absolute point in time (start of the probe software), all
-    magic is done in ``Serializer.parse_data`` method.
+    do not receive an absolute point in time (start of the probe software),
+    whole magic is done in ``Serializer.parse_data`` method.
     """
     pass
 
