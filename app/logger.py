@@ -68,7 +68,7 @@ def get_modules():
     :return: list of modules
     """
     return (
-        ["Main", "Logger", "MainWindow", "LoginDialog", "GSInfoDialog",
+        ["Main", "Logger", "MainWindow", "LoginDialog", "API", "GSInfoDialog",
          "Parser"] +
         [x.__name__ for x in PARSERS] +
         ["Sender", "Probe", "py.warnings"]
