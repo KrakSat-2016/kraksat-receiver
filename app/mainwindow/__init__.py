@@ -26,6 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CONFIG_GEOMETRY_KEY = 'mainWindow/geometry'
     CONFIG_STATE_KEY = 'mainWindow/state'
     CONFIG_LAST_FILE_KEY = 'mainWindow/lastFile'
+    CONFIG_FILE_DIALOG_STATE_KEY = 'mainWindow/fileDialogState'
 
     logger = logging.getLogger('MainWindow')
 
@@ -154,10 +155,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 return
 
+        settings = Settings()
         file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle('Choose named pipe or output file')
-        file_dialog.selectFile(Settings().value(self.CONFIG_LAST_FILE_KEY,
-                                                os.getcwd()))
+        file_dialog.selectFile(settings.value(self.CONFIG_LAST_FILE_KEY,
+                                              os.getcwd()))
+        if self.CONFIG_FILE_DIALOG_STATE_KEY in settings:
+            file_dialog.restoreState(
+                settings[self.CONFIG_FILE_DIALOG_STATE_KEY])
         file_dialog.setOptions(QFileDialog.HideNameFilterDetails)
 
         if file_dialog.exec():
@@ -165,7 +170,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if len(selected_files) == 1:
                 file_name = selected_files[0]
                 self._parser_manager.parse_file(file_name)
-                Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
+                settings[self.CONFIG_LAST_FILE_KEY] = file_name
+        settings[self.CONFIG_FILE_DIALOG_STATE_KEY] = file_dialog.saveState()
 
     def terminate_sender(self):
         """Terminate sender, asking the user for permission if still running
