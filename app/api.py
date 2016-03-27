@@ -210,9 +210,9 @@ class API:
 
         :param requests.Response response: Response object
         """
-        # todo more sophisticated error logging
-        self.logger.warning("Got an unknown response from the server: %s",
-                            response.text)
+        self.logger.warning(
+            "Got an unknown response from the server (URL: %s): %s",
+            response.url, response.text)
 
 
 def _parse_datetime(s):
