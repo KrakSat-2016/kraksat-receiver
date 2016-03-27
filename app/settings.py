@@ -13,6 +13,10 @@ class Settings(QSettings):
         """Retrieve item from settings"""
         return self.value(item)
 
+    def __contains__(self, item):
+        """Check if given element exists in settings"""
+        return self.contains(item)
+
     def __setitem__(self, key, value):
         """Set value at key to value in settings"""
         self.setValue(key, value)
