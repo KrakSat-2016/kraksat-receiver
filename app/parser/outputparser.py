@@ -83,7 +83,9 @@ class BaseOutputParser:
                 output_line = OutputLine(msg_id, datetime.now(), line)
                 try:
                     data = parser.parse(output_line)
+                    self.on_line_parsed(output_line)
                 except ParseError as e:
+                    self.on_line_parse_failed(output_line)
                     # Add parser_name info
                     e.parser_name = parser_name
                     raise
@@ -104,6 +106,25 @@ class BaseOutputParser:
         """
         self.is_terminated = True
 
+    def on_line_parsed(self, output_line):
+        """Called when a line of output was parsed properly
+
+        Subclasses may implement this to be notified whenever a line is parsed.
+
+        :param OutputLine output_line: OutputLine parsed
+        """
+        pass
+
+    def on_line_parse_failed(self, output_line):
+        """Called when a line of output couldn't be parsed
+
+        Subclasses may implement this to be notified whenever a line couldn't
+        be parsed.
+
+        :param OutputLine output_line: OutputLine that caused the parse failure
+        """
+        pass
+
 
 class OutputParser(BaseOutputParser):
     """
@@ -119,6 +140,8 @@ class QtOutputParserWorker(QThread, OutputParser):
     """
     :py:class:`OutputParser` wrapper in Qt's :py:class:`QThread`.
     """
+    line_parsed = pyqtSignal(OutputLine)
+    line_parse_failed = pyqtSignal(OutputLine)
 
     def __init__(self, path, sender, parent=None):
         """Constructor
@@ -130,6 +153,12 @@ class QtOutputParserWorker(QThread, OutputParser):
         """
         super(QtOutputParserWorker, self).__init__(parent, sender=sender)
         self.path = path
+
+    def on_line_parsed(self, output_line):
+        self.line_parsed.emit(output_line)
+
+    def on_line_parse_failed(self, output_line):
+        self.line_parse_failed.emit(output_line)
 
     def run(self):
         try:
@@ -145,6 +174,8 @@ class ParserManager(QObject):
     logger = logging.getLogger('Parser')
     parser_started = pyqtSignal()
     parser_terminated = pyqtSignal()
+    line_parsed = pyqtSignal(OutputLine)
+    line_parse_failed = pyqtSignal(OutputLine)
 
     def __init__(self, parent, sender):
         """Constructor
@@ -225,4 +256,6 @@ class ParserManager(QObject):
         self.worker.started.connect(self.parser_started)
         self.worker.finished.connect(self._on_parser_terminated)
         self.worker.finished.connect(self.parser_terminated)
+        self.worker.line_parsed.connect(self.line_parsed)
+        self.worker.line_parse_failed.connect(self.line_parse_failed)
         self.worker.start()

@@ -57,7 +57,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _init_docks(self):
         self.logsDock = LogsDock(self)
         self.queueDock = QueueDock(self, self._sender)
-        self.statisticsDock = StatisticsDock(self, self._sender)
+        self.statisticsDock = StatisticsDock(self, self._sender,
+                                             self._parser_manager)
         self.missionStatusDock = MissionStatusDock(self, self._sender)
         docks = {
             Qt.LeftDockWidgetArea: (
