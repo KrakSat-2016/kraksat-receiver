@@ -92,8 +92,11 @@ class BaseOutputParser:
                     raise
                 if data:
                     if 'timestamp' in data:
+                        # Save timestamp for future messages (which may not
+                        # contain timestamp data)
                         self.last_timestamp = data['timestamp']
                     else:
+                        # Use saved timestamp if necessary
                         data['timestamp'] = self.last_timestamp
                     self.sender.add_request(
                         parser_name, parser.url, data, append_timestamp=False)
