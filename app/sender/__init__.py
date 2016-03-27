@@ -78,7 +78,9 @@ class Sender:
             processed
         """
         if append_timestamp:
-            data['timestamp'] = api.encode_datetime(datetime.utcnow())
+            data['timestamp'] = datetime.utcnow()
+
+        self.prepare_request_data(data)
 
         with self.lock:
             request_data = RequestData(self.id, module, url, data, files,
@@ -87,6 +89,20 @@ class Sender:
             self.queue.append(request_data)
             self.on_request_added(request_data)
             self.not_empty.notify()
+
+    def prepare_request_data(self, data):
+        """Prepare request's POST data to be sent
+
+        This function converts datetime objects to ISO 8601 strings.
+
+        Note that it does not return anything and operate directly on given
+        dict.
+
+        :param dict data: data to be sent
+        """
+        for k, v in data.items():
+            if isinstance(v, datetime):
+                data[k] = api.encode_datetime(v)
 
     def __len__(self):
         """Return number of requests currently in the request queue

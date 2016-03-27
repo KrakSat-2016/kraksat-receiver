@@ -214,4 +214,7 @@ def encode_datetime(dt):
     s = dt.isoformat()
     if s.endswith('+00:00'):
         s = s[:-6] + 'Z'
+    if dt.tzinfo is None:
+        # Treat datetimes with no tzinfo as UTC
+        s += 'Z'
     return s
