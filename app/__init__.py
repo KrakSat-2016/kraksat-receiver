@@ -21,6 +21,7 @@ class Application:
         self.api = API()
         self.main_window = None
         self.sender_worker = None
+        self.parser_manager = None
 
         self.q_app = QApplication(sys.argv)
         # Remove ugly frame around Status Bar items on some styles
@@ -31,7 +32,7 @@ class Application:
         self.logger.info('Waiting for all threads to be terminated...')
         for thread, name in [(self.parser_manager, 'Parser'),
                              (self.sender_worker, 'Sender')]:
-            if not thread.wait(1000):
+            if thread and not thread.wait(1000):
                 self.logger.error('Thread %s failed to terminate', name)
         self.logger.info('Shutting down with exit code %d', exit_code)
         sys.exit(exit_code)
