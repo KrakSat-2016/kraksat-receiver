@@ -112,7 +112,6 @@ class API:
         """
         self.auth = TokenAuth(token)
 
-    # todo data validation in get_* functions
     def get_gsinfo(self):
         """Obtain the latest Ground Station info
 
@@ -128,8 +127,14 @@ class API:
                 self.logger.warning('Could not create TimeOffset object, '
                                     'received offset: %s', json['timezone'])
                 timezone = None
-            return (_parse_datetime(json['timestamp']), json['latitude'],
-                    json['longitude'], timezone)
+            try:
+                return (_parse_datetime(json['timestamp']),
+                        float(json['latitude']), float(json['longitude']),
+                        timezone)
+            except (KeyError, ValueError) as e:
+                self.logger.warning(
+                    'Received invalid GSInfo from the server (%s): %s',
+                    str(e), response.text, exc_info=True)
         elif response.status_code != requests.codes.no_content:
             self.__unknown_response(response)
 
@@ -142,8 +147,24 @@ class API:
         """
         response, json = self._request('/status/latest/', method='get')
         if json:
-            return (_parse_datetime(json['timestamp']), json['phase'],
-                    json['mission_time'], json['cansat_online'])
+            try:
+                timestamp = _parse_datetime(json['timestamp'])
+                phase = json['phase']
+                if phase not in ('', 'launch_preparation', 'countdown',
+                                 'launch', 'descent', 'ground_operations',
+                                 'mission_complete'):
+                    raise ValueError("Invalid mission phase: '{}'"
+                                     .format(phase))
+                if json['mission_time'] is None:
+                    mission_time = None
+                else:
+                    mission_time = float(json['mission_time'])
+                cansat_online = bool(json['cansat_online'])
+                return timestamp, phase, mission_time, cansat_online
+            except (KeyError, ValueError) as e:
+                self.logger.warning(
+                    'Received invalid Status from the server (%s): %s',
+                    str(e), response.text, exc_info=True)
         elif response.status_code != requests.codes.no_content:
             self.__unknown_response(response)
 
