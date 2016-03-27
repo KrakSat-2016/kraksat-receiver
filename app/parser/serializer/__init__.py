@@ -1,6 +1,7 @@
+import datetime
 from collections import OrderedDict
 
-from app.parser.serializer.fields import Field, ValidationError
+from app.parser.serializer.fields import Field, ValidationError, TimestampField
 
 
 class InvalidSerializer(Exception):
@@ -127,10 +128,12 @@ class BaseSerializer:
     separator = ','
     """Separator of fields used in ``get_data()``"""
 
-    def parse_data(self, line_content):
+    def parse_data(self, line_content, probe_start_time):
         """Parse individual fields taken from ``get_data(line_content)``
 
         :param str line_content: line of output as string
+        :param datetime.datetime probe_start_time: datetime of probe software
+            start; used to create values in TimestampFields
         :return: parsed data
         """
         data = self.get_data(line_content)
@@ -152,7 +155,13 @@ class BaseSerializer:
         id = 1
         for (name, field), value in zip(self.fields.items(), data):
             try:
-                vals.append(field.get_value(value))
+                if isinstance(field, TimestampField):
+                    # Handle TimestampFields separately
+                    val = (probe_start_time + datetime.timedelta(
+                        milliseconds=field.get_value(value)))
+                else:
+                    val = field.get_value(value)
+                vals.append(val)
             except ValidationError as e:
                 # Set field name for better error messages
                 e.field = name
@@ -185,16 +194,18 @@ class BaseSerializer:
         """
         pass
 
-    def parse(self, line_content):
+    def parse(self, line_content, probe_start_time):
         """Parse given line of output
 
         Default implementation calls ``self.parse_data(line_content)``.
         Subclasses may override it for more sophisticated processing of data.
 
         :param str line_content: line of output as string
+        :param datetime.datetime probe_start_time: datetime of probe software
+            start; used to create values in TimestampFields
         :return: parsed data
         """
-        return self.parse_data(line_content)
+        return self.parse_data(line_content, probe_start_time)
 
 
 class Serializer(BaseSerializer, metaclass=SerializerMetaclass):

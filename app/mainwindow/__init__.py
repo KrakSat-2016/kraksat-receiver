@@ -149,6 +149,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._sender.paused = paused
 
     def choose_parser_file(self):
+        if (self._parser_manager.probe_start_time is None and
+                not self.show_set_probe_start_time()):
+            return
+
         if self._parser_manager.is_running():
             msg_box = QMessageBox(
                     QMessageBox.Question, 'Parser is running',

@@ -114,9 +114,9 @@ class GPSParser(Parser):
         super().__init__()
         self.data = {}
 
-    def parse(self, line):
+    def parse(self, line, probe_start_time):
         line.content = checksum_valid(line.content)
-        self.data.update(super().parse(line))
+        self.data.update(super().parse(line, probe_start_time))
         if line.id == '$GPRMC':
             return self.data.copy()
 

@@ -11,10 +11,10 @@ class TelemetrySerializer(Serializer):
     current = fields.CurrentField()
     oxygen = fields.OxygenField()
     ion_radiation = fields.RadiationField()
-    humidity_measure_time = fields.HexIntegerField(dict_included=False)
+    timestamp = fields.TimestampField()
     humidity = fields.HumidityField()
     temperature = fields.TemperatureField()
-    temperature_measure_time = fields.HexIntegerField(dict_included=False)
+    sht_timestamp = fields.TimestampField()
     pressure = fields.PressureField()
     gyro_x = fields.GyroField()
     gyro_y = fields.GyroField()
@@ -26,8 +26,8 @@ class TelemetrySerializer(Serializer):
     magnet_y = fields.MagneticField()
     magnet_z = fields.MagneticField()
 
-    def parse(self, line_content):
-        data = super().parse(line_content)
+    def parse(self, line_content, probe_start_time):
+        data = super().parse(line_content, probe_start_time)
         err = data.error
         if err != fields.ErrorField.OK:
             if len(err) == 0:

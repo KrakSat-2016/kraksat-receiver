@@ -202,6 +202,18 @@ class ErrorField(HexIntegerField):
         return {err for err in ErrorField.ERRORS if v & err.id == err.id}
 
 
+class TimestampField(HexIntegerField):
+    """
+    Field that stores relative timestamp (i.e. time since the start of the
+    probe software).
+
+    Note that this field does not have any special implementation; since fields
+    do not receive an absolute point in time (start of the probe software), all
+    magic is done in ``Serializer.parse_data`` method.
+    """
+    pass
+
+
 class VoltageField(HexIntegerField):
     # todo docs
 

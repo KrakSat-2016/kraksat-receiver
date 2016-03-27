@@ -31,6 +31,8 @@ class BaseOutputParser:
         self._parsers = parsers
         self.sender = sender
         self.is_terminated = False
+        self.probe_start_time = None
+        self.last_timestamp = None
 
     def parse_file(self, filename):
         """Opens given file and parses the lines inside it indefinitely
@@ -79,10 +81,9 @@ class BaseOutputParser:
             msg_id = parser.can_parse(line)
             if msg_id:
                 parser_name = parser.__class__.__name__
-                # todo parse datetime from file
                 output_line = OutputLine(msg_id, datetime.now(), line)
                 try:
-                    data = parser.parse(output_line)
+                    data = parser.parse(output_line, self.probe_start_time)
                     self.on_line_parsed(output_line)
                 except ParseError as e:
                     self.on_line_parse_failed(output_line)
@@ -90,12 +91,26 @@ class BaseOutputParser:
                     e.parser_name = parser_name
                     raise
                 if data:
-                    data['timestamp'] = output_line.timestamp
+                    if 'timestamp' in data:
+                        self.last_timestamp = data['timestamp']
+                    else:
+                        data['timestamp'] = self.last_timestamp
                     self.sender.add_request(
                         parser_name, parser.url, data, append_timestamp=False)
                 return
 
         raise ParseError('Line was not parsed by any parser')
+
+    def set_probe_start_time(self, start_time):
+        """Set probe start time
+
+        Since we receive the data with relative timestamps (i.e. time since
+        the start of software inside our probe), setting an absolute point
+        in time is necessary to generate timestamps.
+
+        :param datetime.datetime start_time: probe software start time
+        """
+        self.probe_start_time = self.last_timestamp = start_time
 
     def mark_terminated(self):
         """Set the parser terminated
@@ -241,9 +256,9 @@ class ParserManager(QObject):
     def probe_start_time(self, dt):
         if dt is None:
             raise ValueError('Probe start time must not be None')
-        if self.is_running():
-            pass  # todo set the time
         self._probe_start_time = dt
+        if self.is_running():
+            self.worker.set_probe_start_time(dt)
         self.logger.info('Probe start time set to %s', dt)
 
     def parse_file(self, path):
@@ -255,9 +270,9 @@ class ParserManager(QObject):
         """
         if self.is_running():
             raise RuntimeError('The worker is already running')
-        # if self._probe_start_time is None:
-        #     raise RuntimeError('Probe start time must be set in order to run '
-        #                        'Parser')
+        if self._probe_start_time is None:
+            raise RuntimeError('Probe start time must be set in order to run '
+                               'Parser')
 
         try:
             self.path = str(Path(path).resolve())
@@ -275,4 +290,5 @@ class ParserManager(QObject):
         self.worker.finished.connect(self.parser_terminated)
         self.worker.line_parsed.connect(self.line_parsed)
         self.worker.line_parse_failed.connect(self.line_parse_failed)
+        self.worker.set_probe_start_time(self._probe_start_time)
         self.worker.start()

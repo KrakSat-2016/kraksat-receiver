@@ -6,7 +6,7 @@ class OutputLine:
         """Constructor
 
         :param str id: ID of the message type
-        :param datetime.datetime timestamp: message timestamp
+        :param datetime.datetime timestamp: timestamp of message parse
         :param str content: output line
         """
         self.id = id
@@ -58,7 +58,7 @@ class Parser:
                 return self.id
         return False
 
-    def parse(self, line):
+    def parse(self, line, probe_start_time):
         """Parse a line of output
 
         The method tries to use defined serializers by default, raising
@@ -67,15 +67,18 @@ class Parser:
 
         :param OutputLine line: output line (as an instance of OutputLine
             class)
+        :param datetime.datetime probe_start_time: datetime of probe software
+            start; used to create values in TimestampFields
         :return: dictionary with the data to send or None, if nothing should
             be sent
         :rtype: dict|None
         """
         if isinstance(self.serializer, dict):
             if line.id in self._serializers:
-                return self._serializers[line.id].parse(line.content).as_dict()
+                return self._serializers[line.id].parse(
+                    line.content, probe_start_time).as_dict()
             raise NotImplementedError
-        return self.serializer.parse(line.content).as_dict()
+        return self.serializer.parse(line.content, probe_start_time).as_dict()
 
 
 class ParseError(Exception):
