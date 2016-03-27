@@ -3,7 +3,10 @@ from app.humanize import format_size
 
 
 class HumanizeTests(unittest.TestCase):
+    """Tests for the app.humanize module"""
+
     def test_format_size(self):
+        """Test format_size function"""
         self.assertEqual(format_size(999), '999B')
         self.assertEqual(format_size(1000), '1.0kB')
         self.assertEqual(format_size(1e6), '1.0MB')
