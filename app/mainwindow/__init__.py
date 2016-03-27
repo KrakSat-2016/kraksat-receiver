@@ -26,7 +26,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CONFIG_GEOMETRY_KEY = 'mainWindow/geometry'
     CONFIG_STATE_KEY = 'mainWindow/state'
     CONFIG_LAST_FILE_KEY = 'mainWindow/lastFile'
-    CONFIG_FILE_DIALOG_STATE_KEY = 'mainWindow/fileDialogState'
+    CONFIG_FILE_DIALOG_STATE_KEY = 'mainWindow/fileDialog/state'
+    CONFIG_FILE_DIALOG_GEOMETRY_KEY = 'mainWindow/fileDialog/geometry'
 
     logger = logging.getLogger('MainWindow')
 
@@ -167,6 +168,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.CONFIG_FILE_DIALOG_STATE_KEY in settings:
             file_dialog.restoreState(
                 settings[self.CONFIG_FILE_DIALOG_STATE_KEY])
+        if self.CONFIG_FILE_DIALOG_GEOMETRY_KEY in settings:
+            file_dialog.restoreGeometry(
+                settings[self.CONFIG_FILE_DIALOG_GEOMETRY_KEY])
         file_dialog.setOptions(QFileDialog.HideNameFilterDetails)
 
         if file_dialog.exec():
@@ -176,6 +180,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self._parser_manager.parse_file(file_name)
                 settings[self.CONFIG_LAST_FILE_KEY] = file_name
         settings[self.CONFIG_FILE_DIALOG_STATE_KEY] = file_dialog.saveState()
+        settings[self.CONFIG_FILE_DIALOG_GEOMETRY_KEY] = \
+            file_dialog.saveGeometry()
 
     def terminate_sender(self):
         """Terminate sender, asking the user for permission if still running
