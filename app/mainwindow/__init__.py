@@ -154,13 +154,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 return
 
-        file_name, file_filter = QFileDialog().getOpenFileName(
-                self, 'Choose named pipe or output file',
-                Settings().value(self.CONFIG_LAST_FILE_KEY, os.getcwd()), '',
-                None, QFileDialog.HideNameFilterDetails)
-        if file_name:
-            self._parser_manager.parse_file(file_name)
-            Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
+        file_dialog = QFileDialog(self)
+        file_dialog.setWindowTitle('Choose named pipe or output file')
+        file_dialog.selectFile(Settings().value(self.CONFIG_LAST_FILE_KEY,
+                                                os.getcwd()))
+        file_dialog.setOptions(QFileDialog.HideNameFilterDetails)
+
+        if file_dialog.exec():
+            selected_files = file_dialog.selectedFiles()
+            if len(selected_files) == 1:
+                file_name = selected_files[0]
+                self._parser_manager.parse_file(file_name)
+                Settings()[self.CONFIG_LAST_FILE_KEY] = file_name
 
     def terminate_sender(self):
         """Terminate sender, asking the user for permission if still running
