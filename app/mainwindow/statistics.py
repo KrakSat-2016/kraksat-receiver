@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDockWidget
 
 from app import humanize
 from app.statistics import QtStatistics
-from app.timeutils import natural_timedelta
+from app.humanize import natural_timedelta
 from app.ui.ui_statistics import Ui_StatisticsDock
 
 
