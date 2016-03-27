@@ -153,11 +153,15 @@ class QtStatistics(QObject, Statistics):
         super().__init__(parent)
 
         # Connect sender signals
-        sender.request_processed.connect(self.on_request_sent)
+        sender.request_processed.connect(self.on_request_processed)
 
         # Connect ParserManager signals
         parser_manager.line_parsed.connect(self.on_line_parsed)
         parser_manager.line_parse_failed.connect(self.on_line_parse_failed)
+
+    def on_request_processed(self, request_data, skipped):
+        if not skipped:
+            self.on_request_sent()
 
     def create_timer(self):
         self.timer = QTimer(self)

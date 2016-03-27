@@ -120,6 +120,7 @@ class Sender:
             self.currently_processing = True
 
         repeat = True
+        skipped = False
         while repeat:
             repeat = False
 
@@ -129,6 +130,7 @@ class Sender:
             with self.lock:
                 if self.skip_current:
                     self.skip_current = False
+                    skipped = True
                     break
                 if self.terminated:
                     return
@@ -151,7 +153,7 @@ class Sender:
 
                 repeat = True
 
-        self.on_request_processed(request_data)
+        self.on_request_processed(request_data, skipped)
         if request_data.callback:
             request_data.callback()
 
@@ -216,13 +218,14 @@ class Sender:
         """
         pass
 
-    def on_request_processed(self, request_data):
+    def on_request_processed(self, request_data, skipped):
         """Called when a request was processed and removed from the queue.
 
         The method is supposed to be overridden by subclasses.
 
         :param RequestData request_data: RequestData instance for the request
             being removed from the queue
+        :param bool skipped: whether or not the request was skipped
         """
         pass
 
@@ -255,7 +258,7 @@ class QtSender(QObject, Sender):
 
     request_added = pyqtSignal(RequestData)
     request_processing = pyqtSignal(RequestData)
-    request_processed = pyqtSignal(RequestData)
+    request_processed = pyqtSignal(RequestData, bool)
     queue_paused = pyqtSignal(bool)
     error_occurred = pyqtSignal(RequestData, BaseException, TracebackException)
 
@@ -265,8 +268,8 @@ class QtSender(QObject, Sender):
     def on_request_processing(self, request_data):
         self.request_processing.emit(request_data)
 
-    def on_request_processed(self, request_data):
-        self.request_processed.emit(request_data)
+    def on_request_processed(self, request_data, skipped):
+        self.request_processed.emit(request_data, skipped)
 
     def on_paused(self, paused):
         self.queue_paused.emit(paused)
