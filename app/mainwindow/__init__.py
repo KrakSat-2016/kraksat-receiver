@@ -160,8 +160,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings = Settings()
         file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle('Choose named pipe or output file')
-        file_dialog.selectFile(settings.value(self.CONFIG_LAST_FILE_KEY,
-                                              os.getcwd()))
+        if self.CONFIG_LAST_FILE_KEY in settings:
+            file_dialog.selectFile(settings[self.CONFIG_LAST_FILE_KEY])
+        else:
+            file_dialog.setDirectory(os.getcwd())
         if self.CONFIG_FILE_DIALOG_STATE_KEY in settings:
             file_dialog.restoreState(
                 settings[self.CONFIG_FILE_DIALOG_STATE_KEY])
