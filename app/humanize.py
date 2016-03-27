@@ -22,7 +22,7 @@ def format_size(size):
         if abs(size) < 1000:
             return SIZE_FORMAT.format(size, unit)
 
-    return SIZE_FORMAT.format(size, 'TB')
+    return SIZE_FORMAT.format(size / 1000, 'T')
 
 
 def natural_timedelta(delta):
