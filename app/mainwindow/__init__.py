@@ -14,6 +14,7 @@ from app.mainwindow.missionstatus import MissionStatusDock
 from app.mainwindow.parser import QtParser
 from app.mainwindow.queue import QueueDock
 from app.mainwindow.statistics import StatisticsDock
+from app.probestartdialog import ProbeStartDialog
 from app.sender.sendererrorcatcher import QtSenderErrorCatcher
 from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
@@ -110,6 +111,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def show_set_gs_info(self):
         GSInfoDialog(self._sender, self).show()
+
+    def show_set_probe_start_time(self):
+        return ProbeStartDialog(self._parser_manager, self).exec()
 
     def show_about(self):
         QMessageBox().about(self, 'About KrakSat 2016 Ground Station Software',

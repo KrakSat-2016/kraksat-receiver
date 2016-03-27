@@ -83,6 +83,7 @@
      <string>&amp;Actions</string>
     </property>
     <addaction name="actionSetGSInfo"/>
+    <addaction name="actionSetProbeStartTime"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -130,6 +131,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSetGSInfo"/>
+   <addaction name="actionSetProbeStartTime"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -269,6 +271,21 @@
   <action name="actionAboutQt">
    <property name="text">
     <string>About &amp;Qt</string>
+   </property>
+  </action>
+  <action name="actionSetProbeStartTime">
+   <property name="icon">
+    <iconset resource="res/res.qrc">
+     <normaloff>:/res/time.svg</normaloff>:/res/time.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Set Probe Start Time</string>
+   </property>
+   <property name="statusTip">
+    <string>Set probe start time for proper timestamp calculations</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
    </property>
   </action>
  </widget>
@@ -427,6 +444,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSetProbeStartTime</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_set_probe_start_time()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
@@ -437,5 +470,6 @@
   <slot>choose_parser_file()</slot>
   <slot>show_about_qt()</slot>
   <slot>terminate_parser()</slot>
+  <slot>show_set_probe_start_time()</slot>
  </slots>
 </ui>

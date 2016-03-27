@@ -190,6 +190,7 @@ class ParserManager(QObject):
         self.path = None
         self.parent = parent
         self.terminated_by_user = False
+        self._probe_start_time = None
 
     def is_running(self):
         """Return ``True`` if the worker is currently running
@@ -232,6 +233,19 @@ class ParserManager(QObject):
         else:
             self.logger.warning('Parser terminated unexpectedly')
 
+    @property
+    def probe_start_time(self):
+        return self._probe_start_time
+
+    @probe_start_time.setter
+    def probe_start_time(self, dt):
+        if dt is None:
+            raise ValueError('Probe start time must not be None')
+        if self.is_running():
+            pass  # todo set the time
+        self._probe_start_time = dt
+        self.logger.info('Probe start time set to %s', dt)
+
     def parse_file(self, path):
         """Starts the worker set to parse given file
 
@@ -241,6 +255,9 @@ class ParserManager(QObject):
         """
         if self.is_running():
             raise RuntimeError('The worker is already running')
+        # if self._probe_start_time is None:
+        #     raise RuntimeError('Probe start time must be set in order to run '
+        #                        'Parser')
 
         try:
             self.path = str(Path(path).resolve())
