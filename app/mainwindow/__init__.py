@@ -2,7 +2,8 @@ import logging
 import os
 from functools import partial
 
-from PyQt5.QtCore import Qt, QUrl
+import sys
+from PyQt5.QtCore import Qt, QUrl, QDir, QAbstractProxyModel, QSortFilterProxyModel, QIdentityProxyModel
 from PyQt5.QtWidgets import (
     QMainWindow, QMessageBox, QFrame, QFileDialog, QToolBar, QMenu,
     QApplication
@@ -179,6 +180,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.CONFIG_FILE_DIALOG_GEOMETRY_KEY in settings:
             file_dialog.restoreGeometry(
                 settings[self.CONFIG_FILE_DIALOG_GEOMETRY_KEY])
+        file_dialog.setSidebarUrls(file_dialog.sidebarUrls() +
+                                   [QUrl.fromLocalFile(os.getcwd())])
         file_dialog.setOptions(QFileDialog.HideNameFilterDetails)
 
         if file_dialog.exec():
