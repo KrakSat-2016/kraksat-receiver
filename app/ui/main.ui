@@ -279,7 +279,7 @@
      <normaloff>:/res/time.svg</normaloff>:/res/time.svg</iconset>
    </property>
    <property name="text">
-    <string>Set Probe Start Time</string>
+    <string>Set &amp;Probe Start Time</string>
    </property>
    <property name="statusTip">
     <string>Set probe start time for proper timestamp calculations</string>
