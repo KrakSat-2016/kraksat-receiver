@@ -174,20 +174,24 @@ class ErrorField(HexIntegerField):
     of ProbeErrors. Bit masks are used to identify each error.
     """
 
-    OK = ProbeError(0, 'ALL_OK')
-    ERROR_HARD_RST = ProbeError(1 << 0, 'HARD_RST')
-    ERROR_HTU21D_DISABLED = ProbeError(1 << 1, 'HTU21D_DISABLED')
-    ERROR_GYRO_DISABLED = ProbeError(1 << 2, 'GYRO_DISABLED')
-    ERROR_ACC_MAGN_DISABLED = ProbeError(1 << 3, 'ACC_MAGN_DISABLED')
-    ERROR_LOW_BAT = ProbeError(1 << 4, 'LOW_BAT')
-    ERROR_SD_CARD_DISABLED = ProbeError(1 << 5, 'SD_CARD_DISABLED')
-    ERROR_GPS = ProbeError(1 << 6, 'GPS')
-    ERROR_KUNDT_TUBE = ProbeError(1 << 7, 'KUNDT_TUBE')
-    ERROR_WATCHDOG = ProbeError(1 << 8, 'WATCHDOG')
+    OK = ProbeError(1 << 0, 'ALL_OK')
+    ERROR_HARD_RST = ProbeError(1 << 1, 'HARD_RST')
+    ERROR_HTU21D_DISABLED = ProbeError(1 << 2, 'HTU21D_DISABLED')
+    ERROR_GYRO_DISABLED = ProbeError(1 << 3, 'GYRO_DISABLED')
+    ERROR_ACC_MAGN_DISABLED = ProbeError(1 << 4, 'ACC_MAGN_DISABLED')
+    ERROR_LOW_BAT = ProbeError(1 << 5, 'LOW_BAT')
+    ERROR_SD_CARD_DISABLED = ProbeError(1 << 6, 'SD_CARD_DISABLED')
+    ERROR_GPS = ProbeError(1 << 7, 'GPS')
+    ERROR_KUNDT_TUBE = ProbeError(1 << 8, 'KUNDT_TUBE')
+    ERROR_WATCHDOG = ProbeError(1 << 9, 'WATCHDOG')
+    ERROR_BAROMETER = ProbeError(1 << 10, 'BAROMETER')
+    ERROR_MODE_TRIGG = ProbeError(1 << 11, 'MODE_TRIGG')
+    ERROR_TRANSCEIVER = ProbeError(1 << 12, 'TRANSCEIVER')
     ERRORS = [
         ERROR_HARD_RST, ERROR_HTU21D_DISABLED, ERROR_GYRO_DISABLED,
         ERROR_ACC_MAGN_DISABLED, ERROR_LOW_BAT, ERROR_SD_CARD_DISABLED,
-        ERROR_GPS, ERROR_KUNDT_TUBE, ERROR_WATCHDOG
+        ERROR_GPS, ERROR_KUNDT_TUBE, ERROR_WATCHDOG, ERROR_BAROMETER,
+        ERROR_MODE_TRIGG, ERROR_TRANSCEIVER
     ]
 
     def to_python(self, data):
