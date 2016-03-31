@@ -46,7 +46,7 @@ class Collector:
 
     def get_iter(self, *args):
         for record in self.data:
-            if args.__len__() == 1:
+            if len(args) == 1:
                 res = getattr(record, args[0])
                 if res is None:
                     continue
