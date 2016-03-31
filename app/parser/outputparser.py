@@ -81,7 +81,8 @@ class BaseOutputParser:
             msg_id = parser.can_parse(line)
             if msg_id:
                 parser_name = parser.__class__.__name__
-                output_line = OutputLine(msg_id, datetime.now(), self.last_timestamp, line)
+                output_line = OutputLine(msg_id, datetime.now(),
+                                         self.last_timestamp, line)
                 try:
                     data = parser.parse(output_line, self.probe_start_time)
                     self.on_line_parsed(output_line)
