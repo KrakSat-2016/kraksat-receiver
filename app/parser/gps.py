@@ -25,6 +25,10 @@ class GPGGASerializer(Serializer):
             data.latitude = data.latitude * data.latitude_dir
             data.longitude = data.longitude * data.longitude_dir
 
+    def get_collector_data(self, data):
+        if data.altitude:
+            return {'altitude': data.altitude}
+
 
 class GPGSASerializer(Serializer):
     """Serializer for GPGSA messages"""
@@ -114,7 +118,7 @@ class GPSParser(Parser):
         super().__init__()
         self.data = {}
 
-    def parse(self, line, probe_start_time):
+    def parse(self, line, probe_start_time, collector=None):
         line.content = checksum_valid(line.content)
         self.data.update(super().parse(line, probe_start_time))
         if line.id == '$GPRMC':
@@ -138,7 +142,7 @@ class ExtendedGPSParser(GPSParser):
         '$GPRMC': GPRMCSerializer
     }
 
-    def parse(self, line, probe_start_time):
+    def parse(self, line, probe_start_time, collector=None):
         line.content = checksum_valid(line.content)
         if line.id == '$GPVTG':
             # We don't get any data from GPVTG, but it's the last message, so

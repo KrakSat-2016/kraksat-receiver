@@ -194,6 +194,18 @@ class BaseSerializer:
         """
         pass
 
+    @classmethod
+    def get_collector_data(cls, data):
+        """Return data that should be added to a Collector
+
+        :param data: parsed data, may not be changed inside the method
+        :return: dict of key-value mappings of data that should be added to the
+            Collector instance (see
+            :py:method:`app.analyzer.collector.Collector.add_value`)
+        :rtype: dict|None
+        """
+        pass
+
     def parse(self, line_content, probe_start_time):
         """Parse given line of output
 

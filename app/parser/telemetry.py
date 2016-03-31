@@ -43,6 +43,15 @@ class TelemetrySerializer(Serializer):
                     ', '.join(error.name for error in err))
         return data
 
+    def get_collector_data(self, data):
+        acceleration_axes = [data.accel_x, data.accel_y, data.accel_z]
+        return {
+            # Vector length [g]
+            'acceleration': sum(x ** 2 for x in acceleration_axes) ** .5,
+            'temperature': data.temperature + 273.15,
+            'pressure': data.pressure * 100
+        }
+
 
 class TelemetryParser(Parser):
     url = '/telemetry/'

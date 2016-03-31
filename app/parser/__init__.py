@@ -2,15 +2,17 @@ import collections
 
 
 class OutputLine:
-    def __init__(self, id, timestamp, content):
+    def __init__(self, id, parse_timestamp, last_timestamp, content):
         """Constructor
 
         :param str id: ID of the message type
-        :param datetime.datetime timestamp: timestamp of message parse
+        :param datetime.datetime parse_timestamp: timestamp of message parse
+        :param datetime.datetime last_timestamp: last value for 'timestamp' key
         :param str content: output line
         """
         self.id = id
-        self.timestamp = timestamp
+        self.parse_timestamp = parse_timestamp
+        self.last_timestamp = last_timestamp
         self.content = content
 
 
@@ -58,7 +60,7 @@ class Parser:
                 return self.id
         return False
 
-    def parse(self, line, probe_start_time):
+    def parse(self, line, probe_start_time, collector=None):
         """Parse a line of output
 
         The method tries to use defined serializers by default, raising
@@ -69,16 +71,32 @@ class Parser:
             class)
         :param datetime.datetime probe_start_time: datetime of probe software
             start; used to create values in TimestampFields
+        :param analyzer.collector.Collector collector: Collector instance to
+            pass the parsed data to
         :return: dictionary with the data to send or None, if nothing should
             be sent
         :rtype: dict|None
         """
         if isinstance(self.serializer, dict):
             if line.id in self._serializers:
-                return self._serializers[line.id].parse(
-                    line.content, probe_start_time).as_dict()
-            raise NotImplementedError
-        return self.serializer.parse(line.content, probe_start_time).as_dict()
+                serializer = self._serializers[line.id]
+            else:
+                raise NotImplementedError
+        else:
+            serializer = self.serializer
+
+        data = serializer.parse(line.content, probe_start_time)
+        data_dict = data.as_dict()
+        timestamp = (data_dict['timestamp'] if 'timestamp' in data_dict
+                     else line.last_timestamp)
+
+        # Add data to the collector
+        collector_data = serializer.get_collector_data(data)
+        if collector and collector_data:
+            for key, value in collector_data.items():
+                collector.add_value(timestamp, key, value)
+
+        return data_dict
 
 
 class ParseError(Exception):
