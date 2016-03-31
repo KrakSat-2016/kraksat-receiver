@@ -120,7 +120,7 @@ class QueueTableModel(QAbstractTableModel):
             if col == 2:
                 return Status.as_string(request_data.status)
             return request_data[col]
-        if role == Qt.TextAlignmentRole and col == 0:
+        elif role == Qt.TextAlignmentRole and col == 0:
             return Qt.AlignRight + Qt.AlignVCenter
         elif role == Qt.BackgroundRole:
             if request_data.status == Status.error:
