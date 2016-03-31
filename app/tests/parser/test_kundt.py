@@ -2,7 +2,7 @@ from app.parser.kundt import KundtParser
 from app.tests.parser import ParserTestCase
 
 
-class TelemetryTests(ParserTestCase):
+class KundtTests(ParserTestCase):
     parser_class = KundtParser
 
     def test_kundt(self):
