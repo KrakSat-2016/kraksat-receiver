@@ -2,6 +2,8 @@ import collections
 
 
 class OutputLine:
+    __slots__ = ['id', 'parse_timestamp', 'last_timestamp', 'content']
+
     def __init__(self, id, parse_timestamp, last_timestamp, content):
         """Constructor
 
