@@ -14,6 +14,10 @@ class CollectorRecord:
         self.timestamp = None
         self.pressure = None
 
+    def __repr__(self):
+        return 'CollectorRecord({})'.format(
+            ', '.join(str(getattr(self, attr)) for attr in self.__slots__))
+
 
 class Collector:
     """
