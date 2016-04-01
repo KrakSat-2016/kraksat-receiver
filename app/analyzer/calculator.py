@@ -6,6 +6,13 @@ from app.analyzer.kundt import Kundt
 from app.analyzer.radius_mass import radius_mass
 
 
+class NoDataError(Exception):
+    """
+    Raised when there is insufficient data to perform requested calculation.
+    """
+    pass
+
+
 class Calculator:
     """
     Perform calculations based on received data
@@ -35,6 +42,8 @@ class Calculator:
                 collector.get_iter('acceleration', 'altitude'):
             accel.append(accel_val)
             alti.append(alti_val)
+        if len(alti) == 0:
+            raise NoDataError('No altitude data to calculate radius/mass')
         return radius_mass(alti, accel, 1e3, 1e7)
 
     @staticmethod
@@ -61,6 +70,8 @@ class Calculator:
                 pass
             else:
                 denominator += 1
+        if denominator == 0:
+            raise NoDataError('No altitude/pressure to calculate molar mass')
         return numerator / denominator
 
     @staticmethod
@@ -105,29 +116,42 @@ class Calculator:
         :return: calculated values
         :rtype: dict
         """
-        radius, mass = Calculator.calculate_radius_mass(collector)
+        result = {}
+        try:
+            radius, mass = Calculator.calculate_radius_mass(collector)
+            result['radius'] = radius
+            result['mass'] = mass
+        except NoDataError:
+            pass
 
-        molar_mass = Calculator.calculate_molar_mass(collector)
-        average_mass_of_molecule = molar_mass / Calculator.A
-        specific_gas_constant = Calculator.R / molar_mass
+        try:
+            molar_mass = Calculator.calculate_molar_mass(collector)
+            print('WOW: ' + str(molar_mass))
+        except NoDataError:
+            molar_mass = None
+        if molar_mass == 0:
+            molar_mass = None
 
-        result = {
-            'radius': radius,
-            'mass': mass,
-            'molar_mass': molar_mass,
-            'average_mass_of_molecule': average_mass_of_molecule,
-            'specific_gas_constant': specific_gas_constant,
-        }
+        if molar_mass is not None:
+            result['molar_mass'] = molar_mass
+            average_mass_of_molecule = molar_mass / Calculator.A
+            result['average_mass_of_molecule'] = average_mass_of_molecule
+            specific_gas_constant = Calculator.R / molar_mass
+            result['specific_gas_constant'] = specific_gas_constant
 
         if collector.is_kundt_ready:
             speed_of_sound = Kundt.speed_of_sound(collector.kundt)
             result['speed_of_sound'] = speed_of_sound
 
+            if molar_mass is None:
+                # All further calculations require valid molar mass
+                return result
+
+            # Since calculate_molar_mass already uses get_average_temperature
+            # and get_ground_pressure, it's safe to use these functions here
+            # without worrying about NoDataError
             adiabatic_index = Calculator.calculate_adiabatic_index(
-                collector,
-                speed_of_sound,
-                molar_mass,
-            )
+                collector, speed_of_sound, molar_mass)
             result['adiabatic_index'] = adiabatic_index
 
             density_of_atmosphere = (adiabatic_index *

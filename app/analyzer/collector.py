@@ -1,5 +1,7 @@
 import statistics
 
+from app.analyzer.calculator import NoDataError
+
 
 class CollectorRecord:
     __slots__ = ['acceleration', 'altitude', 'temperature', 'timestamp',
@@ -60,6 +62,8 @@ class Collector:
         pressure = []
         for i in self.data[-3:]:
             pressure.append(i.pressure)
+        if len(pressure) == 0:
+            raise NoDataError('No pressure data')
         # To avoid big measurement errors use median instead of last point
         return statistics.median(pressure)
 
@@ -71,6 +75,8 @@ class Collector:
         acceleration = []
         for i in self.data[-10:]:
             acceleration.append(i)
+        if len(pressure) == 0:
+            raise NoDataError('No acceleration data')
         return statistics.median(acceleration)
 
     def get_average_temperature(self):
@@ -81,4 +87,6 @@ class Collector:
                 break
             numerator += temp
             denominator += 1
+        if denominator == 0:
+            raise NoDataError('No temperature data')
         return numerator / denominator
