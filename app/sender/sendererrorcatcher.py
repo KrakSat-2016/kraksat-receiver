@@ -64,8 +64,8 @@ class QtSenderErrorCatcher(SenderErrorCatcher):
             'Request queue was paused automatically. You can unpause the '
             'queue later to resend the request, try again now or remove the '
             'request from the queue and continue.')
-        try_again_btn = msg_box.addButton('Try again', QMessageBox.AcceptRole)
-        remove_req_btn = msg_box.addButton('Remove request and unpause',
+        try_again_btn = msg_box.addButton('&Try again', QMessageBox.AcceptRole)
+        remove_req_btn = msg_box.addButton('&Remove request and unpause',
                                            QMessageBox.DestructiveRole)
         msg_box.setDetailedText(details)
 
