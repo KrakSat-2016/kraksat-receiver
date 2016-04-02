@@ -54,15 +54,13 @@ class Collector:
 
     def get_iter(self, *args):
         for record in self.data:
-            if len(args) == 1:
-                res = getattr(record, args[0])
-                if res is None:
-                    continue
+            res = tuple(getattr(record, key) for key in args)
+            if any(map(lambda x: x is None, res)):
+                continue
+            if len(res) == 1:
+                yield res[0]
             else:
-                res = tuple(getattr(record, key) for key in args)
-                if any(map(lambda x: x is None, res)):
-                    continue
-            yield res
+                yield res
 
     def get_ground_pressure(self):
         pressure = []
