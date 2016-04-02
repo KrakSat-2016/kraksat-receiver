@@ -21,15 +21,18 @@ class BaseOutputParser:
 
     logger = logging.getLogger('Parser')
 
-    def __init__(self, parsers, sender):
+    def __init__(self, parsers, sender, analyzer_worker):
         """Constructor
 
         :param list parsers: list of parsers to use
         :param app.sender.Sender sender: Sender instance to use to send
             the parsed data
+        :param app.analyzer.AnalyzerWorker analyzer_worker: AnalyzerWorker
+            instance to pass the parsed data to
         """
         self._parsers = parsers
         self.sender = sender
+        self.analyzer_worker = analyzer_worker
         self.is_terminated = False
         self.probe_start_time = None
         self.last_timestamp = None
@@ -84,7 +87,8 @@ class BaseOutputParser:
                 output_line = OutputLine(msg_id, datetime.now(),
                                          self.last_timestamp, line)
                 try:
-                    data = parser.parse(output_line, self.probe_start_time)
+                    data = parser.parse(output_line, self.probe_start_time,
+                                        self.analyzer_worker)
                     self.on_line_parsed(output_line)
                 except ParseError as e:
                     self.on_line_parse_failed(output_line)
@@ -150,9 +154,9 @@ class OutputParser(BaseOutputParser):
     Subclass of :py:class:`BaseOutputParser` that uses all available parsers
     """
 
-    def __init__(self, sender):
+    def __init__(self, sender, analyzer_worker):
         parsers = [Parser() for Parser in PARSERS]
-        super().__init__(parsers, sender)
+        super().__init__(parsers, sender, analyzer_worker)
 
 
 class QtOutputParserWorker(QThread, OutputParser):
@@ -162,15 +166,18 @@ class QtOutputParserWorker(QThread, OutputParser):
     line_parsed = pyqtSignal(OutputLine)
     line_parse_failed = pyqtSignal(OutputLine)
 
-    def __init__(self, path, sender, parent=None):
+    def __init__(self, path, sender, analyzer_worker, parent=None):
         """Constructor
 
         :param str path: path to file to parse
         :param app.sender.Sender sender: Sender instance to use to send
             the parsed data
+        :param app.analyzer.AnalyzerWorker analyzer_worker: AnalyzerWorker
+            instance to pass the parsed data to
         :param QObject parent: QObject parent of the thread
         """
-        super(QtOutputParserWorker, self).__init__(parent, sender=sender)
+        super(QtOutputParserWorker, self).__init__(
+            parent, sender=sender, analyzer_worker=analyzer_worker)
         self.path = path
 
     def on_line_parsed(self, output_line):
@@ -196,15 +203,18 @@ class ParserManager(QObject):
     line_parsed = pyqtSignal(OutputLine)
     line_parse_failed = pyqtSignal(OutputLine)
 
-    def __init__(self, parent, sender):
+    def __init__(self, parent, sender, analyzer_worker):
         """Constructor
 
         :param QObject parent: parent object for the worker QThread
         :param app.sender.Sender sender: Sender instance to use to send
             the parsed data
+        :param app.analyzer.AnalyzerWorker analyzer_worker: AnalyzerWorker
+            instance to pass the parsed data to
         """
         super(ParserManager, self).__init__(parent)
         self.sender = sender
+        self.analyzer_worker = analyzer_worker
         self.worker = None
         self.path = None
         self.parent = parent
@@ -287,7 +297,8 @@ class ParserManager(QObject):
             return
         self.logger.info('Starting parser: {}'.format(self.path))
 
-        self.worker = QtOutputParserWorker(self.path, self.sender, self.parent)
+        self.worker = QtOutputParserWorker(self.path, self.sender,
+                                           self.analyzer_worker, self.parent)
         self.worker.started.connect(self.parser_started)
         self.worker.finished.connect(self._on_parser_terminated)
         self.worker.finished.connect(self.parser_terminated)

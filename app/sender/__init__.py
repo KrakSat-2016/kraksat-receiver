@@ -207,7 +207,9 @@ class Sender:
         """Terminate processing requests
 
         Releases any lock :py:method:`process_request` may be waiting for;
-        also prevents this method from being called again.
+        also prevents this method from being called again. Note that this may
+        not terminate the thread immediately as it may wait for the current
+        request to be processed.
         """
         self.terminated = True
         with self.lock, self.pause_lock:

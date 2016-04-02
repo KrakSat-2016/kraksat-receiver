@@ -46,11 +46,18 @@ class Collector:
         """
         if timestamp != self.current_timestamp:
             if self.current_record is not None:
-                self.data.append(self.current_record)
+                self._add_record(self.current_record)
             self.current_record = CollectorRecord()
         self.current_timestamp = timestamp
         self.current_record.timestamp = timestamp
         setattr(self.current_record, key, value)
+
+    def _add_record(self, record):
+        """Add record to the record list.
+
+        May be overridden by subclasses to e.g. notify about modifications.
+        """
+        self.data.append(record)
 
     def get_iter(self, *args):
         for record in self.data:
