@@ -120,7 +120,7 @@ class GPSParser(Parser):
 
     def parse(self, line, probe_start_time, collector=None):
         line.content = checksum_valid(line.content)
-        self.data.update(super().parse(line, probe_start_time))
+        self.data.update(super().parse(line, probe_start_time, collector))
         if line.id == '$GPRMC':
             return self.data.copy()
 
@@ -150,8 +150,8 @@ class ExtendedGPSParser(GPSParser):
             return self.data.copy()
         else:
             # Use the serializers
-            self.data.update(super(GPSParser, self).parse(line,
-                                                          probe_start_time))
+            self.data.update(super(GPSParser, self).parse(
+                line, probe_start_time, collector))
 
 
 def checksum_valid(line):
