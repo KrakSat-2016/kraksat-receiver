@@ -24,6 +24,8 @@ class Collector:
     Collect data for scientific computations.
     To append Kundt's tube measurement, append to kundt list;
     when no new measurement is going to be send set is_kundt_ready flag
+
+    Note that the implementation of Collector is not thread-safe.
     """
     def __init__(self):
         self.data = []

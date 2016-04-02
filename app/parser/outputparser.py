@@ -285,8 +285,7 @@ class ParserManager(QObject):
                 'Parser start failed: could not find data file (%s)',
                 str(e))
             return
-        self.logger.info('Starting parser: {}'
-                                         .format(self.path))
+        self.logger.info('Starting parser: {}'.format(self.path))
 
         self.worker = QtOutputParserWorker(self.path, self.sender, self.parent)
         self.worker.started.connect(self.parser_started)
