@@ -126,7 +126,6 @@ class Calculator:
 
         try:
             molar_mass = Calculator.calculate_molar_mass(collector)
-            print('WOW: ' + str(molar_mass))
         except NoDataError:
             molar_mass = None
         if molar_mass == 0:
