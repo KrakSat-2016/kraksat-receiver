@@ -3,7 +3,7 @@ import functools
 import operator
 
 from app.analyzer.kundt import Kundt
-from app.analyzer.radius_mass import radius_mass
+from app.analyzer.radius_mass import radius_mass, molar_mass
 
 
 class NoDataError(Exception):
@@ -45,6 +45,28 @@ class Calculator:
         if len(alti) == 0:
             raise NoDataError('No altitude data to calculate radius/mass')
         return radius_mass(alti, accel, 1e3, 1e7)
+
+    @staticmethod
+    def calculate_molar_mass_method2(collector):
+        """
+        Wrapper for C molar_mass function. Looks at every pair of
+        measurement points instead of treating ground pressure as known
+        constant.
+        :param collector: Collector object
+        :return: molar_mass
+        """
+        avg_temp = collector.get_average_temperature()
+        avg_acceleration = collector.get_average_acceleration()
+        altitude_list = []
+        pressure_list = []
+        for altitude, pressure in\
+                collector.get_iter('altitude', 'pressure'):
+            altitude_list.append(altitude)
+            pressure_list.append(pressure)
+        if len(altitude_list) == 0:
+
+
+
 
     @staticmethod
     def calculate_molar_mass(collector):

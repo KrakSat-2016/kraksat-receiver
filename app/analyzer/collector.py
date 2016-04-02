@@ -81,7 +81,7 @@ class Collector:
         acceleration = []
         for i in self.data[-10:]:
             acceleration.append(i)
-        if len(pressure) == 0:
+        if len(acceleration) == 0:
             raise NoDataError('No acceleration data')
         return statistics.median(acceleration)
 
