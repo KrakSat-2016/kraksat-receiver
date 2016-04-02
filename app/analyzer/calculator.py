@@ -64,9 +64,9 @@ class Calculator:
             altitude_list.append(altitude)
             pressure_list.append(pressure)
         if len(altitude_list) == 0:
-
-
-
+            raise NoDataError('No altitude/pressure to calculate molar mass')
+        return molar_mass(avg_temp, avg_acceleration,
+                          altitude_list, pressure_list)
 
     @staticmethod
     def calculate_molar_mass(collector):

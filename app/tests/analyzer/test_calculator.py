@@ -5,7 +5,6 @@ import os
 
 from app.analyzer.calculator import Calculator
 from app.analyzer.collector import Collector
-import app.analyzer.radius_mass as cmodule
 
 earth_mass = 5.97219e24
 earth_radius = 6.3781e6
@@ -68,21 +67,10 @@ class CalculatorTest(unittest.TestCase):
             self.collector.add_value(1000 - i, 'temperature',
                                      temperature_with_error(i))
         molar_mass = Calculator.calculate_molar_mass(self.collector)
+        molar_mass2 = Calculator.calculate_molar_mass_method2(self.collector)
         self.assertAlmostEqual(molar_mass, 2.897e-2, delta=3e-3)
+        self.assertAlmostEqual(molar_mass2, 2.897e-2, delta=3e-3)
 
-    def test_molar_mass_fallback(self):
-        alti = []
-        pres = []
-        for i in range(1000, 0, -3):
-            alti.append(i)
-            pres.append(pressure_with_error(i))
-            self.collector.add_value(1000 - i, 'acceleration', acceleration(i))
-            self.collector.add_value(1000 - i, 'temperature',
-                                     temperature_with_error(i))
-        temp = self.collector.get_average_temperature()
-        accel= self.collector.get_average_acceleration()
-        molar_mass = cmodule.molar_mass(temp, accel, alti, pres)
-        self.assertAlmostEqual(molar_mass, 2.897e-2, delta=3e-3)
 
     def test_perform_calculations(self):
         for i in range(1000, 0, -3):
