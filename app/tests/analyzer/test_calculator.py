@@ -85,7 +85,7 @@ class CalculatorTest(unittest.TestCase):
 
         res = Calculator.perform_calculations(self.collector)
         self.assertAlmostEqual(res['adiabatic_index'], 1.4, delta=0.1)
-        self.assertAlmostEqual(res['density_of_atmosphere'], 1.4, delta=0.3)
+        self.assertAlmostEqual(res['atmosphere_density'], 1.4, delta=0.3)
         self.assertAlmostEqual(res['refractive_index'], 1.0, delta=1e-2)
 
     def test_esi_with_earth_values(self):
