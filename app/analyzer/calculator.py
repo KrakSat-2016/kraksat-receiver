@@ -92,8 +92,8 @@ class Calculator:
         :return: ESI
         :rtype: float
         """
-        density = mass / ((4 / 3) * math.pi * radius ** 3)
-        escape_velocity = (2 * Calculator.G * mass / radius) ** 0.5
+        density = Calculator.calculate_average_density(radius, mass)
+        escape_velocity = Calculator.calculate_escape_velocity(radius, mass)
 
         factors = [
             (radius, 6.3781e6, 0.57/4),
@@ -103,6 +103,14 @@ class Calculator:
         ]
         res = [(1 - abs(x - y)/abs(x + y)) ** z for x, y, z in factors]
         return functools.reduce(operator.mul, res)
+
+    @staticmethod
+    def calculate_average_density(radius, mass):
+        return mass / ((4 / 3) * math.pi * radius ** 3)
+
+    @staticmethod
+    def calculate_escape_velocity(radius, mass):
+        return (2 * Calculator.G * mass / radius) ** 0.5
 
     @staticmethod
     def perform_calculations(collector):
@@ -121,6 +129,15 @@ class Calculator:
             radius, mass = Calculator.calculate_radius_mass(collector)
             result['radius'] = radius
             result['mass'] = mass
+            average_density = Calculator.calculate_average_density(radius,
+                                                                   mass)
+            result['average_density'] = average_density
+            escape_velocity = Calculator.calculate_escape_velocity(radius,
+                                                                   mass)
+            result['escape_velocity'] = escape_velocity
+            earth_similarity_index = Calculator.calculate_esi_index(
+                radius, mass, collector.get_average_temperature())
+            result['earth_similarity_index'] = earth_similarity_index
         except NoDataError:
             pass
 
