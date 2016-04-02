@@ -71,5 +71,5 @@ def get_modules():
         ["Main", "Logger", "MainWindow", "LoginDialog", "API", "GSInfoDialog",
          "Parser"] +
         [x.__name__ for x in PARSERS] +
-        ["Sender", "Probe", "py.warnings"]
+        ["Analyzer", "Sender", "Probe", "py.warnings"]
     )
