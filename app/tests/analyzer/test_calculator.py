@@ -99,15 +99,18 @@ class CalculatorTest(unittest.TestCase):
         self.collector.is_kundt_ready = True
 
         res = Calculator.perform_calculations(self.collector)
+        self.assertAlmostEqual(res['average_density'], 5513, delta=30)
+        self.assertAlmostEqual(res['escape_velocity'], 11200, delta=30)
+        self.assertAlmostEqual(res['earth_similarity_index'], 1, delta=1e-2)
         self.assertAlmostEqual(res['adiabatic_index'], 1.4, delta=0.1)
         self.assertAlmostEqual(res['atmosphere_density'], 1.4, delta=0.3)
         self.assertAlmostEqual(res['refractive_index'], 1.0, delta=1e-2)
 
     def test_esi_with_earth_values(self):
-        esi = Calculator.calculate_esi_index(earth_radius, earth_mass, 14.85)
+        esi = Calculator.calculate_esi_index(earth_radius, earth_mass, 288)
         self.assertAlmostEqual(esi, 1, delta=1e-3)
 
     def test_esi_with_mars_values(self):
         esi = Calculator.calculate_esi_index(earth_radius * 0.53,
-                                             earth_mass * 0.105, -63)
+                                             earth_mass * 0.105, 210.15)
         self.assertAlmostEqual(esi, 0.64, delta=2e-2)

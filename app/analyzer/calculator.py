@@ -99,7 +99,7 @@ class Calculator:
             (radius, 6.3781e6, 0.57/4),
             (density, 5513, 1.07/4),
             (escape_velocity, 11200, 0.70/4),
-            (temperature + 273.15, 288, 5.58/4)
+            (temperature, 288, 5.58/4)
         ]
         res = [(1 - abs(x - y)/abs(x + y)) ** z for x, y, z in factors]
         return functools.reduce(operator.mul, res)
