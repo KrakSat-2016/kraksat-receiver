@@ -1,6 +1,8 @@
 #include <Python.h>
+#include <math.h>
 
 static const double G = 6.674e-11;
+static const double R = 8.3144598;
 
 static inline double square(double a)
 {
@@ -14,17 +16,23 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
     PyObject *altitude_list;
     PyObject *acceleration_list;
     double step, max_radius;
-    if(!(PyArg_ParseTuple(args, "OOdd", &altitude_list, &acceleration_list,
-                     &step, &max_radius)))
+    if(!PyArg_ParseTuple(args, "OOdd", &altitude_list, &acceleration_list,
+                     &step, &max_radius))
         return NULL;
 
-    if(!PyList_Check(altitude_list) || !PyList_Check(altitude_list)) {
-        PyErr_SetString(PyExc_TypeError, "list is required");
+    if(!PyList_Check(altitude_list)) {
+        PyErr_SetString(PyExc_TypeError, "altitude is not list");
+        return NULL;
+    }
+
+    if(!PyList_Check(acceleration_list)) {
+        PyErr_SetString(PyExc_TypeError, "acceleration is not list");
         return NULL;
     }
 
      if(PyList_Size(acceleration_list) != PyList_Size(altitude_list)) {
-        PyErr_SetString(PyExc_TypeError, "lists have to be same length");
+        PyErr_SetString(PyExc_TypeError,
+            "acceleration have different length than altitude");
         return NULL;
     }
 
@@ -70,6 +78,73 @@ static PyObject *radius_mass(PyObject *self, PyObject *args)
     return Py_BuildValue("dd", res_radius, res_mass);
 }
 
+static PyObject *molar_mass(PyObject *self, PyObject *args)
+{
+    double temp, accel;
+    PyObject *alti, *pres;
+
+    if(!PyArg_ParseTuple(args, "ddOO", &temp, &accel, &alti, &pres))
+        return NULL;
+
+    if(!PyList_Check(alti)) {
+        PyErr_SetString(PyExc_TypeError, "acceleration is not list");
+        return NULL;
+    }
+
+    if(!PyList_Check(pres)) {
+        PyErr_SetString(PyExc_TypeError, "pressure is not list");
+        return NULL;
+    }
+
+    if(PyList_Size(alti) != PyList_Size(pres)) {
+        PyErr_SetString(PyExc_TypeError,
+            "acceleration have different length than pressure");
+        return NULL;
+    }
+
+    double numerator = 0, denominator = 0;
+    // const part of equation
+    double con = R * temp / accel;
+
+    for(int i = 0; i < PyList_Size(alti); ++i) {
+        PyObject *pi_obj = PyList_GetItem(pres, i);
+        PyObject * hi_obj = PyList_GetItem(alti, i);
+        if(pi_obj == NULL || hi_obj == NULL)
+            return NULL;
+
+        double pi = PyFloat_AsDouble(pi_obj);
+        double hi = PyFloat_AsDouble(hi_obj);
+        if(PyErr_Occurred())
+            return NULL;
+
+        for(int j = i + 1; j < PyList_Size(alti); ++j) {
+            PyObject *pj_obj = PyList_GetItem(pres, j);
+            PyObject * hj_obj = PyList_GetItem(alti, j);
+            if(pj_obj == NULL || hj_obj == NULL)
+                return NULL;
+
+            double pj = PyFloat_AsDouble(pj_obj);
+            double hj = PyFloat_AsDouble(hj_obj);
+            if(PyErr_Occurred())
+                return NULL;
+
+            numerator -= log(pj/pi);
+            denominator += (hj - hi);
+        }
+    }
+
+    return Py_BuildValue("d", con * numerator / denominator);
+}
+
+static char molar_mass_docstring[] =
+    "Fallback method of molar mass computing. Use when ground pressure\n"
+    "is unavailable.\n"
+    "param temperature: mean temperature\n"
+    "param acceleration: gravitational acceleration\n"
+    "param altitude: list of altitude values\n"
+    "param pressure: list of pressure values\n"
+    "return: average molar_mass";
+
 static char radius_mass_docstring[] =
     "Compute radius and mass\n"
     "param altitude: list of altitude values\n"
@@ -81,6 +156,7 @@ static char radius_mass_docstring[] =
 
 static PyMethodDef module_methods[] = {
     {"radius_mass", radius_mass, METH_VARARGS, radius_mass_docstring},
+    {"molar_mass", molar_mass, METH_VARARGS, molar_mass_docstring},
     {NULL, NULL, 0, NULL},
 };
 
