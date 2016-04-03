@@ -1,3 +1,4 @@
+import logging
 import math
 import functools
 import operator
@@ -167,7 +168,9 @@ class Calculator:
             avg_atm_molar_mass = Calculator.calculate_molar_mass(collector)
         except NoDataError:
             avg_atm_molar_mass = None
-        if avg_atm_molar_mass == 0:
+        if avg_atm_molar_mass is not None and avg_atm_molar_mass <= 0:
+            logging.getLogger('Analyzer').debug('Molar mass <= 0: %d',
+                                                avg_atm_molar_mass)
             avg_atm_molar_mass = None
 
         if avg_atm_molar_mass is not None:
