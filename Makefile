@@ -3,7 +3,7 @@ RESOURCE_DIR = app/ui/res
 BUILD_DIR = app/ui
 RADIUS_DIR = app/analyzer/radius_mass
 
-UI_FILES = main.ui login.ui gsinfo.ui probestart.ui logs.ui queue.ui statistics.ui missionstatus.ui
+UI_FILES = main.ui login.ui gsinfo.ui videoid.ui probestart.ui logs.ui queue.ui statistics.ui missionstatus.ui
 RESOURCES = res.qrc
 
 PYUIC = pyuic5

@@ -84,6 +84,7 @@
     </property>
     <addaction name="actionSetGSInfo"/>
     <addaction name="actionSetProbeStartTime"/>
+    <addaction name="actionSetVideoID"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -132,6 +133,7 @@
    </attribute>
    <addaction name="actionSetGSInfo"/>
    <addaction name="actionSetProbeStartTime"/>
+   <addaction name="actionSetVideoID"/>
   </widget>
   <action name="actionAbout">
    <property name="text">
@@ -286,6 +288,24 @@
    </property>
    <property name="shortcut">
     <string>F7</string>
+   </property>
+  </action>
+  <action name="actionSetVideoID">
+   <property name="icon">
+    <iconset resource="res/res.qrc">
+     <normaloff>:/res/video.svg</normaloff>:/res/video.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Set &amp;Video ID</string>
+   </property>
+   <property name="iconText">
+    <string>Set Video ID</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Video ID</string>
+   </property>
+   <property name="statusTip">
+    <string>Set YouTube video stream ID</string>
    </property>
   </action>
  </widget>
@@ -476,6 +496,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSetVideoID</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>show_set_video_id()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
@@ -488,5 +524,6 @@
   <slot>terminate_parser()</slot>
   <slot>show_set_probe_start_time()</slot>
   <slot>set_processing_suspended(bool)</slot>
+  <slot>show_set_video_id()</slot>
  </slots>
 </ui>

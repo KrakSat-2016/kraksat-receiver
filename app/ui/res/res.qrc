@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="res">
+    <file>video.svg</file>
     <file>time.svg</file>
     <file>terminate_disabled.svg</file>
     <file>suspendprocessing.svg</file>

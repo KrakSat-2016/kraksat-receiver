@@ -18,6 +18,7 @@ from app.probestartdialog import ProbeStartDialog
 from app.sender.sendererrorcatcher import QtSenderErrorCatcher
 from app.settings import Settings
 from app.ui.ui_main import Ui_MainWindow
+from app.videoiddialog import VideoIDDialog
 
 with open(os.path.join(os.path.dirname(__file__), 'about.html')) as f:
     ABOUT_HTML = f.read().strip()
@@ -111,6 +112,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def show_set_gs_info(self):
         GSInfoDialog(self._sender, self).show()
+
+    def show_set_video_id(self):
+        VideoIDDialog(self._sender, self).show()
 
     def show_set_probe_start_time(self):
         return ProbeStartDialog(self._parser_manager, self).exec()
