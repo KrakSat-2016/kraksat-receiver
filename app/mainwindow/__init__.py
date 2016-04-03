@@ -149,6 +149,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Set whether or not the request queue will be paused"""
         self._sender.paused = paused
 
+    def set_processing_suspended(self, suspended):
+        """Set whether or not processing the data will be suspended"""
+        self._parser_manager.processing_suspended = suspended
+        logging.getLogger('Analyzer').info(
+            'Processing %s', 'suspended' if suspended else 'resumed')
+
     def choose_parser_file(self):
         if (self._parser_manager.probe_start_time is None and
                 not self.show_set_probe_start_time()):

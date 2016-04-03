@@ -460,6 +460,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSuspendProcessing</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_processing_suspended(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
@@ -471,5 +487,6 @@
   <slot>show_about_qt()</slot>
   <slot>terminate_parser()</slot>
   <slot>show_set_probe_start_time()</slot>
+  <slot>set_processing_suspended(bool)</slot>
  </slots>
 </ui>

@@ -120,6 +120,15 @@ class BaseOutputParser:
         """
         self.probe_start_time = self.last_timestamp = start_time
 
+    def set_analyzer_worker(self, analyzer_worker):
+        """Set AnalyzerWorker instance to use
+
+        :param app.analyzer.AnalyzerWorker analyzer_worker: AnalyzerWorker
+            instance to pass the parsed data to. May be ``None`` to ignore
+            received data and don't pass them to the analyzer.
+        """
+        self.analyzer_worker = analyzer_worker
+
     def mark_terminated(self):
         """Set the parser terminated
 
@@ -215,6 +224,7 @@ class ParserManager(QObject):
         super(ParserManager, self).__init__(parent)
         self.sender = sender
         self.analyzer_worker = analyzer_worker
+        self._processing_suspended = False
         self.worker = None
         self.path = None
         self.parent = parent
@@ -275,6 +285,27 @@ class ParserManager(QObject):
             self.worker.set_probe_start_time(dt)
         self.logger.info('Probe start time set to %s', dt)
 
+    @property
+    def processing_suspended(self):
+        return self._processing_suspended
+
+    @processing_suspended.setter
+    def processing_suspended(self, analyzer_suspended):
+        self._processing_suspended = analyzer_suspended
+        if self.is_running():
+            self.worker.set_analyzer_worker(self._get_current_analyzer())
+
+    def _get_current_analyzer(self):
+        """Return current AnalyzerWorker to be used in OutputParser
+
+        :return: ``None`` if processing is suspended; AnalyzerWorker instance
+            otherwise
+        :rtype: app.analyzer.AnalyzerWorker|None
+        """
+        if self._processing_suspended:
+            return None
+        return self.analyzer_worker
+
     def parse_file(self, path):
         """Starts the worker set to parse given file
 
@@ -298,7 +329,8 @@ class ParserManager(QObject):
         self.logger.info('Starting parser: {}'.format(self.path))
 
         self.worker = QtOutputParserWorker(self.path, self.sender,
-                                           self.analyzer_worker, self.parent)
+                                           self._get_current_analyzer(),
+                                           self.parent)
         self.worker.started.connect(self.parser_started)
         self.worker.finished.connect(self._on_parser_terminated)
         self.worker.finished.connect(self.parser_terminated)
