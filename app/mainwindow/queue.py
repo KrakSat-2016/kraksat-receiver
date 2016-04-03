@@ -48,7 +48,7 @@ class QueueDock(QDockWidget, Ui_QueueDock):
     def get_known_queue_modules():
         """Get names of all app modules that sends requests via Sender"""
         return ([cls.__name__ for cls in outputparser.PARSERS] +
-                ['GSInfoDialog', 'MissionStatus'])
+                ['Analyzer', 'GSInfoDialog', 'VideoIDDialog', 'MissionStatus'])
 
     def create_statusbar_widget(self):
         """Create label for status bar showing number of requests processed
