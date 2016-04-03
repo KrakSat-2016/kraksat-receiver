@@ -2,8 +2,7 @@ import logging
 import os
 from functools import partial
 
-import sys
-from PyQt5.QtCore import Qt, QUrl, QDir, QAbstractProxyModel, QSortFilterProxyModel, QIdentityProxyModel
+from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtWidgets import (
     QMainWindow, QMessageBox, QFrame, QFileDialog, QToolBar, QMenu,
     QApplication
