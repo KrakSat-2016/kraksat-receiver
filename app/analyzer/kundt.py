@@ -2,6 +2,8 @@ from numpy.polynomial.polynomial import polyfit, polyval
 from numpy import arange
 import statistics
 
+from app.analyzer.collector import NoDataError
+
 
 class Kundt:
     """
@@ -19,8 +21,10 @@ class Kundt:
         :return: points substring
         :rtype: [(float, float)]
         """
-        def get_median(x):
-            return statistics.median(map(lambda y: y[1], x))
+        if len(points) < length:
+            raise NoDataError("Not enough data co compute speed of sound")
+
+        def get_median(x): return statistics.median(map(lambda y: y[1], x))
         current_state = list(points[:length])
         maxval = get_median(current_state)
         state_of_maxval = current_state.copy()

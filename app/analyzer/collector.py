@@ -1,6 +1,11 @@
 import statistics
 
-from app.analyzer.calculator import NoDataError
+
+class NoDataError(Exception):
+    """
+    Raised when there is insufficient data to perform requested calculation.
+    """
+    pass
 
 
 class CollectorRecord:
@@ -33,7 +38,6 @@ class Collector:
         self.current_timestamp = None
 
         self.kundt = []
-        self.is_kundt_ready = False
 
         self.landing_timestamp = None
 

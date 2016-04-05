@@ -1,17 +1,11 @@
+import functools
 import logging
 import math
-import functools
 import operator
 
+from app.analyzer.collector import NoDataError
 from app.analyzer.kundt import Kundt
 from app.analyzer.radius_mass import radius_mass, molar_mass
-
-
-class NoDataError(Exception):
-    """
-    Raised when there is insufficient data to perform requested calculation.
-    """
-    pass
 
 
 class Calculator:
@@ -180,7 +174,7 @@ class Calculator:
             specific_gas_const = Calculator.R / avg_atm_molar_mass
             result['specific_gas_const'] = specific_gas_const
 
-        if collector.is_kundt_ready:
+        try:
             speed_of_sound = Kundt.speed_of_sound(collector.kundt)
             result['speed_of_sound'] = speed_of_sound
 
@@ -214,5 +208,7 @@ class Calculator:
 
             atm_speed_of_light = Calculator.C / refractive_index
             result['atm_speed_of_light'] = atm_speed_of_light
+        except NoDataError:
+            pass
 
         return result
