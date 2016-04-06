@@ -331,7 +331,7 @@ class FrequencyField(HexIntegerField):
 
     def to_python(self, data):
         v = super().to_python(data)
-        return (32000000 / ((v + 1) * 2)) * 4
+        return (33050000 / ((v + 1) * 2)) * 4
 
 
 ##############

@@ -9,7 +9,8 @@ class Kundt:
     """
     Calculate speed of sound
     """
-    LENGTH = 0.0539
+    # Half the length of the tube
+    LENGTH = 107 / 1000 / 2
 
     @staticmethod
     def get_peak_points(points, length=50):
