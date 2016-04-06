@@ -26,7 +26,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
                 "&Exit", QDialogButtonBox.RejectRole)
 
         self.form_fields = (self.serverEdit, self.usernameEdit,
-                            self.passwordEdit)
+                            self.passwordEdit, self.webappURLEdit)
         self.restore_field_values()
 
         self.show()
@@ -56,7 +56,7 @@ class LoginDialog(QDialog, Ui_LoginDialog):
             return
         self._set_ui_locked(True)
 
-        server, username, password = self._get_form_data()
+        server, username, password, _ = self._get_form_data()
         api = self.api
         logger = self.logger
 
@@ -94,12 +94,35 @@ class LoginDialog(QDialog, Ui_LoginDialog):
         self.thread.finished.connect(lambda: self._set_ui_locked(False))
         self.thread.start()
 
+    def get_webapp_url(self):
+        """Return webapp URL set in the form
+
+        :return: webapp URL
+        :rtype: str
+        """
+        return self.webappURLEdit.text()
+
     def check_server_contents(self):
-        # Append http:// to the server URL if it is not there
-        text = self.serverEdit.text()
-        if (text and not (text.startswith('http://') or
-                          text.startswith('https://'))):
-            self.serverEdit.setText('http://' + text)
+        self.serverEdit.setText(self.append_http(self.serverEdit.text()))
+
+    def check_webapp_url_contents(self):
+        self.webappURLEdit.setText(self.append_http(self.webappURLEdit.text()))
+
+    @staticmethod
+    def append_http(url):
+        """Append http:// if not present
+
+        :param str url: param to check for http:// presence on
+        :return: URL with http://
+        :rtype: str
+        """
+        if url and not (url.startswith('http://') or
+                        url.startswith('https://')):
+            return 'http://' + url
+        return url
+
+    def get_webapp_url(self):
+        return self.webappURLEdit.text()
 
     def _set_ui_locked(self, locked):
         """Enable or disable login button and form fields

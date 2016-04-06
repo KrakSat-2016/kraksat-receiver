@@ -58,5 +58,6 @@ class Application:
 
     def _init_main_window(self, sender, parser_manager):
         self.main_window = MainWindow(sender, parser_manager)
+        self.main_window.set_webapp_url(self.dialog.get_webapp_url())
         self.dialog.close()
         self.dialog = None

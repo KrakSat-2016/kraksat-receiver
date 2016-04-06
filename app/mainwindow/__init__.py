@@ -47,7 +47,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.sender_error_catcher = QtSenderErrorCatcher(self, sender)
 
-        self.webview_go_home()
+        self.webapp_url = None
         self._init_docks()
         self._init_actions()
         self._init_toolbars()
@@ -126,9 +126,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def show_about_qt(self):
         QApplication.aboutQt()
 
-    def webview_go_home(self):  # you are drunk
-        # todo set to our equivalent of live.techswarm.org as soon as it runs
-        self.webView.load(QUrl('http://cansat.kraksat.pl'))
+    def set_webapp_url(self, url):
+        """Set new webapp URL and load it in the web view
+
+        :param str url: new webapp URL
+        """
+        self.webapp_url = url
+        self.webview_go_home()
+
+    def webview_go_home(self):  # ur drunk
+        self.webView.load(QUrl(self.webapp_url))
 
     def terminate_parser(self):
         """Ask if user wants to terminate the parser and if so, terminate it

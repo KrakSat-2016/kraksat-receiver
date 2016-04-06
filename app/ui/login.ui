@@ -79,6 +79,9 @@
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="serverEdit">
+       <property name="inputMethodHints">
+        <set>Qt::ImhPreferLowercase|Qt::ImhUrlCharactersOnly</set>
+       </property>
        <property name="placeholderText">
         <string>http://</string>
        </property>
@@ -111,6 +114,26 @@
       <widget class="QLineEdit" name="passwordEdit">
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>&amp;Webapp URL:</string>
+       </property>
+       <property name="buddy">
+        <cstring>webappURLEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="webappURLEdit">
+       <property name="inputMethodHints">
+        <set>Qt::ImhPreferLowercase|Qt::ImhUrlCharactersOnly</set>
+       </property>
+       <property name="placeholderText">
+        <string>http://</string>
        </property>
       </widget>
      </item>
@@ -197,8 +220,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>webappURLEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>LoginDialog</receiver>
+   <slot>check_webapp_url_contents()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>423</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>check_server_contents()</slot>
+  <slot>check_webapp_url_contents()</slot>
  </slots>
 </ui>
