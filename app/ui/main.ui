@@ -32,7 +32,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QWebView" name="webView">
+     <widget class="QWebEngineView" name="webView">
       <property name="url">
        <url>
         <string>https://cansat.kraksat.pl/</string>
@@ -311,9 +311,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>PyQt5.QtWebEngineWidgets</header>
   </customwidget>
  </customwidgets>
  <resources>

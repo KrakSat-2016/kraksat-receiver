@@ -128,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def webview_go_home(self):  # you are drunk
         # todo set to our equivalent of live.techswarm.org as soon as it runs
-        self.webView.setUrl(QUrl('http://cansat.kraksat.pl'))
+        self.webView.load(QUrl('http://cansat.kraksat.pl'))
 
     def terminate_parser(self):
         """Ask if user wants to terminate the parser and if so, terminate it
