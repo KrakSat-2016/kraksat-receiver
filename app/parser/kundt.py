@@ -31,6 +31,10 @@ class KundtParser(Parser):
     # Regex that identifies Kundt message
     LINE_REGEX = re.compile(r'^\d+,\d+$')
 
+    def parse(self, line, probe_start_time, collector=None):
+        # We don't return anything so nothing will be sent
+        super().parse(line, probe_start_time, collector)
+
     def can_parse(self, line):
         if self.LINE_REGEX.match(line):
             return 'KUNDT'
