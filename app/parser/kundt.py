@@ -11,6 +11,11 @@ class KundtSerializer(Serializer):
     def get_data(self, line_content):
         return line_content.split(self.separator)
 
+    def get_collector_data(cls, data):
+        return {
+            'kundt': (data.frequency, data.amplitude)
+        }
+
 
 class KundtParser(Parser):
     """Parser for the output from Kundt's tube

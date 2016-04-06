@@ -48,6 +48,11 @@ class Collector:
         :param key: key on witch value will be stored
         :param value: measurement value
         """
+        if key == 'kundt':
+            self.kundt.append(value)
+            self._data_modified()
+            return
+
         if timestamp != self.current_timestamp:
             if self.current_record is not None:
                 self.data.append(self.current_record)
