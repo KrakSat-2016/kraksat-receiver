@@ -68,7 +68,7 @@ class AnalyzerWorker(Collector):
             self.modified = False
         try:
             data = Calculator.perform_calculations(self)
-            if data and self.sender:
+            if data and self.sender is not None:
                 self.sender.add_request('Analyzer', '/planetarydata/', data)
         except Exception as e:
             # We don't really want to crash the app because some error occurred
