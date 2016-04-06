@@ -50,18 +50,19 @@ class Collector:
         """
         if timestamp != self.current_timestamp:
             if self.current_record is not None:
-                self._add_record(self.current_record)
+                self.data.append(self.current_record)
+                self._data_modified()
             self.current_record = CollectorRecord()
         self.current_timestamp = timestamp
         self.current_record.timestamp = timestamp
         setattr(self.current_record, key, value)
 
-    def _add_record(self, record):
-        """Add record to the record list.
+    def _data_modified(self):
+        """Called whenever some data is added
 
-        May be overridden by subclasses to e.g. notify about modifications.
+        May be overridden by subclasses to e.g. re-run calculation.
         """
-        self.data.append(record)
+        pass
 
     def get_iter(self, *args):
         for record in self.data:

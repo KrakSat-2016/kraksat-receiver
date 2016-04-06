@@ -32,8 +32,7 @@ class AnalyzerWorker(Collector):
 
         self.terminated = False
 
-    def _add_record(self, record):
-        super()._add_record(record)
+    def _data_modified(self):
         with self.modified_lock:
             self.modified = True
             self.data_added.notify()
