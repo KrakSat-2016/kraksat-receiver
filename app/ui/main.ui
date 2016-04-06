@@ -32,13 +32,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QWebEngineView" name="webView">
-      <property name="url">
-       <url>
-        <string>https://cansat.kraksat.pl/</string>
-       </url>
-      </property>
-     </widget>
+     <widget class="QWebEngineView" name="webView"/>
     </item>
    </layout>
   </widget>
