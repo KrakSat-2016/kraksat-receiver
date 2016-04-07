@@ -32,7 +32,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QWebEngineView" name="webView"/>
+     <widget class="QWebEngineView" name="webView" native="true"/>
     </item>
    </layout>
   </widget>
