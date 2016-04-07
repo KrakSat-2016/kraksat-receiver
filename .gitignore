@@ -61,3 +61,4 @@ target/
 app/ui/*.py
 .idea/
 kraksat-receiver.iml
+data
