@@ -12,6 +12,7 @@ class AnalyzerWorker(Collector):
     Integration of Collector and Calculator classes that performs calculation
     of collected data indefinitely.
     """
+    logger = logging.getLogger('Analyzer')
 
     def __init__(self, sender):
         """Constructor
@@ -30,6 +31,10 @@ class AnalyzerWorker(Collector):
         self.modified_lock = threading.Lock()
         self.data_added = threading.Condition(self.modified_lock)
 
+        self._paused = False
+        self.pause_lock = threading.Lock()
+        self.unpaused = threading.Condition(self.pause_lock)
+
         self.terminated = False
 
     def _data_modified(self):
@@ -46,8 +51,32 @@ class AnalyzerWorker(Collector):
         calculation to be performed.
         """
         self.terminated = True
-        with self.modified_lock:
+        with self.modified_lock, self.pause_lock:
             self.data_added.notify_all()
+            self.unpaused.notify_all()
+
+    @property
+    def paused(self):
+        """Check if the analyzer is currently paused
+
+        :return: ``True`` if the analyzer is currently paused; ``False``
+            otherwise
+        :rtype: bool
+        """
+        return self._paused
+
+    @paused.setter
+    def paused(self, paused):
+        """(Un)pause the analyzer
+
+        :param bool paused: whether or not data processing should be withheld
+            until unpause
+        """
+        self.logger.info('Analyzer %s', 'paused' if paused else 'unpaused')
+        with self.pause_lock:
+            self._paused = paused
+            if not paused:
+                self.unpaused.notify()
 
     def calculate_indefinitely(self):
         """Process data as long as Analyzer is not terminated
@@ -65,7 +94,14 @@ class AnalyzerWorker(Collector):
                 self.data_added.wait()
                 if self.terminated:
                     return
+        with self.pause_lock:
+            while self.paused:
+                self.unpaused.wait()
+                if self.terminated:
+                    return
+        with self.modified_lock:
             self.modified = False
+
         try:
             data = Calculator.perform_calculations(self)
             if data and self.sender is not None:
@@ -73,7 +109,7 @@ class AnalyzerWorker(Collector):
         except Exception as e:
             # We don't really want to crash the app because some error occurred
             # during the calculations
-            logging.getLogger('Analyzer').critical(
+            self.logger.critical(
                 'Unknown exception thrown during calculations: %s', str(e),
                 exc_info=True)
 

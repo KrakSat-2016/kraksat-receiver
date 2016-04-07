@@ -32,9 +32,6 @@ class Application:
         self.dialog.token_obtained.connect(self._init_app)
         exit_code = self.q_app.exec_()
         self.logger.info('Waiting for all threads to be terminated...')
-        if self.analyzer_worker is not None:
-            # Analyzer worker is not terminated in MainWindow
-            self.analyzer_worker.set_terminated()
         for thread, name in [(self.parser_manager, 'Parser'),
                              (self.analyzer_worker, 'Analyzer'),
                              (self.sender_worker, 'Sender')]:
@@ -50,14 +47,15 @@ class Application:
         self.analyzer_worker = QtAnalyzerWorker(sender, self.q_app)
         self.parser_manager = ParserManager(self.q_app, sender,
                                             self.analyzer_worker)
-        self._init_main_window(sender, self.parser_manager)
+        self._init_main_window(sender, self.parser_manager,
+                               self.analyzer_worker)
 
         self.sender_worker.start()
         self.analyzer_worker.start()
         self.main_window.show()
 
-    def _init_main_window(self, sender, parser_manager):
-        self.main_window = MainWindow(sender, parser_manager)
+    def _init_main_window(self, sender, parser_manager, analyzer_worker):
+        self.main_window = MainWindow(sender, parser_manager, analyzer_worker)
         self.main_window.set_webapp_url(self.dialog.get_webapp_url())
         self.dialog.close()
         self.dialog = None

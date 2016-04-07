@@ -54,6 +54,7 @@
     <addaction name="separator"/>
     <addaction name="actionPauseQueue"/>
     <addaction name="actionSuspendProcessing"/>
+    <addaction name="actionPauseAnalyzer"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -101,6 +102,7 @@
    <addaction name="separator"/>
    <addaction name="actionPauseQueue"/>
    <addaction name="actionSuspendProcessing"/>
+   <addaction name="actionPauseAnalyzer"/>
   </widget>
   <widget class="QToolBar" name="webViewToolBar">
    <property name="windowTitle">
@@ -300,6 +302,24 @@
    </property>
    <property name="statusTip">
     <string>Set YouTube video stream ID</string>
+   </property>
+  </action>
+  <action name="actionPauseAnalyzer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="res/res.qrc">
+     <normaloff>:/res/pause_analyzer.svg</normaloff>:/res/pause_analyzer.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Pause &amp;Analyzer</string>
+   </property>
+   <property name="statusTip">
+    <string>Temporarily pause analyzing data</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F4</string>
    </property>
   </action>
  </widget>
@@ -506,6 +526,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPauseAnalyzer</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_analyzer_paused(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>246</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>461</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>show_about()</slot>
@@ -519,5 +555,6 @@
   <slot>show_set_probe_start_time()</slot>
   <slot>set_processing_suspended(bool)</slot>
   <slot>show_set_video_id()</slot>
+  <slot>set_analyzer_paused(bool)</slot>
  </slots>
 </ui>

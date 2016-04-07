@@ -33,17 +33,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     logger = logging.getLogger('MainWindow')
 
-    def __init__(self, sender, parser_manager):
+    def __init__(self, sender, parser_manager, analyzer_worker):
         """Constructor
 
         :param app.sender.QtSender sender: QtSender instance to use with
             QueueTableModel
         :param parser_manager: ParserManager instance to use with ParserDock
         :type parser_manager: app.parser.outputparser.ParserManager
+        :param analyzer_worker: AnalyzerWorker instance to connect to the
+            "Pause Analyzer" button to
+        :type analyzer_worker: app.analyzer.AnalyzerWorker
         """
         super(MainWindow, self).__init__()
         self._sender = sender
         self._parser_manager = parser_manager
+        self._analyzer_worker = analyzer_worker
         self.setupUi(self)
         self.sender_error_catcher = QtSenderErrorCatcher(self, sender)
 
@@ -159,6 +163,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Set whether or not the request queue will be paused"""
         self._sender.paused = paused
 
+    def set_analyzer_paused(self, paused):
+        self._analyzer_worker.paused = paused
+
     def set_processing_suspended(self, suspended):
         """Set whether or not processing the data will be suspended"""
         self._parser_manager.processing_suspended = suspended
@@ -250,6 +257,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._sender.set_terminated()
         return True
 
+    def terminate_analyzer(self):
+        self._analyzer_worker.set_terminated()
+
     def closeEvent(self, event):
         if self._parser_manager.is_running():
             if not self.terminate_parser():
@@ -258,6 +268,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.terminate_sender():
             event.ignore()
             return
+        self.terminate_analyzer()
         self.save_state()
 
     def save_state(self):
