@@ -29,7 +29,7 @@ class KundtParser(Parser):
     serializer = KundtSerializer
 
     # Regex that identifies Kundt message
-    LINE_REGEX = re.compile(r'^\d+,\d+$')
+    LINE_REGEX = re.compile(r'^[\da-f]+,[\da-f]+$')
 
     def parse(self, line, probe_start_time, collector=None):
         # We don't return anything so nothing will be sent
