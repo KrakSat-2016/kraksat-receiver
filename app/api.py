@@ -119,7 +119,7 @@ class API:
             longitude, ground station timezone
         :rtype: tuple[datetime.datetime, float, float, TimeOffset|None]|None
         """
-        response, json = self._request('/gsinfo/latest/', method='get')
+        response, json = self._request('/gsinfo/?latest=1', method='get')
         if json:
             try:
                 timezone = TimeOffset.from_minutes(json['timezone'])
@@ -145,7 +145,7 @@ class API:
             mission time, is cansat online
         :rtype: tuple[datetime.datetime, str, float|None, bool]
         """
-        response, json = self._request('/status/latest/', method='get')
+        response, json = self._request('/status/?latest=1', method='get')
         if json:
             try:
                 timestamp = _parse_datetime(json['timestamp'])
