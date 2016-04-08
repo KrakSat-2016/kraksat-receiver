@@ -1,5 +1,7 @@
 import serial
 
+import uart_config
+
 
 class Usart:
     def __init__(self, serial_port, baudrate):
@@ -9,8 +11,8 @@ class Usart:
         return self.uart.readline()
 
 if __name__ == '__main__':
-    usart = Usart("/dev/ttyUSB5", 57600)
-    file = open("data", "a")
+    usart = Usart(uart_config.device, uart_config.baudrate)
+    file = open(uart_config.filename, "a")
     while True:
         try:
             rawline = usart.readline()

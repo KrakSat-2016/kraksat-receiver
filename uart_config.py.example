@@ -1,0 +1,3 @@
+device = '/dev/ttyUSB5'
+baudrate = 57600
+filename = 'data'
