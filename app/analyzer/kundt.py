@@ -13,7 +13,7 @@ class Kundt:
     LENGTH = 88 / 1000 / 2
 
     @staticmethod
-    def get_peak_points(points, length=50):
+    def get_peak_points(points, length=200):
         """
         Get substring of points sequence with highest median
         :param points: measured data
